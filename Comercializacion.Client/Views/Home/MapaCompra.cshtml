@@ -17,6 +17,7 @@
     var colorDisponible = "#ececec";
     var colorReservado = "#979ea8";
     var colorVendidos = "#63637d";
+    var colorEnCompra = "#63637d";
 }
 
 
@@ -449,7 +450,7 @@
                 <!----lista de expositores----->
             </div>
             <div id="main">
-                <div >
+                <div>
                     <button id="openNav" class="w3-button" onclick="w3_open()">
                         <div class="ico ico-lupa"></div>
                     </button>
@@ -457,7 +458,7 @@
                         <div class="icoVendidos" style="background-color: @colorVendidos"></div>
                         <span>@SessionManager.GetText("ACC_Compra_vendidos")</span>
                     </div>
-                    <div class="btnReservados" >
+                    <div class="btnReservados">
                         <div class="icoReservados" style="background-color: @colorReservado"></div>
                         <span>@SessionManager.GetText("ACC_Compra_Reservados")</span>
                     </div>
@@ -490,6 +491,9 @@
                                             break;
                                         case 2:
                                             color = "standVendido";
+                                            break;
+                                        case 5:
+                                            color = "standEnCompra";
                                             break;
                                     }
 

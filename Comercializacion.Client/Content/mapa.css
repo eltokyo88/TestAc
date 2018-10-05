@@ -79,6 +79,14 @@ rect.standSeleccionado {
     z-index: 2;
 }
 
+rect.standEnCompra {
+    fill: #63637d;
+    stroke-width: 3;
+    stroke: #ffffff;
+    cursor: pointer;
+    z-index: 2;
+}
+
 
 
 a.PatDisponible {

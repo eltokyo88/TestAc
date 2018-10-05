@@ -15,6 +15,7 @@
     using System.Web.Security;
     using Forza.Core.Utils;
     using System.Configuration;
+    using System.Text;
     using System.Net;
 
     public class HomeController : Controller
@@ -37,6 +38,7 @@
             EventoComercial event_SiteDate = EventoComercialService.GetEventById(idEvento);
             this.ViewData["eventName"] = event_SiteDate.EventName;
             DateTime siteDate = event_SiteDate.SiteDate;
+            SessionManager.CompraCounterTime = event_SiteDate.CompraTiempo;
             this.ViewData["eventDateRange"] = getFormattedEventDates(SessionManager.EventoData.EventoFechaInicia, SessionManager.EventoData.EventoFechaTermina);
             int rst = DateTime.Compare(DateTime.Now, siteDate);
             if(rst == -1)
@@ -647,13 +649,14 @@
             ViewBag.BodyClass = "bgGray";
             ViewBag.ShowMenu = false;
             ViewBag.ShowPartner = false;
+            
             try
             {
                 if (SessionManager.UserSession.User_email == null)
                 {
                     return this.RedirectToAction("Index", "Home");
                 }
-
+                
                 //Se limpian variables de archivos de pago
                 this.Session["nombreArchivo"] = "";
                 this.Session["bytesArchivo"] = "";
@@ -672,15 +675,25 @@
                 this.ViewData["tipoPago"] = pago;
 
                 this.ViewData["datosFacturacionJson"] = Newtonsoft.Json.JsonConvert.SerializeObject(FiscalDataService.GetDatosFiscales(emailClient));
+                SessionManager.articulosQuitados = string.Empty;
+                if (SessionManager.ListItemsCarrito != null && SessionManager.ListItemsCarrito.Count > 0)
+                {
+                    SessionManager.tipoDePago = Convert.ToString(pago);
+                    if (pago == 1)
+                    {
+                         
+                        SessionManager.articulosQuitados = ProcessSessionManagerItemCarrito(SessionManager.ListItemsCarrito);
+                        this.ViewData["products"] = SessionManager.ListItemsCarrito;
+                    }
+                    else if (pago == 2)
+                    {
+                        SessionManager.articulosQuitados = string.Empty;
+                    }
 
-                if (SessionManager.ListItemsCarrito.Count == 0)
-                {
-                    return this.RedirectToAction("Plano", "Exhibitor");
-                }
-                else
-                {
                     return View();
                 }
+                else
+                    return this.RedirectToAction("Plano", "Exhibitor");
             }
             catch (Exception exception)
             {
@@ -717,32 +730,11 @@
             return RedirectToAction("Pago", new { pago = "2" });
         }
 
-        /// <summary>
-        /// pantalla de pago de los stands
-        /// </summary>
-        /// <param name="eventName">nombre del evento o siglas</param>
-        /// <returns>vista correspondiente</returns>
         [HttpPost]
-        public ActionResult PagoCarrito(List<ItemCarrito> products)
+        public void AgregarCarritoEnSession(List<ItemCarrito> products)
         {
             SessionManager.ListItemsCarrito = products;
-            
-            return RedirectToAction("Pago", new { pago = "1" });
         }
-
-        /// <summary>
-        /// añade un elemento al carrito
-        /// </summary>
-        /// <param name="eventName">nombre del evento o siglas</param>
-        /// <returns>vista correspondiente</returns>
-        [HttpPost]
-        public ActionResult PagoCarritoIndividual(ItemCarrito products)
-        {
-            SessionManager.ListItemsCarrito.Add(products);
-
-            return RedirectToAction("Pago", new { pago = "1" });
-        }
-
 
         /// <summary>
         /// metodo que se encarga de dibujar el carrito de compras
@@ -757,7 +749,14 @@
                 var indexDelete = SessionManager.ListItemsCarrito.FindIndex(ele => ele.IdElement == idDelete && ele.IsStand == isStand.Value);
                 if (indexDelete >= 0)
                 {
+                    if (isStand.Value)
+                    {
+                        int clientId = Service.BLL.ClientService.GetClientInformation(SessionManager.UserSession.User_id, SessionManager.EventoData.IdEvento).ClientId;
+                        TemporaryReservedArticleService.DeleteArticle(SessionManager.EventoData.IdEvento, clientId, SessionManager.ListItemsCarrito[indexDelete].IdElement);
+                        StandService.SetStandStatus(SessionManager.EventoData.IdEvento, SessionManager.ListItemsCarrito[indexDelete].IdElement, 0, clientId);
+                    }
                     SessionManager.ListItemsCarrito.RemoveAt(indexDelete);
+
                 }
             }
             this.ViewData["products"] = SessionManager.ListItemsCarrito;
@@ -918,6 +917,8 @@
 
                 var mailingService = new MailingService(idEvento, lang, 2);
                 mailingService.SendMailConfirmPurchase(c.Name, SessionManager.UserSession.User_email, lang, infoMail, urlAmazon, etiquetas);
+
+                ProcessReservedArticles(SessionManager.ListItemsCarrito, true);
 
                 //Se limpian variables de archivos
                 this.Session["nombreArchivo"] = "";
@@ -1184,6 +1185,26 @@
             }
 
         }
+
+        /// <summary>
+        /// Limpia los registros, carrito y redirecciona a pantalla de exhibitor
+        /// </summary>
+        /// <returns>estatus de la operación</returns>
+        [EventInformationFilter]
+        public ActionResult CounterExpired(string eventName, string lang)
+        {
+            try
+            {
+                ProcessReservedArticles(SessionManager.ListItemsCarrito, false);
+                SessionManager.ListItemsCarrito.Clear();
+                return this.RedirectToAction("Plano", "Exhibitor");
+            }
+            catch (Exception exception)
+            {
+                BTC.Common.Loging.LogMethodHelper.LogError(exception);
+                return this.RedirectToAction("Index", "Home");
+            }
+        }
         #endregion
 
         #region userDefineFunctions
@@ -1219,7 +1240,89 @@
             else
                 return sDate.ToString("dd MMM yyyy") + SessionManager.GetText("ACC_Contador_texto_A") + fDate.ToString("dd MMM yyyy");
         }
-            
+
+        /// <summary>
+        /// metodo privado para regresar el conteo de los articulos por pagar y modificar carrito si articulos estan en proceso de compra
+        /// </summary>
+        /// <param name="listItemsCarrito">lista de los articulos</param>
+        /// <returns>Cadena de los articulos que fueron eliminados</returns>
+        [NonAction]
+        private string ProcessSessionManagerItemCarrito(List<ItemCarrito> listItemsCarrito)
+        {
+            StringBuilder sbString = new StringBuilder();
+            List<int> itemsToBeRemoved = new List<int>();
+            int clientId = Service.BLL.ClientService.GetClientInformation(SessionManager.UserSession.User_id, SessionManager.EventoData.IdEvento).ClientId;
+
+            foreach (var tmpElement in listItemsCarrito)
+            {
+                var tmpRst = TemporaryReservedArticleService.GetArticlePresenceById(SessionManager.EventoData.IdEvento, clientId, tmpElement.IdElement, tmpElement.IsStand, SessionManager.CompraCounterTime);
+
+                if (tmpElement.IsStand)
+                {
+                    switch(tmpRst)
+                    {
+                        case 0:
+                            TemporaryReservedArticle articleObject = new TemporaryReservedArticle();
+                            articleObject.ArticleId = tmpElement.IdElement;
+                            articleObject.ClientId = clientId;
+                            articleObject.EventId = SessionManager.EventoData.IdEvento;
+                            articleObject.IsStand = tmpElement.IsStand;
+                            articleObject.DateStamp = DateTime.Now;
+                            TemporaryReservedArticleService.InsertArticle(articleObject);
+                            StandService.SetStandStatus(SessionManager.EventoData.IdEvento, tmpElement.IdElement, 5, clientId);
+                            break;
+                        case 1:
+                            sbString.Append(tmpElement.NameElement.Trim()).Append(",");
+                            itemsToBeRemoved.Add(tmpElement.IdElement);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            foreach (var tmpIndexItemId in itemsToBeRemoved)
+            {
+                listItemsCarrito.RemoveAt(listItemsCarrito.FindIndex(r => r.IdElement == tmpIndexItemId));
+            }
+
+            if(sbString.Length > 0)
+            {
+                return sbString.ToString(0, sbString.Length - 1);
+            }
+            else
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// metodo privado para borrar registros de apartados, actualizar estatus dependiendo que si termino el contador o el proceso de compra de los articulos
+        /// </summary>
+        /// <param name="listItemsCarrito">lista de los articulos</param>
+        /// <param name="compraTermino">para identifcar si termino el contador o el proceso de compra </param>
+        [NonAction]
+        private void ProcessReservedArticles(List<ItemCarrito> listItemsCarrito, bool compraTermino)
+        {
+            int clientId = Service.BLL.ClientService.GetClientInformation(SessionManager.UserSession.User_id, SessionManager.EventoData.IdEvento).ClientId;
+
+            foreach (var tmpElement in listItemsCarrito)
+            {
+                if (compraTermino)
+                {
+                    if (tmpElement.IsStand)
+                    {
+                        TemporaryReservedArticleService.DeleteArticle(SessionManager.EventoData.IdEvento, clientId, tmpElement.IdElement);
+                    }
+                }
+                else
+                {
+                    if (tmpElement.IsStand)
+                    {
+                        TemporaryReservedArticleService.DeleteArticle(SessionManager.EventoData.IdEvento, clientId, tmpElement.IdElement);
+                        StandService.SetStandStatus(SessionManager.EventoData.IdEvento, tmpElement.IdElement, 0, clientId);
+                    }
+                }
+            }
+        }
+
         #endregion
     }
 }

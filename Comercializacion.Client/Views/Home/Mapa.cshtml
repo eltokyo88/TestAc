@@ -12,6 +12,7 @@
     var colorDisponible = "";
     var colorReservado = "";
     var colorVendidos = "";
+    var colorEnCompra = "";
     foreach (var estilo in listClassStyles)
     {
         if (estilo.ClassName == "standsVendidos")
@@ -25,6 +26,10 @@
         else if (estilo.ClassName == "standsDisponibles")
         {
             colorDisponible = estilo.Color;
+        }
+        else if (estilo.ClassName == "standsEnCompra")
+        {
+            colorEnCompra = estilo.Color;
         }
     }
 }
@@ -57,10 +62,14 @@
                     {
                         color = "standDisponible";
                     }
+                    else if(item.Status == 5)
+                    {
+                        color = "standEnCompra";
+                    }
                     else
                     {
                         color = @item.Color;
-                        
+
                     }
 
                     <rect id="@("stand_"+item.StandId)" class="@("stand "+color)" data-nombre="Stand @(item.StandIdFront)"

@@ -383,6 +383,7 @@
     <Content Include="Content\img\soporte.jpg" />
     <Content Include="Content\loader.css" />
     <Content Include="Content\mapa.css" />
+    <Content Include="Content\pago.css" />
     <Content Include="Content\scrolldown.css" />
     <Content Include="Content\toastr.min.css" />
     <Content Include="Content\img\discount.svg" />

@@ -32,8 +32,6 @@
             )ViewData["datosFacturacion"];
     string datosFacturacionJson = (string)ViewData["datosFacturacionJson"];
     int tipoPago = (int)ViewData["tipoPago"];
-
-
 }
 
 <div id="info-cuenta" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-cuenta" aria-hidden="true" style="display: none;">
@@ -110,6 +108,9 @@
                 <div class="row">
                     <div class="col-md-10 col-md-push-1 col-sm-12 col-sm-push-0 board checkout__third-container">
                         <!--menu tab-->
+                        @*<div style="text-align:center">
+                            <h1 id="pagoTimer"></h1>
+                        </div>*@
                         <div class="board-inner">
                             <ul class="nav nav-tabs" id="contenedorTablas" style="max-width: 400px;">
                                 <div class="liner"></div>
@@ -142,6 +143,14 @@
                                 </li>
                             </ul>
                         </div>
+                        <div class="row">
+                            <div class="counter-payment">
+                                <i class="ti-timer icocounter-payment"></i> Compra reservada por
+                                <div class="m-s-cp"><span class="mcp" id="pagoTimer"></span></div>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top: 50px;">
+                            <div class="pago-heading">
 
                         <!--fin menu tab-->
                         <div class="tab-content">
@@ -1515,6 +1524,7 @@
         var previousPaymentMethod
         //2 Para hacer Insert
         if (tipoPago == 2) {
+            
             //Ocultar tabs
             $("#unPagoTab").addClass("active");
             $("#apartarTab").removeClass("active");
@@ -1528,7 +1538,91 @@
             //Ocultar etiquetas
             $(".datosPersonales").attr("disabled", true);
             $(".soloPago").hide();
+        } 
+
+        function startCounter() {
+            if ("@SessionManager.tipoDePago" === "1") {
+
+                var countDownDate = new Date(new Date().getTime() + @SessionManager.CompraCounterTime * 60000).getTime();
+                // Update the count down every 1 second
+                var x = setInterval(function () {
+
+                    // Get todays date and time
+                    var now = new Date().getTime();
+
+                    // Find the distance between now and the count down date
+                    var distance = countDownDate - now;
+
+                    // Time calculations for days, hours, minutes and seconds
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    // Output the result in an element with id="demo"
+                    document.getElementById("pagoTimer").innerHTML = minutes + "m " + seconds + "s ";
+
+                    // If the count down is over, write some text 
+                    if (distance < 0) {
+                        clearInterval(x);
+                        document.getElementById("pagoTimer").innerHTML = "00:00";
+                        swal({
+                            title: decode('@SessionManager.GetText("ACC_TiempoContador_titile")'),
+                            text: "",
+                            icon: "warning",
+                            buttons: {
+                                confirm: decode('@SessionManager.GetText("ACC_TiempoContador_btn")')
+                            },
+                        dangerMode: true,
+                        }).then((willDelete) => {
+                            swal.close();
+                            document.location = "@Url.Action("CounterExpired", "Home")";
+                        });
+                    }
+                }, 1000);
+            }
         }
+
+        $(window).on("load", function () {
+            if (@SessionManager.articulosQuitados.Length > 0) {
+                if (@SessionManager.ListItemsCarrito.Count > 0) {
+                    swal({
+                        title: decode('@SessionManager.GetText("ACC_ArticulosOcupados_titile")'),
+                        text: decode('@SessionManager.articulosQuitados'),
+                        icon: "warning",
+                        buttons: {
+                            cancel: decode('@SessionManager.GetText("ACC_ArticulosOcupados_btnLeft")'),
+                            confirm: decode('@SessionManager.GetText("ACC_ArticulosOcupados_btnRight")')
+                        },
+                        dangerMode: true,
+                    }).then((willDelete) => {
+                        if (willDelete) {
+                            swal.close();
+                            startCounter();
+                        } else {
+                            document.location = "@Url.Action("Plano", "Exhibitor")";
+                        }
+                    });
+                }
+                else {
+                    swal({
+                            title: decode('@SessionManager.GetText("ACC_ArticulosOcupados_titile")'),
+                            text: decode('@SessionManager.articulosQuitados'),
+                            icon: "warning",
+                            buttons: {
+                                confirm: decode('@SessionManager.GetText("ACC_ArticulosOcupados_btnLeft")')
+                            },
+                        dangerMode: true,
+                        }).then((willDelete) => {
+                            swal.close();
+                            document.location = "@Url.Action("Plano", "Exhibitor")";
+                        });
+                }
+            }
+            else {
+                startCounter();
+            }
+        });
+
+        
 
     </script>
 }

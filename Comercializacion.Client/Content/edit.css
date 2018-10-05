@@ -1658,6 +1658,36 @@ a.mytooltip {
     vertical-align: middle
 }
 
+.btnEnCompra {
+    margin-top: 10px;
+    margin-left: 15px;
+    position: relative;
+    float: left;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+    .btnEnCompra span {
+        float: right;
+        margin-top: 0px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+.icoEnCompra {
+    border-radius: 2px;
+    position: relative;
+    float: left;
+    background-color: #979ea8;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle
+}
+
 
 .btnDisponibles {
     margin-top: 10px;
@@ -2335,6 +2365,27 @@ a.mytooltip {
         }
 
     .icoReservados {
+        border-radius: 2px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .btnEnCompra {
+        margin-left: 10px;
+        border-radius: 4px;
+        padding: 4px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+        .btnEnCompra span {
+            float: right;
+            margin-top: 0px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+    .icoEnCompra {
         border-radius: 2px;
         width: 20px;
         height: 20px;

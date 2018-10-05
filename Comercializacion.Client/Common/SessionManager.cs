@@ -1,5 +1,5 @@
 ﻿namespace Comercializacion.Client.Common
-{    
+{
     using System.Collections.Generic;    
     using System.Linq;
     using System.Web;
@@ -235,6 +235,70 @@
             set
             {
                 HttpContext.Current.Session["StandsDetails"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Datos generales del evento
+        /// </summary>
+        public static int CompraCounterTime
+        {
+            get
+            {
+                return (int)HttpContext.Current.Session["CompraCounterTime"];
+            }
+
+            set
+            {
+                HttpContext.Current.Session["CompraCounterTime"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Datos generales del evento
+        /// </summary>
+        public static string CompraCounterTimeString
+        {
+            get
+            {
+                return (string)HttpContext.Current.Session["CompraCounterTimeString"];
+            }
+
+            set
+            {
+                HttpContext.Current.Session["CompraCounterTimeString"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Datos generales del evento
+        /// </summary>
+        public static string tipoDePago
+        {
+            get
+            {
+                return (string)HttpContext.Current.Session["tipoDePago"];
+            }
+
+            set
+            {
+                HttpContext.Current.Session["tipoDePago"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Datos generales del evento
+        /// </summary>
+        public static string articulosQuitados
+        {
+            get
+            {
+                return (string)HttpContext.Current.Session["articulosQuitados"];
+            }
+
+            set
+            {
+                HttpContext.Current.Session["articulosQuitados"] = value;
             }
         }
     }
