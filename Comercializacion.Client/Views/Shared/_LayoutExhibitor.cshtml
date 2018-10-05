@@ -150,7 +150,7 @@
                     </div>
                     <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
 
-                        
+
                         <ol class="breadcrumb">
                             <li>@eventName</li>
                             <li>@eventDateRange</li>
@@ -227,12 +227,42 @@
         </div>
         <!-- /#page-wrapper -->
     </div>
+    <script src="/Scripts/jsMapa/jquery-3.2.1.min.js"></script>
+    <script src="/Scripts/jquery-1.9.1.min.js"></script>
+    @*<script src="/Scripts/jsMapa/jquery.min.js"></script>*@
+    <script src="/Scripts/jsMapa/jquery.mousewheel.js"></script>
+    <script src="/Scripts/jsMapa/hammer.min.js"></script>
+    <script src="/Scripts/jsMapa/html5shiv.js"></script>
+    <script src="/Scripts/jsMapa/magnific-popup.js"></script>
+    <script src="/Scripts/jsMapa/script.js"></script>
+    <script src="/Scripts/general.js"></script>
+    <script src="/mapplic/mapplic.js"></script>
+    <script src="/Scripts/mapa.js"></script>
+
+    <script src="/Scripts/bootstrap/bootstrap.js"></script>
+    <script src="/Scripts/sidebar-nav.js"></script>
+    <script src="/Scripts/waves.js"></script>
+    <script src="/Scripts/custom.js"></script>
+    <script src="/Scripts/jquery.toast.js"></script>
+
+    <script src="/Scripts/sweetalert.min.js"></script>
+    <script src="/Scripts/datepicker.min.js"></script>
+    <script src="/Scripts/datepicker.es.js"></script>
+    <script src="/Scripts/datepicker.en.js"></script>
 
 
-    @Scripts.Render("~/bundles/Shared")
-    @Scripts.Render("~/bundles/Mapplic")
-    @Scripts.Render("~/bundles/Toast")
+    <script src="/Scripts/sidebar.js"></script>
+    @*<script src="/Scripts/main.js"></script>*@
+    <script src="/Scripts/modernizr.custom.79639.js"></script>
 
+
+
+
+    @*@Scripts.Render("~/bundles/Shared")
+        @Scripts.Render("~/bundles/Toast")
+        @Scripts.Render("~/bundles/Mapplic")
+
+    *@
     @RenderSection("scripts", required: false)
     <script>
         var itemShopping1 = new Array();
@@ -303,7 +333,7 @@
             ruta = ruta.replace(eventoActual, keyEvento);
             window.location.assign(ruta);
         });
-        
+
         var eliminarCarritoSession = function (idElement, isStand) {
             var url = '@Url.Action("ShowCarrito", "Home")';
             var data = { idDelete: idElement, isStand: isStand };
@@ -312,7 +342,7 @@
                 url: url,
                 data: data,
                 success: function (data) {
-                   
+
                 },
                 error: function (jqXHR, exception) {
                     //MandarToastError(errorTitle, errorLabel);

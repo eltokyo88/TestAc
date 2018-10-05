@@ -15,68 +15,6 @@ function decode(str) {
     });
 }
 
-// Metodos que estaban en toastr
-
-$(document).ready(function () {
-    $(".tst1").click(function () {
-        $.toast({
-            heading: 'Welcome to my Pixel admin',
-            text: 'Use the predefined ones, or specify a custom position object.',
-            position: 'top-right',
-            loaderBg: '#c6c6c6',
-            icon: 'info',
-            hideAfter: 3000,
-            stack: 6,
-            preventDuplicates: true
-        });
-
-    });
-
-    $(".tst2").click(function () {
-        $.toast({
-            heading: 'Welcome to my Pixel admin',
-            text: 'Use the predefined ones, or specify a custom position object.',
-            position: 'top-right',
-            loaderBg: '#c6c6c6',
-            icon: 'warning',
-            hideAfter: 3500,
-            preventDuplicates: true,
-            stack: 6
-        });
-
-    });
-    $(".tst3").click(function () {
-        $.toast({
-            heading: 'Welcome to my Pixel admin',
-            text: 'Use the predefined ones, or specify a custom position object.',
-            position: 'top-right',
-            loaderBg: '#c6c6c6',
-            icon: 'success',
-            hideAfter: 3500,
-            stack: 6,
-            preventDuplicates: true
-        });
-
-    });
-
-    $(".tst4").click(function () {
-        $.toast({
-            heading: 'Welcome to my Pixel admin',
-            text: 'Use the predefined ones, or specify a custom position object.',
-            position: 'top-right',
-            loaderBg: '#c6c6c6',
-            icon: 'error',
-            hideAfter: 3500,
-            stack: 6,
-            preventDuplicates: true
-
-        });
-
-    });
-
-
-});
-
 function MandarToastExito(titulo, text) {
     $.toast({
         heading: titulo,

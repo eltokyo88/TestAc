@@ -1,11 +1,11 @@
 ﻿@using Comercializacion.Client.Common
 @using Comercializacion.Service.Model
 @*
-<div class="barra-bottom-comprar">
-    <a class="checkout-btn pagarCarrito"><div class="btn-pagar">Pagar</div></a>  @*href="@Url.Action("Pago", "Home")"*@
-    <!--onclick="return PagarFooter(this);"-->
-    @*<div class="total-pagar">@SessionManager.GetText("ACC_Compra_Total")<span id="carTotalNumber" class="carTotalNumber ">$<span id="totalCarrito" class="carTotalNumber totalCarrito">0.00</span></span></div>
-</div>
+    <div class="barra-bottom-comprar">
+        <a class="checkout-btn pagarCarrito"><div class="btn-pagar">Pagar</div></a>  @*href="@Url.Action("Pago", "Home")"*@
+<!--onclick="return PagarFooter(this);"-->
+@*<div class="total-pagar">@SessionManager.GetText("ACC_Compra_Total")<span id="carTotalNumber" class="carTotalNumber ">$<span id="totalCarrito" class="carTotalNumber totalCarrito">0.00</span></span></div>
+    </div>
 *@
 
 @{
@@ -16,9 +16,12 @@
 @{
     Html.RenderPartial("_StandsPatrocinadores");
 }
-        
 
-<script>
+@section scripts{
+    @*@Scripts.Render("~/bundles/Plano")
+    @Scripts.Render("~/bundles/Mapa")*@
+
+    <script>
     $("#barraPagar").show();
 
     var buscarCuponesCliente = function () {
@@ -92,4 +95,5 @@
         $(this).hide();
     });
 
-</script>
+    </script>
+}
