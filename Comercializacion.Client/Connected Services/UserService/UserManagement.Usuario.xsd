@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="UserAdmin">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="User_Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_Roles" nillable="true" type="tns:ArrayOfUserRole" />
+      <xs:element minOccurs="0" name="User_date_created" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="User_email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_father_surname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_given_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_mother_surname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_password_date_changed" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="User_password_hash" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_password_iteration" type="xs:int" />
+      <xs:element minOccurs="0" name="User_password_salt" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_status" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserAdmin" nillable="true" type="tns:UserAdmin" />
+  <xs:complexType name="ArrayOfUserRole">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserRole" nillable="true" type="tns:UserRole" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUserRole" nillable="true" type="tns:ArrayOfUserRole" />
+  <xs:complexType name="UserRole">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="System_admin_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_is_system_admin" type="xs:boolean" />
+      <xs:element minOccurs="0" name="User_role_description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_role_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_role_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_role_permissions" nillable="true" type="tns:ArrayOfRolePermission" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserRole" nillable="true" type="tns:UserRole" />
+  <xs:complexType name="ArrayOfRolePermission">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RolePermission" nillable="true" type="tns:RolePermission" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfRolePermission" nillable="true" type="tns:ArrayOfRolePermission" />
+  <xs:complexType name="RolePermission">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Role_permission_description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Role_permission_id" type="xs:int" />
+      <xs:element minOccurs="0" name="Role_permission_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="System_id" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RolePermission" nillable="true" type="tns:RolePermission" />
+  <xs:complexType name="ArrayOfUserSystemAdmin">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserSystemAdmin" nillable="true" type="tns:UserSystemAdmin" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUserSystemAdmin" nillable="true" type="tns:ArrayOfUserSystemAdmin" />
+  <xs:complexType name="UserSystemAdmin">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Allows_multiple_sessions" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Evento_id" type="xs:int" />
+      <xs:element minOccurs="0" name="System_admin_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_role_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_system_admin" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserSystemAdmin" nillable="true" type="tns:UserSystemAdmin" />
+  <xs:complexType name="ArrayOfUserAdmin">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserAdmin" nillable="true" type="tns:UserAdmin" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUserAdmin" nillable="true" type="tns:ArrayOfUserAdmin" />
+  <xs:complexType name="UserSessionToken">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Evento_id" type="xs:int" />
+      <xs:element minOccurs="0" name="System_id" type="xs:int" />
+      <xs:element minOccurs="0" name="Token_created_date" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Token_expire_date" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Token_id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Token_status" type="xs:int" />
+      <xs:element minOccurs="0" name="User_Id_Externo" type="xs:int" />
+      <xs:element minOccurs="0" name="User_agent" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_browser_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_host_address" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="User_id" type="xs:int" />
+      <xs:element minOccurs="0" name="User_raw_url" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserSessionToken" nillable="true" type="tns:UserSessionToken" />
+</xs:schema>

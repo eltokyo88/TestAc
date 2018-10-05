@@ -1,0 +1,95 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.Model
+@*
+<div class="barra-bottom-comprar">
+    <a class="checkout-btn pagarCarrito"><div class="btn-pagar">Pagar</div></a>  @*href="@Url.Action("Pago", "Home")"*@
+    <!--onclick="return PagarFooter(this);"-->
+    @*<div class="total-pagar">@SessionManager.GetText("ACC_Compra_Total")<span id="carTotalNumber" class="carTotalNumber ">$<span id="totalCarrito" class="carTotalNumber totalCarrito">0.00</span></span></div>
+</div>
+*@
+
+@{
+    ViewBag.Title = "Stands y patrocinios";
+    Layout = "~/Views/Shared/_LayoutExhibitor.cshtml";
+}
+
+@{
+    Html.RenderPartial("_StandsPatrocinadores");
+}
+        
+
+<script>
+    $("#barraPagar").show();
+
+    var buscarCuponesCliente = function () {
+        var url = '@Url.Action("GetDiscountClientInfo", "Exhibitor")';
+        var ErrorTitle = decode('@SessionManager.GetText("Abstract_ToastError_Title")');
+        var ErrorLogin = decode('@SessionManager.GetText("ACC_Error_LoginAgain")');
+        var cuponCheck = decode('@SessionManager.GetText("ACC_Error_CuponCheck")');
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: "json",
+            success: function (data) {
+
+                if (data[0].includes("Expirado") || data.includes("Expirado")) {
+                    MandarToastInfo(ErrorTitle, ErrorLogin);
+                } else {
+                    var cupones = JSON.parse(data);
+                    $.each(cupones, function (i, cupon) {
+                        var descuento = "";
+                        var montoDescuento = 0;
+                        var flagDiscount = false;
+                        if (cupon.SponsorShipId > 0) {
+
+                            var precioSponsor = $("#precioSpan" + cupon.SponsorShipId).text().replace("$", "").replace(",", "");
+
+                            if (cupon.DiscountPercentage > 0) {
+                                descuento = cupon.DiscountPercentage + " % ";
+
+                                if (cupon.DiscountPercentage == 100) {
+                                    montoDescuento = 0;
+                                }
+                                else {
+                                    montoDescuento = parseFloat(precioSponsor) - (parseFloat(precioSponsor) * (parseFloat("0." + cupon.DiscountPercentage)));
+                                }
+                                flagDiscount = true;
+                            } else if (cupon.DiscountMoney > 0) {
+                                montoDescuento = parseFloat(precioSponsor) - parseFloat(cupon.DiscountMoney);
+                                descuento = "$ " + parseFloat(cupon.DiscountMoney).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + " " + cupon.Currency;
+                                flagDiscount = true;
+                            }
+
+                            $("#patrocinioInfo-" + cupon.SponsorShipId).append(
+                                '<div class="sponsorship__discount-container">'
+                                + '<i class="fa fa-percent"></i>'
+                                + '<span>' + descuento + ' de descuento</span > '
+                                + '</div>'
+                            );
+
+
+                            if (flagDiscount == true) {
+                                $("#precioSpan" + cupon.SponsorShipId).addClass("sponsorships__discount-price");
+                                $("#precioDescSpan" + cupon.SponsorShipId).text("$ " + (montoDescuento).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + " " + cupon.Currency);
+                            }
+                            montoDescuento = 0;
+                            flagDiscount = false;
+                        }
+                    });
+                }
+            },
+            error: function (jqXHR, exception) {
+                MandarToastError(ErrorTitle, cuponCheck);
+                MandarToastInfo(ErrorTitle, ErrorLogin);
+            }
+        });
+    }; buscarCuponesCliente();
+
+    $(".boton-QuitarCarrito").click(function () {
+        var id = $(this).attr("data-id");
+        $("#patrocinio_s"+id).show();
+        $(this).hide();
+    });
+
+</script>

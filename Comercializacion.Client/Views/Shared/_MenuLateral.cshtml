@@ -1,0 +1,88 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.Model
+
+<div class="navbar-default sidebar" role="navigation">
+    <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 100%;">
+        <div class="sidebar-nav navbar-collapse slimscrollsidebar" style="overflow: hidden; width: auto; height: 100%;">
+            <div class="user-profile">
+                <div class="dropdown user-pro-body">
+
+                    <a href="#" class="dropdown-toggle u-dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    @{
+                        string usuario = String.Empty;
+                    }
+                    @if (@Comercializacion.Client.Common.SessionManager.UserSession != null)
+                    {
+
+                        usuario = @SessionManager.UserSession.User_name;
+                    }
+                     @usuario
+                    <span class="caret"></span></a>
+                    @Html.Partial("_MenuUsuario")
+                </div>
+            </div>
+
+            <ul class="nav in" id="side-menu">
+                <li class="sidebar-search hidden-sm hidden-md hidden-lg">
+                    <!-- input-group -->
+                    <div class="input-group custom-search-form">
+                        <input class="form-control" placeholder="Buscar" type="text">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button"> <i class="fa fa-search"></i> </button>
+                        </span>
+                    </div>
+                    <!-- /input-group -->
+                </li>
+                <li>
+                    <a href="@Url.Action("Plano","Exhibitor")" class="waves-effect">
+                        <i class="fa fa-map-o" aria-hidden="true"></i>
+                        <span class="hide-menu">Stands y patrocinios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("MisSolicitudes","Exhibitor")" class="waves-effect">
+                        <i class="icon-layers" aria-hidden="true"></i>
+                        <span class="hide-menu">Solicitudes</span>
+                    </a>
+                </li>
+
+                @*<li>
+                    <a href="@Url.Action("Requerimientos","Exhibitor")" class="waves-effect">
+                        <i class="ti-hummer"></i> <span class="hide-menu">Requerimientos </span>
+                    </a>
+                </li>*@
+
+                @*<li>
+                    <a href="#" class="waves-effect">
+                        <i class="ti-folder"></i> <span class="hide-menu">Requiero documentos </span>
+                    </a>
+                </li>*@
+
+                <li>
+                    <a href="#" class="waves-effect"> <i class="ti-receipt"></i>   <span class="hide-menu">Facturación <span class="fa arrow"></span></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="@Url.Action("DatosFacturacion","Exhibitor")">Datos de facturación</a></li>
+                        <li><a href="@Url.Action("MisFacturas","Exhibitor")">Mis facturas</a></li>
+                    </ul>
+                </li>
+
+
+                @*<li>
+                    <a href="#" class="waves-effect">
+                        <i class="icon-arrow-down-circle" aria-hidden="true"></i>
+                        <span class="hide-menu">Descargables <span class="fa arrow"></span></span>
+                    </a>
+                    <ul class="nav nav-second-level collapse">*@
+                        @*<li><a href="#">Resumen de su inversión</a></li>*@
+                     
+                        @*<li><a href="~/Content/img/InvitacionPleca.jpg" download>Invitación para su empresa</a></li>
+                        <li><a href="#">Programa preliminar</a></li>
+                        <li><a href="~/Content/files/ManualDelExpositor.pdf" download>Manual del expositor</a></li>
+                    </ul>
+                </li>*@
+            </ul>
+        </div>
+        <div class="slimScrollBar" style="background: rgb(220, 220, 220) none repeat scroll 0% 0%; width: 0px; position: absolute; top: 0px; opacity: 0.4; display: block; border-radius: 7px; z-index: 99; right: 1px; height: 725.082px;"></div>
+        <div class="slimScrollRail" style="width: 0px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51) none repeat scroll 0% 0%; opacity: 0.2; z-index: 90; right: 1px;"></div>
+    </div>
+</div>

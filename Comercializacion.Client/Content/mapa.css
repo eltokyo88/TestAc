@@ -1,0 +1,92 @@
+﻿/* MAPA SVG */
+#wrapMapa > #imgSede {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#wrapMapa > #imgStands {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#wrapMapa > #svgOne {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+}
+
+
+/*BOTONES TOOLS MAPA*/
+.wrapBtnTools li > a {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+}
+
+/*INFOPOP*/
+.infoPop {
+    padding: 5px;
+    position: fixed;
+    z-index: 9999;
+    box-shadow: 0 0 3px rgba(127, 127, 127, 1);
+}
+
+.infoPop > span.arrowPop {
+    display: block;
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    margin-left: -10px;
+    border-style: solid;
+    border-width: 10px 10px 0 10px;
+    border-color: transparent;
+}
+
+rect.standDisponible {
+    fill: #04adf7;
+    stroke-width: 3;
+    stroke: #ffffff;
+    cursor: pointer;
+    z-index: 2;
+}
+
+rect.standApartado {
+    fill: #979ea8;
+    stroke-width: 3;
+    stroke: #ffffff;
+    cursor: pointer;
+    z-index: 2;
+}
+
+rect.standVendido {
+    fill: #63637d;
+    stroke-width: 3;
+    stroke: #ffffff;
+    cursor: pointer;
+    z-index: 2;
+}
+
+rect.standSeleccionado {
+    fill: #0ea807;
+    stroke-width: 3;
+    stroke: #ffffff;
+    cursor: pointer;
+    z-index: 2;
+}
+
+
+
+a.PatDisponible {
+    background-color: #0ea807;
+    color: #FFFFFF;
+}
+
+a.PatSeleccionado {
+    background-color: #ECECEC !important;
+    color: #696969 !important;
+}

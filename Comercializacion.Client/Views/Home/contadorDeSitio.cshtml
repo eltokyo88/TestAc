@@ -1,0 +1,129 @@
+﻿@using Comercializacion.Client.Common
+@{
+    Layout = null;
+    string siteDate = (string)ViewData["siteDate"];
+    string eventDateRange = (string)ViewData["eventDateRange"];
+    string venueSite = (string)ViewData["eventVenueCity"];
+    string eventName = (string)ViewData["eventName"];
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Time Counter</title>
+    <!-- Bootstrap -->
+    <link href="~/Content/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- edit -->
+    <link href="~/Content/contadorDeSitio/landing-countdown.css" rel="stylesheet" type="text/css" />
+    <link href="http://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet" type="text/css" />
+    <link href="~/Content/contadorDeSitio/counter.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body class="bg-count-down-page" style="margin: 0;  ">
+    <div class="container">
+        <!--***[ begin Header event ]***-->
+        <div class="row alinear">
+            <!--begin logo-->
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 pull-left text-center">
+                <img class="logo-countdown-landing" src="@SessionManager.logoContadorURL">
+            </div>
+            <!--./end logo-->
+            <!--begin name event-->
+            <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12 pull-right">
+                <div class="name-event">
+                    <h1><span>@eventName</span></h1>
+                    <p><img src="~/Content/img/contadorDeSitio/date.svg" width="20" class="icono-date"> @eventDateRange <img class="icono-location" src="~/Content/img/contadorDeSitio/location.svg" width="20">@venueSite</p>
+                </div>
+            </div>
+            <!--./ end name event-->
+        </div>
+        <!--***[ ./end Header event ]***-->
+        <!--***[ begin count down ]***-->
+        <div class="row">
+            <p class="text-center" style="margin-bottom: -20px; font-size: 20px; width:100%; float:left; margin-top: 50px; text-align:center !important;">El evento comienza en:</p>
+            <div class="mgin-top-counter countdown countdown-container container">
+                <div class="clock row">
+                    <div class="clock-item clock-days countdown-time-value col-xs-3 col-sm-3 col-md-3">
+                        <div class="wrap">
+                            <div class="inner">
+                                <div id="canvas-days" class="clock-canvas"></div>
+                                <div class="text">
+                                    <p class="val">0</p>
+                                    <p class="type-days type-time">Dias</p>
+                                </div><!-- /.text -->
+                            </div><!-- /.inner -->
+                        </div><!-- /.wrap -->
+                    </div><!-- /.clock-item -->
+                    <div class="clock-item clock-hours countdown-time-value col-xs-3 col-sm-3 col-md-3">
+                        <div class="wrap">
+                            <div class="inner">
+                                <div id="canvas-hours" class="clock-canvas"></div>
+                                <div class="text">
+                                    <p class="val">0</p>
+                                    <p class="type-hours type-time">Horas</p>
+                                </div><!-- /.text -->
+                            </div><!-- /.inner -->
+                        </div><!-- /.wrap -->
+                    </div><!-- /.clock-item -->
+                    <div class="clock-item clock-minutes countdown-time-value col-xs-3 col-sm-3 col-md-3">
+                        <div class="wrap">
+                            <div class="inner">
+                                <div id="canvas-minutes" class="clock-canvas"></div>
+                                <div class="text">
+                                    <p class="val">0</p>
+                                    <p class="type-minutes type-time">Minutos</p>
+                                </div><!-- /.text -->
+                            </div><!-- /.inner -->
+                        </div><!-- /.wrap -->
+                    </div><!-- /.clock-item -->
+                    <div class="clock-item clock-seconds countdown-time-value col-xs-3 col-sm-3 col-md-3">
+                        <div class="wrap">
+                            <div class="inner">
+                                <div id="canvas-seconds" class="clock-canvas"></div>
+                                <div class="text">
+                                    <p class="val">0</p>
+                                    <p class="type-seconds type-time">Segundos</p>
+                                </div><!-- /.text -->
+                            </div><!-- /.inner -->
+                        </div><!-- /.wrap -->
+                    </div><!-- /.clock-item -->
+                </div><!-- /.clock -->
+            </div><!-- /.countdown-wrapper -->
+        </div>
+        <!--***[ ./end count down]***-->
+        <!--***[ powered by ]***-->
+        <div class="row">
+            <p class="powered-by-text" style="width:100%; float:right">Powered by <a href="https://www.btcamericas.com/" target="blank"><img src="~/Content/img/contadorDeSitio/logo-powered-by.svg" width="40" style="margin-bottom: 5px;"></a></p>
+        </div>
+        <!--***[ ./end powered by]***-->
+    </div>
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="~/Scripts/contadorDeSitio/jquery-1.12.4.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="~/Scripts/bootstrap/bootstrap.min.js"></script>
+    <script src="~/Scripts/jquery.min.js"></script>
+    <script src="~/Scripts/contadorDeSitio/kinetic.js"></script>
+    <script src="~/Scripts/contadorDeSitio/jquery.final-countdown.js"></script>
+    <script type="text/javascript">
+        var myDate = new Date("@siteDate");
+        var myEpoch = myDate.getTime() / 1000.0;
+        $('document').ready(function () {
+            'use strict';
+            $('.countdown').final_countdown({
+                'start': 1536467039,
+                'end': myEpoch,
+                'now': new Date().getTime() / 1000
+            }, function () {
+                window.location.href = "@Url.Action("Index","Home")";
+            });
+        });
+    </script>
+</body>
+</html>
+

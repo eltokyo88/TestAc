@@ -1,0 +1,432 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.DTO
+@using Comercializacion.Service.Model
+@model CarritoPartialDto
+
+@Html.Hidden("urlDeleteItem", Url.Action("ShowCarrito", "Home"))
+@{
+    List<ItemCarrito> listItems = (List<ItemCarrito>)ViewData["products"];
+}
+
+<div class="white-box divPagos checkout__fifth-container">
+    <table class="table color-bordered-table table-responsive">
+        <thead>
+            <tr>
+                <th>@SessionManager.GetText("ACC_Pago_datos_Resumen_Concepto")</th>
+                <th class="text-center">@SessionManager.GetText("ACC_Pago_datos_Resumen_Precio")</th>
+                <th class="soloPago"><p id="cuponDescuentoLabel" style="display:none;">0</p> </th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                double subtotal = 0;
+                double iva = 0;
+                double total = 0;
+                string monedita = "";
+            }
+            @foreach (var item in listItems)
+            {
+                iva += item.Cost * 0.16;
+                total += item.Cost;
+                subtotal += item.Cost * 0.84;
+                <tr id="@("item_"+item.IdElement)">
+                    <td id="@("celdaEstilo_"+item.IdElement)">
+                        <h4>@item.NameElement</h4>
+                        <h5>@item.Descripcion Medidas:  @item.Size</h5>
+                        <h5 id="@("descuento" + item.IdElement )"></h5>
+                        @*<span>Pasillos: </span><span class="text-success"><strong>X,Y</strong></span>*@
+                    </td>
+                    <td class="text-center">
+                        <input type="hidden" id="@("costoSin_"+item.IdElement )" value="@(item.Iva ? item.Cost * 0.84 : item.Cost)" />
+                        <input type="hidden" id="@("iva_"+item.IdElement )" value="@(item.Iva ? item.Cost * 0.16 : 0.0)" />
+                        <input type="hidden" id="@("costo_"+item.IdElement )" value="@item.Cost" />
+                        <strong id="@("costoElem"+item.IdElement )"> @item.Cost.ToString("c") @item.Currency  </strong>
+                        <h5 id="@("costoElemD"+item.IdElement )"></h5>
+                    </td>
+                    <td class="soloPago">
+                        <button class="btn btn-Delete pull-right" onclick="DeleteFromSession(@item.IdElement,'@item.IsStand.ToString()',@item.IsStand)">
+                            <span class="ico ico-75"></span>
+                        </button>
+                    </td>
+                </tr>
+                monedita = item.Currency;
+            }
+           
+            <tr >
+                <tr id="alertTablaCupon" style="display:none; ">
+                    <td colspan="3" style="padding-bottom: 0; padding-left:  0; padding-right: 0;">
+                        <div class="alert alert-danger" id="panelAlertCupon" role="alert" style="margin: 0; display: none;">
+                            @SessionManager.GetText("ACC_Carrito_CouponType")
+                        </div>
+                    </td>
+                </tr>
+                <tr class="soloPago">
+                    <td>
+                        <label>@SessionManager.GetText("ACC_Carrito_CouponType")</label>
+                    </td>
+                    <td style="width: 100%;" >
+                        <div class="input-group">
+                            <input type="text" class="form-control" maxlength="8" id="cuponTexto">
+                            <span class="input-group-btn" style="padding:  0px !important;">
+                                <button class="btn btn-info" id="validarCupon">Validar</button>
+                            </span>
+                        </div>
+                    </td>
+                    <td style="padding: 0px;"></td>
+                </tr>
+            </tr>             
+        </tbody>
+        <tfoot>
+            <tr style="display: none;"><td colspan="3"><p id="totalReal"></p></td></tr>
+            <tr>
+                <td class="soloPago">   </td>
+                <td><h5>@SessionManager.GetText("ACC_Pago_datos_Resumen_Subtotal")</h5></td>
+                <td class="text-right"><h5><strong><span id="subtotalCar">$@String.Format("{0:n}", subtotal) </span> @monedita</strong></h5></td>
+            </tr>
+            <tr>
+                <td class="soloPago">   </td>
+                <td><h5>@SessionManager.GetText("ACC_Pago_datos_Resumen_IVA")</h5></td>
+                <td class="text-right"><h5><strong><span id="ivatotalCar">$@String.Format("{0:n}", iva)</span> @monedita</strong></h5></td>
+            </tr>
+            <tr>
+                <td class="soloPago">   </td>
+                <td>@SessionManager.GetText("ACC_Pago_datos_Resumen_total")</td>
+                <td class="text-right"><strong><span id="totalCar">$@String.Format("{0:n}", total)</span> @monedita</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+@Scripts.Render("~/bundles/Shared")
+
+<script>
+    var errorTitle = decode('@SessionManager.GetText("ACC_Error_Label")');
+    var errorLabel = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+    var escribeTuCupon = decode('@SessionManager.GetText("ACC_Carrito_CouponType")');
+    var cuponUsado = decode('@SessionManager.GetText("ACC_Carrito_CouponUsed")');
+
+    var tot30Procent = '@total';
+    var porcentajePago = $("#porcentajePago").text();
+
+    var totalFunction = function () {
+        $("#totalReal").html(tot30Procent);
+
+        var t = parseFloat(tot30Procent) * parseFloat("0." + porcentajePago);
+
+        $("#txtPercent").val(t.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + " " + '@monedita');
+        $("#pagarUnSoloPagoInput").val(parseFloat(tot30Procent).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + " " + '@monedita');
+
+        $("#proximoPagoLabel").html(t.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+
+    }; totalFunction();
+
+    var DeleteFromSession = function (idElement, isStand) {
+
+        var url = '@Url.Action("ShowCarrito", "Home")';
+        var data = { idDelete: idElement, isStand: isStand };
+
+        //$.post(url, data).done(function (info) {
+        //    $("#divCarrito").html(info);
+        //});
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: data,
+            success: function (data) {
+
+                var numero = '@SessionManager.ListItemsCarrito.Count';
+                var num = parseInt(numero);
+                console.log(num);
+
+                $("#divCarrito").html(data);
+
+                url = '@Url.Action("PurchaseResume", "Home")';
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    async: false,
+                    success: function (data) {
+
+
+                    },
+                    error: function (jqXHR, exception) {
+                        MandarToastError(errorTitle, errorTitle);
+                    },
+                    complete: function () {
+
+                        if (num == 1) {
+                            window.location.href = '@Url.Action("Plano", "Exhibitor")';
+                        }
+                    }
+                });
+
+            },
+            error: function (jqXHR, exception) {
+                MandarToastError(errorTitle, errorTitle);
+            }
+        });
+
+    };
+
+            var costoFinalD = parseFloat(0);
+
+    $("#validarCupon").click(function () {
+        var cupon = $("#cuponTexto").val();
+        var url = '@Url.Action("ValidarCupon", "Home")';
+        var data = { cupon : cupon };
+
+        if (cupon == "") {
+            $("#alertTablaCupon").show();
+            mandarAlerta($("#panelAlertCupon"), "alert-danger", escribeTuCupon);
+
+        } else {
+            $("#alertTablaCupon").hide();
+            ocultarAlerta($("#panelAlertCupon"));
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (datos) {
+                    var cupones = JSON.parse(datos);
+                    console.log(cupones);
+                    var banderaCuponera = true; //Bandera para editar los colores del total de la compra
+
+                    if (cupones.length > 0) {
+
+                        $("#validarCupon").hide();
+
+                        var hoy = new Date();
+                        var exp = new Date(cupones[0].ExpirationDate);
+
+                        //Asigna el id del cupón para que la función de savePurchase obtenga el id del cupón para guardarlo y establecerlo como usado
+                        $("#cuponDescuentoLabel").html(cupones[0].CuponId);
+
+                        //Valida si el cupón no ha vencido
+                        if (exp > hoy) {
+                            $.each(cupones, function (i, cupon) {
+
+                                var newTotal = NaN;
+
+                                //Valida si el cupón no ha sido usado
+                                if (cupon.Redemption > 0) {
+
+                                    MandarToastError(errorTitle, cuponUsado);
+
+                                } else {
+
+                                    //Valida si el cupón es de Sponsorship
+                                    if (cupon.SponsorshipId != 0) {
+
+                                        //Valida si el porcentaje es mayor a cero
+                                        if (cupon.DiscountPercentage > 0) {
+                                            var costoFinal = parseFloat($("#costoElem" + cupon.SponsorshipId).text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", ""));
+                                            var total = $("#totalCar").text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", "");
+
+                                            //Para no editar los datos en vano, cuando no haya elementos que apliquen para el descuento
+                                            if (!isNaN(costoFinal)) {
+                                                $("#descuento" + cupon.SponsorshipId).html("<p>Descuento " + cupon.DiscountPercentage + " % </p>");
+
+                                                costoFinalD = parseFloat(costoFinal) * (parseFloat("0." + (100 - cupon.DiscountPercentage)));
+                                                $("#costoElemD" + cupon.SponsorshipId).html("<br/>$ " + costoFinalD.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                                                if (cupon.DiscountPercentage == 100) {
+                                                    var porc = parseFloat(costoFinal);
+                                                }
+                                                else {
+                                                    var porc = parseFloat(costoFinal) * (parseFloat("0." + cupon.DiscountPercentage));
+                                                }
+
+                                                newTotal = parseFloat(total) - porc;
+
+                                                $("#descuento" + cupon.SponsorshipId).addClass("coupon__discount--gray");
+                                                $("#costoElemD" + cupon.SponsorshipId).addClass("coupon__new-price");
+                                                $("#costoElem" + cupon.SponsorshipId).addClass("coupon__discount--red");
+                                                $("#celdaEstilo_" + cupon.SponsorshipId).addClass("coupon--relative");
+                                                $("#celdaEstilo_" + cupon.SponsorshipId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                //Valores en resumen de compra
+                                                var monedaText = $("#conceptoMoneda-" + cupon.SponsorshipId).text();
+                                                $("#conceptoPrecio-" + cupon.SponsorshipId).addClass("coupon__discount--red");
+                                                $("#concepto-" + cupon.SponsorshipId).append("<br><span class='coupon__new-price' > $ " + parseFloat(costoFinalD).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + "</span> " + monedaText);
+
+                                                $("#celdaConfirmar-" + cupon.SponsorshipId).addClass("coupon--relative");
+                                                $("#celdaConfirmar-" + cupon.SponsorshipId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                banderaCuponera = false;
+                                            }
+
+                                        } else if (cupon.DiscountMoney > 0) { //Valida si el descuento es mayor a cero
+                                            var costoFinal = parseFloat($("#costoElem" + (cupon.SponsorshipId).toString()).text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", ""));
+                                            var total = parseFloat($("#totalCar").text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", ""));
+                                            console.log(costoFinal);
+                                            console.log(total);
+                                            //Para no editar los datos en vano, cuando no haya elementos que apliquen para el descuento
+                                            if (!isNaN(costoFinal)) {
+                                                $("#descuento" + cupon.SponsorshipId).html("<p>Descuento $ " + cupon.DiscountMoney + " </p>");
+
+                                                costoFinalD = parseFloat(costoFinal) - parseFloat(cupon.DiscountMoney);
+                                                $("#costoElemD" + cupon.SponsorshipId).html("<br/>$ " + parseFloat(costoFinalD).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                                                if (costoFinalD == 0 || costoFinalD == "0") {
+                                                    costoFinalD = parseFloat(costoFinal);
+                                                }
+
+                                                newTotal = parseFloat(total) - parseFloat(costoFinalD);
+
+                                                $("#descuento" + cupon.SponsorshipId).addClass("coupon__discount--gray");
+                                                $("#costoElemD" + cupon.SponsorshipId).addClass("coupon__new-price");
+                                                $("#costoElem" + cupon.SponsorshipId).addClass("coupon__discount--red");
+                                                $("#celdaEstilo_" + cupon.SponsorshipId).addClass("coupon--relative");
+                                                $("#celdaEstilo_" + cupon.SponsorshipId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                //Valores en resumen de compra
+                                                var monedaText = $("#conceptoMoneda-" + cupon.SponsorshipId).text();
+                                                $("#conceptoPrecio-" + cupon.SponsorshipId).addClass("coupon__discount--red");
+                                                $("#concepto-" + cupon.SponsorshipId).append("<br><span class='coupon__new-price' > $ " + parseFloat(costoFinalD).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + "</span> " + monedaText);
+
+                                                $("#celdaConfirmar-" + cupon.SponsorshipId).addClass("coupon--relative");
+                                                $("#celdaConfirmar-" + cupon.SponsorshipId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                banderaCuponera = false;
+                                            }
+                                        }
+
+                                    } else if (cupon.StandId != 0) {
+
+                                        //Valida si el descuento es mayor a cero
+                                        if (cupon.DiscountMoney > 0) {
+                                            var costoFinal = parseFloat($("#costoElem" + (cupon.StandId).toString()).text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", ""));
+                                            var total = parseFloat($("#totalCar").text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", ""));
+                                            console.log(costoFinal);
+                                            console.log(total);
+                                            //Para no editar los datos en vano, cuando no haya elementos que apliquen para el descuento
+                                            if (!isNaN(costoFinal)) {
+                                                $("#descuento" + cupon.StandId).html("<p>Descuento $ " + cupon.DiscountMoney + " </p>");
+
+                                                costoFinalD = parseFloat(costoFinal) - parseFloat(cupon.DiscountMoney);
+                                                $("#costoElemD" + cupon.StandId).html("<br/>$ " + parseFloat(costoFinalD).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                                                if (costoFinalD == 0 || costoFinalD == "0") {
+                                                    costoFinalD = parseFloat(costoFinal);
+                                                }
+
+                                                newTotal = parseFloat(total) - parseFloat(costoFinalD);
+
+                                                $("#descuento" + cupon.StandId).addClass("coupon__discount--gray");
+                                                $("#costoElemD" + cupon.StandId).addClass("coupon__new-price");
+                                                $("#costoElem" + cupon.StandId).addClass("coupon__discount--red");
+                                                $("#celdaEstilo_" + cupon.StandId).addClass("coupon--relative");
+                                                $("#celdaEstilo_" + cupon.StandId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                //Valores en resumen de compra
+                                                var monedaText = $("#conceptoMoneda-" + cupon.StandId).text();
+                                                $("#conceptoPrecio-" + cupon.StandId).addClass("coupon__discount--red");
+                                                $("#concepto-" + cupon.StandId).append("<br><span class='coupon__new-price' > $ " + parseFloat(costoFinalD).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + "</span> " + monedaText);
+
+                                                $("#celdaConfirmar-" + cupon.StandId).addClass("coupon--relative");
+                                                $("#celdaConfirmar-" + cupon.StandId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                banderaCuponera = false;
+                                            }
+                                        } else if (cupon.DiscountPercentage > 0) {
+                                            var costoFinal = parseFloat($("#costoElem" + cupon.StandId).text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", ""));
+                                            var total = $("#totalCar").text().replace("$", "").replace(",", "").replace(" ", "").replace("USD", "").replace("MXN", "");
+
+                                            //Para no editar los datos en vano, cuando no haya elementos que apliquen para el descuento
+                                            if (!isNaN(costoFinal)) {
+                                                $("#descuento" + cupon.StandId).html("<p>Descuento " + cupon.DiscountPercentage + " % </p>");
+
+                                                costoFinalD = parseFloat(costoFinal) * (parseFloat("0." + (100 - cupon.DiscountPercentage)));
+                                                $("#costoElemD" + cupon.StandId).html("<br/>$ " + costoFinalD.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                                                if (cupon.DiscountPercentage == 100) {
+                                                    var porc = parseFloat(costoFinal);
+                                                }
+                                                else {
+                                                    var porc = parseFloat(costoFinal) * (parseFloat("0." + cupon.DiscountPercentage));
+                                                }
+
+                                                newTotal = parseFloat(total) - porc;
+
+                                                $("#descuento" + cupon.StandId).addClass("coupon__discount--gray");
+                                                $("#costoElemD" + cupon.StandId).addClass("coupon__new-price");
+                                                $("#costoElem" + cupon.StandId).addClass("coupon__discount--red");
+                                                $("#celdaEstilo_" + cupon.StandId).addClass("coupon--relative");
+                                                $("#celdaEstilo_" + cupon.StandId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                //Valores en resumen de compra
+                                                var monedaText = $("#conceptoMoneda-" + cupon.SponsorshipId).text();
+                                                $("#conceptoPrecio-" + cupon.StandId).addClass("coupon__discount--red");
+                                                $("#concepto-" + cupon.StandId).append("<br><span class='coupon__new-price' > $ " + parseFloat(costoFinalD).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + "</span> " + monedaText);
+
+                                                $("#celdaConfirmar-" + cupon.StandId).addClass("coupon--relative");
+                                                $("#celdaConfirmar-" + cupon.StandId).append("<img src='/Content/img/discount.png' class='coupon__img'>");
+
+                                                banderaCuponera = false;
+                                            }
+
+                                        }
+                                    }
+
+                                    //Si no hubo problemas con el cúpón, se editan los valores del total de la compra
+                                    if (!isNaN(newTotal)) {
+
+                                        $("#totalCar").html("$ " + newTotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+                                        $("#totalConfirmar").html("$ " + newTotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                                        $("#ivatotalCar").html(("$ " + (parseFloat(newTotal) * parseFloat("0." + porcentajePago)).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")));
+                                        $("#ivaConfirmar").html(("$ " + (parseFloat(newTotal) * parseFloat("0." + porcentajePago)).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")));
+
+                                        $("#subtotalCar").html(("$ " + (parseFloat(newTotal) * parseFloat("0." + (100 - parseFloat(porcentajePago)))).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")));
+                                        $("#subtotalConfirmar").html(("$ " + (parseFloat(newTotal) * parseFloat("0." + (100 - parseFloat(porcentajePago)))).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")));
+
+
+                                        $("#validarCupon").hide();
+                                        $("#cuponTexto").attr("disabled", "true");
+
+                                        $("#pagarUnSoloPagoInput").val(newTotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+                                        $("#txtPercent").val((parseFloat(newTotal) * parseFloat("0." + porcentajePago)).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                                    } else {
+                                        $("#validarCupon").hide();
+                                        MandarToastAdvertencia("Aviso", "Tienes un elemento de descuento en tu cupón que no están en tu compra");
+                                    }
+
+                                }
+
+                            });
+                        } else {
+                            banderaCuponera = false;
+                            $("#validarCupon").show();
+                            MandarToastError("Error", "El cupón ha expirado");
+                        }
+
+                        if (banderaCuponera) {
+                            MandarToastAdvertencia("Error", "No hay elementos a los cuales aplicarles el cupón");
+                            $("#validarCupon").show();
+                        }
+
+                    } else {
+                        $("#validarCupon").show();
+                        MandarToastError("Error", "El cupón no es válido para tu usuario");
+                    }
+
+
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorTitle);
+                }
+            });
+
+        }
+
+    });
+
+
+
+</script>

@@ -1,0 +1,350 @@
+﻿@using Comercializacion.Client.Common;
+@using Comercializacion.Client.Filters;
+@using Comercializacion.Service.Model;
+@using Comercializacion.Service.DTO;
+@using Comercializacion.Service.BLL;
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string idiomaId = (string)ViewData["languageId"];
+    string eventDateRange = (string)ViewData["eventDateRange"];
+    string venueSite = (string)ViewData["eventVenueCity"];
+    string eventName = (string)ViewData["eventName"];
+}
+
+@Styles.Render("~/Content/Toast")
+<!--************************************************************
+    **************** MODAL OLVIDE CONTRASEÑA *******************
+    ************************************************************-->
+<!-- modal content -->
+<div id="recuperarContrasenaModal" class="modal fade modal-dialog modal-md" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title recordeContrasena">Olvidé mi contraseña</h4>
+                <h4 class="modal-title olvideContrasena" style="display:none;">Revisa tu bandeja de entrada</h4>
+
+            </div>
+            <div class="modal-body">
+                <div class="recordeContrasena">
+                    <p>Introduce el email asociado a tu cuenta y te enviaremos tu contraseña.</p>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <div class="alert" id="panelAlertLoginForgot" role="alert" style="display: none;">
+
+                                </div>
+                                <label class="control-label">Email:</label>
+                                <input name="name" type="email" class="form-control" id="emailRecoverInput">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="olvideContrasena" id="olvideContrasenaInfo" style="display:none;">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <button type="button" class="btn pull-right recordeContrasena reset__btn-cancel" data-dismiss="modal">Cancelar</button>
+                    <button class="btn pull-right recordeContrasena btn-success" id="emailRecuperacion">Mandar email de recuperación</button>
+                    <button class="btn pull-right olvideContrasena btn-success" style="display:none;" data-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- modal content -->
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="ti-close"></i></button>
+                <h4 class="modal-title" id="myModalLabel">@Html.Raw(@SessionManager.GetText("ACC_Pago_datos_Politica_res_title"))</h4>
+            </div>
+            <div class="modal-body">
+
+                @Html.Raw(SessionManager.GetText("ACC_Pago_datos_Politica_res_p1"))
+
+                <p><h4 class="modal-title">@Html.Raw(SessionManager.GetText("ACC_Pago_datos_Politica_res_p2"))</h4><br /></p>
+
+
+                @Html.Raw(SessionManager.GetText("ACC_Pago_datos_Politica_res_p3"))
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info waves-effect" data-dismiss="modal">@SessionManager.GetText("ACC_Pago_datos_Politica_btn_Close")</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<!--****************************************************************
+    **************************** BODY ******************************
+    ****************************************************************-->
+
+<div class="container contSeccion home__container" style="padding-top: 70px; ">
+    <!--.renglon-->
+    <div class="row">
+        @*<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="mensaje">
+                <h1>
+                    <span>@eventName</span>
+                </h1>
+                <p>
+                    <span class="ico ico-103"></span> @eventDateRange
+                    <br /><span class="ico ico-69"></span>@venueSite
+                </p>
+            </div>
+
+        </div>*@
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+            <div class="contLogoPrincipalH">
+                <img src="@SessionManager.logoContadorURL" alt="Homepage" class="logoPrincipalH" >
+            </div>
+
+            <div class="mensaje">
+                <p>
+                    <span class="ico ico-103"></span>@eventDateRange
+                    <br><span class="ico ico-69"></span>@venueSite
+                </p>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
+            <!--formulario login-->
+            <div class="form-modal">
+
+                <div class="form-toggle home__register-tabs">
+                    <button id="login-toggle" onclick="toggleLogin()">@SessionManager.GetText("ACC_Login_Register")</button>
+                    <button id="signup-toggle" onclick="toggleSignup()">@SessionManager.GetText("ACC_Login_inicia_sesion")</button>
+
+                </div>
+
+                <div id="login-form" style="padding-bottom: 40px;">
+                    <form>
+                        <div class="alert" id="panelAlertRegister" role="alert" style="display:none;">
+                            <p id="alertLoginText"></p>
+                        </div>
+                        <label>@SessionManager.GetText("ACC_Login_Form_Business"):</label>
+                        <input type="text" placeholder="" id="empresaInput" />
+                        <label>@SessionManager.GetText("ACC_Login_Form_Client"):</label>
+                        <input type="text" placeholder="" id="representanteInput" />
+                        <label>@SessionManager.GetText("ACC_Login_Form_Services"):</label>
+                        <input type="text" placeholder="" id="prodSrvsInput" />
+                        <label>@SessionManager.GetText("ACC_Login_Form_RFC"):</label>
+                        <input type="text" placeholder="" id="rfcInput" />
+                        <label>@SessionManager.GetText("ACC_Login_Form_WebSite"):</label>
+                        <input type="url" placeholder="" id="sitioWebInput" />
+                        <label>@SessionManager.GetText("ACC_Login_Form_Phone")</label>
+                        <input type="tel" placeholder="" id="telInput" maxlength="10" />
+                        <label>@SessionManager.GetText("ACC_Login_Form_Email")</label>
+                        <input type="email" placeholder="" id="emailInput" />
+
+                        <button type="submit" class="btn signup" id="crearCuentaBoton">@SessionManager.GetText("ACC_Login_Form_CreateAccount")</button>
+
+                        <div style="float:left; width:100%; height:auto;">
+                            <label class="customcheck">
+                                Lee y acepta los <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Login_Form_Terms")</a>.
+                                <input type="checkbox" id="crearCuentaCheck">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                    </form>
+                </div>
+                <div id="signup-form">
+                    <form>
+                        <div class="alert" id="panelAlertLogin" role="alert" style="display: none;">
+                            <p id="alertLoginText"></p>
+                        </div>
+                        <label>@SessionManager.GetText("ACC_Login_Email"):</label>
+                        <input type="text" placeholder="" id="usuarioInput" />
+                        <label>@SessionManager.GetText("ACC_Login_Pass"):</label>
+                        <input type="password" placeholder="" id="contrasenaInput" />
+                        <button type="submit" class="btn login" id="iniciarSesionBoton">@SessionManager.GetText("ACC_Login_Btn_inicia_sesion")</button>
+                        <p><a href="javascript:void(0)" id="olvideContrasenaBoton">@SessionManager.GetText("ACC_Login_Forgot_pass")</a></p>
+                    </form>
+                </div>
+            </div>
+            <!--fin formulario login-->
+        </div>
+    </div>
+
+</div>
+
+@Scripts.Render("~/bundles/Shared")
+@Scripts.Render("~/bundles/Login")
+@Scripts.Render("~/bundles/Toast")
+
+
+@section scripts{
+<script type="text/javascript">
+
+    /*-----------------------------*/
+    /*---- VARIABLES DE IDIOMA ----*/
+    /*-----------------------------*/
+
+    var camposObligatoriosLabel = decode('@SessionManager.GetText("ACC_RequeriedFields_Label")');
+    var successLabel = decode('@SessionManager.GetText("ACC_Success_Label")');
+    var errorTitle = decode('@SessionManager.GetText("ACC_Error_Label")');
+    var errorLabel = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+    var requestSended = decode('@SessionManager.GetText("ACC_Request_Sended")');
+    var emailRegistered = decode('@SessionManager.GetText("ACC_Login_EmailAlredyRestitered_Label")');
+    var exitoMail = decode('@SessionManager.GetText("ACC_Login_EmailSended")');
+    var errorMail = decode('@SessionManager.GetText("ACC_Login_ErrorMailSended")');
+    var errorInfo = decode('@SessionManager.GetText("ACC_Login_Error_InfoGiven")');
+    var errorSaving = decode('@SessionManager.GetText("ACC_Login_Error_Text")');
+    var terminosCondiciones = decode('@SessionManager.GetText("ACC_Pago_Resumen_TermsConditions")');
+
+    $("#iniciarSesionBoton").click(function (e) {
+        var usuario = $("#usuarioInput").val(),
+			contrasena = $("#contrasenaInput").val();
+
+        if (usuario != "" && contrasena != "") {
+            $("#panelAlertLogin").hide();
+
+            var user = { User_email: usuario, User_Password: contrasena },
+				url = '@Url.Action("LogInSite", "Home")',
+				data = { user: user };
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                    if (data.info == "Ok") {
+                        window.location.href = data.redirectAction;
+                    } else {
+                        if (data.info.includes("<")) {
+                            mandarAlerta("#panelAlertLogin", "alert-danger", errorLabel);
+                        } else {
+                            mandarAlerta("#panelAlertLogin", "alert-danger", data.info);
+                        }
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, "Su sesión ha caducado");
+                }
+            });
+        } else {
+            mandarAlerta("#panelAlertLogin", "alert-danger", camposObligatoriosLabel);
+		}
+
+		e.preventDefault();
+    });
+
+
+
+    $("#crearCuentaBoton").click(function (e) {
+        var empresa = $("#empresaInput").val(),
+			productos = $("#prodSrvsInput").val(),
+			frc = $("#rfcInput").val(),
+			sitio = $("#sitioWebInput").val(),
+			telefono = $("#telInput").val(),
+			email = $("#emailInput").val(),
+			representante = $("#representanteInput").val(),
+			emailValid = validateEmail(email);
+        if (emailValid) {
+            if (empresa != "" && productos != "" && frc != "" && sitio != "" && telefono != "" && email != "" && representante != "") {
+                if ($("#crearCuentaCheck").is(":checked")) {
+                    var data = {
+                        solicitud: {
+                            Empresa: empresa, Productos: productos, SitioWeb: sitio, Telefono: telefono, Email: email, Rfc: frc, Representante: representante
+                        }
+                    };
+                    var url = '@Url.Action("RegisterNewAccount", "Home")';
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: data,
+                        success: function (data) {
+                            //console.log(data);
+                            if (data == "Ok") {
+                                swal(successLabel, requestSended, "success");
+                                $("#empresaInput").val("");
+                                $("#representanteInput").val("");
+                                $("#prodSrvsInput").val("");
+                                $("#rfcInput").val("");
+                                $("#sitioWebInput").val("");
+                                $("#telInput").val("");
+                                $("#emailInput").val("");
+								$("#representanteInput").val("");
+								$("#crearCuentaCheck").prop("checked", false);
+                            } else if (data == "Registrado") {
+                                mandarAlerta($("#panelAlertRegister"), "alert-danger", emailRegistered);
+                            } else if (data.includes("<")) {
+                                mandarAlerta($("#panelAlertRegister"), "alert-danger", errorSaving);
+                            } else if (data.includes("Ocurri")) {
+                                mandarAlerta($("#panelAlertRegister"), "alert-danger", errorInfo);
+                            } else {
+                                mandarAlerta($("#panelAlertRegister"), "alert-danger", data);
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            MandarToastError(errorTitle, errorTitle);
+                        }
+                    });
+                    ocultarAlerta($("#panelAlertRegister"));
+                } else {
+                    mandarAlerta($("#panelAlertRegister"), "alert-danger", terminosCondiciones);
+                }
+            } else {
+                mandarAlerta($("#panelAlertRegister"), "alert-danger", camposObligatoriosLabel);
+            }
+        } else {
+            mandarAlerta($("#panelAlertRegister"), "alert-danger", "El email ingresado no es correcto");
+		}
+
+		e.preventDefault();
+    });
+
+    $("#emailRecuperacion").click(function () {
+
+        var email = $("#emailRecoverInput").val();
+        if (email != "") {
+            $("#panelAlertLoginForgot").hide();
+            $("#emailRecuperacion").hide();
+            var url = '@Url.Action("ForgotPasswordSite", "Home")';
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { email: email },
+                success: function (data) {
+                    if (data == "Enviado") {
+                        $("#olvideContrasenaInfo").html(exitoMail + " " + email);
+                    } else {
+                        $("#olvideContrasenaInfo").html(errorMail + " " + email + ". " + data);
+                    }
+
+                    $(".olvideContrasena").show();
+                    $(".recordeContrasena").hide();
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, "Tu sesión ha caducado");
+                }
+            });
+        } else {
+            mandarAlerta($("#panelAlertLoginForgot"), "alert-danger", "Debes escribir tu correo electrónico");
+        }
+    });
+
+    $("#olvideContrasenaBoton").click(function () {
+        $("#recuperarContrasenaModal").modal("show");
+    });
+
+    $("#recuperarContrasenaModal").on("hidden.bs.modal", function () {
+        $(".olvideContrasena").hide();
+        $(".recordeContrasena").show();
+        $("#emailRecoverInput").val("");
+        $("#emailRecoverInput").parents("div").removeClass("has-error");
+        $("#emailRecuperacion").show();
+    });
+
+</script>
+}

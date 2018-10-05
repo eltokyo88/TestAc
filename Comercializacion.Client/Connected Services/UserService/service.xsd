@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" />
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" />
+  <xs:element name="GetUsers">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetUsersResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="GetUsersResult" nillable="true" type="q1:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="user" nillable="true" type="q2:UserAdmin" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="systemPermissions" nillable="true" type="q3:ArrayOfUserSystemAdmin" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="CreateUserResult" nillable="true" type="q4:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="newUser" nillable="true" type="q5:UserAdmin" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="UpdateUserResult" nillable="true" type="q6:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LoginUsingSystemId">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="user" nillable="true" type="q7:UserAdmin" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="userToken" nillable="true" type="q8:UserSessionToken" />
+        <xs:element minOccurs="0" name="systemId" type="xs:int" />
+        <xs:element minOccurs="0" name="expireDate" type="xs:dateTime" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LoginUsingSystemIdResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="LoginUsingSystemIdResult" nillable="true" type="q9:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ValidateUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="user" nillable="true" type="q10:UserAdmin" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="userToken" nillable="true" type="q11:UserSessionToken" />
+        <xs:element minOccurs="0" name="systemName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ValidateUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="ValidateUserResult" nillable="true" type="q12:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ExistUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="user" nillable="true" type="q13:UserAdmin" />
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="userRequest" nillable="true" type="q14:UserSessionToken" />
+        <xs:element minOccurs="0" name="systemName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ExistUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="ExistUserResult" nillable="true" type="q15:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LoginUsingSystemName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="user" nillable="true" type="q16:UserAdmin" />
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="userToken" nillable="true" type="q17:UserSessionToken" />
+        <xs:element minOccurs="0" name="systemName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="expireDate" type="xs:dateTime" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LoginUsingSystemNameResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="LoginUsingSystemNameResult" nillable="true" type="q18:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogInByCookieUsingSystemId">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="userToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="systemId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogInByCookieUsingSystemIdResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="LogInByCookieUsingSystemIdResult" nillable="true" type="q19:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogInByCookieUsingSystemName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="userToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="systemName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogInByCookieUsingSystemNameResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="LogInByCookieUsingSystemNameResult" nillable="true" type="q20:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogOff">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="userToken" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogOffResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="LogOffResult" nillable="true" type="q21:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GenerateResetPasswordToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="email" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GenerateResetPasswordTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="GenerateResetPasswordTokenResult" nillable="true" type="q22:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ValidateResetToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="token" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ValidateResetTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="ValidateResetTokenResult" nillable="true" type="q23:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangePasswordByToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="token" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="userEmail" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangePasswordByTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="ChangePasswordByTokenResult" nillable="true" type="q24:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeUserPassword">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="userId" type="xs:int" />
+        <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeUserPasswordResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="ChangeUserPasswordResult" nillable="true" type="q25:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsValidUserTokenUsingSystemName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="userToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="systemName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsValidUserTokenUsingSystemNameResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="IsValidUserTokenUsingSystemNameResult" nillable="true" type="q26:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsValidUserTokenUsingSystemId">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="userToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="systemId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsValidUserTokenUsingSystemIdResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" minOccurs="0" name="IsValidUserTokenUsingSystemIdResult" nillable="true" type="q27:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,1537 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.DTO
+@using Comercializacion.Service.Model
+@using Forza.Core.Utils;
+@using System.Web.Mvc;
+@model CarritoPartialDto
+@{
+    Layout = "~/Views/Shared/_LayoutPago.cshtml";
+    //Layout = "~/Views/Shared/_CarritoPagos.cshtml";
+}
+@Styles.Render("~/Content/Shared")
+@Styles.Render("~/Content/Pago")
+@Styles.Render("~/Content/Toast")
+
+@{
+    List<ItemCarrito>
+    listItems = (List<ItemCarrito>
+        )ViewData["products"];
+    Client cliente = (Client)ViewData["client"];
+    List<PaymentMethods>
+        pago = (List<PaymentMethods>
+            )ViewData["catalogoPagos"];
+    List<CatalogoPais>
+        paises = (List<CatalogoPais>)ViewData["catalogoPais"];
+    List<TermPayments>
+        plazos = (List<TermPayments>
+            )ViewData["catalogoPlazo"];
+    int porcentajePago = (int)ViewData["porcentajePago"];
+    string idiomaId = (string)ViewData["languageId"];
+    List<FiscalData>
+        datosFacturacion = (List<FiscalData>
+            )ViewData["datosFacturacion"];
+    string datosFacturacionJson = (string)ViewData["datosFacturacionJson"];
+    int tipoPago = (int)ViewData["tipoPago"];
+
+
+}
+
+<div id="info-cuenta" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-cuenta" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="firstPayLabel">Información de cuentas de depósito</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    @Html.Raw(@SessionManager.GetText("ACC_Pago_Cuentas"))
+
+                </div>
+
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+
+
+<!--Variable para el porcentaje pago minimo-->
+<p id="porcentajePago" style="display:none;">@porcentajePago</p>
+
+<!-- Preloader -->
+<div class="preloader">
+    <div class="cssload-speeding-wheel"></div>
+</div>
+
+<div class="container-fluid footer--sticky">
+    <!-----=== TITULO DE SECCIÓN Y BREADCRUM ===----->
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <a href="@Url.Action(" Plano", "Exhibitor" )"><img src="@SessionManager.logoEventoChiquitoURL" style="height: 60px;"></a>
+        </div>
+    </div>
+    <!-----=== FIN TITULO DE SECCIÓN Y BREADCRUM ===----->
+    <!-----=== CONTENIDO DE SECCIÓN ===----->
+    <!-- formulario -->
+    <div class="container-fluid checkout__first-container">
+        <div class="col-md-12 checkout__second-container">
+            <div>
+                <!-- modal content -->
+                <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="ti-close"></i></button>
+                                <h4 class="modal-title" id="myModalLabel">@Html.Raw(@SessionManager.GetText("ACC_Pago_datos_Politica_res_title"))</h4>
+                            </div>
+                            <div class="modal-body">
+
+                                @Html.Raw(SessionManager.GetText("ACC_Pago_datos_Politica_res_p1"))
+
+                                <p><h4 class="modal-title">@Html.Raw(SessionManager.GetText("ACC_Pago_datos_Politica_res_p2"))</h4><br /></p>
+
+
+                                @Html.Raw(SessionManager.GetText("ACC_Pago_datos_Politica_res_p3"))
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-info waves-effect" data-dismiss="modal">@SessionManager.GetText("ACC_Pago_datos_Politica_btn_Close")</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+                <!-- stepper pago-->
+
+                <div class="row">
+                    <div class="col-md-10 col-md-push-1 col-sm-12 col-sm-push-0 board checkout__third-container">
+                        <!--menu tab-->
+                        <div class="board-inner">
+                            <ul class="nav nav-tabs" id="contenedorTablas" style="max-width: 400px;">
+                                <div class="liner"></div>
+
+                                <br />
+                                <br />
+                                <li class="active" id="pagoCirculo">
+                                    <a href="#pago" aria-controls="pago" role="tab" data-toggle="tab" title="pago" id="linkHeader" data-idTab="pago" class="tabletaMenu">
+                                        <span class="round-tabs one">
+                                            <span class="ico ico-58"></span>
+                                        </span>
+                                    </a>
+                                    <p class="text-center"> Forma de pago</p>
+                                </li>
+                                <li id="datosCirculo">
+                                    <a href="#datos" aria-controls="datos" role="tab" data-toggle="tab" title="Datos" id="linkHeader" data-idTab="datos" class="tabletaMenu">
+                                        <span class="round-tabs two">
+                                            <span class="ico ico-70"></span>
+                                        </span>
+                                    </a>
+                                    <p class="text-center"> Datos personales</p>
+                                </li>
+                                <li id="confirmCirculo">
+                                    <a href="#confirm" aria-controls="confirm" role="tab" data-toggle="tab" title="confirm" id="linkHeader" data-idTab="confirm" class="tabletaMenu">
+                                        <span class="round-tabs three">
+                                            <span class="ico ico-76"></span>
+                                        </span>
+                                    </a>
+                                    <p class="text-center"> Resumen</p>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!--fin menu tab-->
+                        <div class="tab-content">
+
+                            <!--////====== TAB 1 =====////-->
+                            <div class="tab-pane fade in active" id="pago">
+                                <div class="row">
+                                    <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 checkout__fourth-container">
+                                        <a class="btn btn-formSucces pull-left regresarAlMenu" href="@Url.Action("Plano", "Exhibitor" )" style="margin-bottom:15px;"> Regresar al plano</a>
+
+                                        <a class="btn btn-formSucces btnNext pull-right" style="margin-bottom:15px;">@SessionManager.GetText("ACC_Pago_datos_btn_continue")</a>
+
+
+                                        <div class="white-box checkout__fifth-container">
+                                            <div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                    <div class="alert" id="panelAlertPago" role="alert" style="display:none;">
+                                                        <p id="alertLoginText"></p>
+                                                    </div>
+                                                    @if (tipoPago == 1)
+                                                    {
+                                                        <h4>@SessionManager.GetText("ACC_Pago_ChoosingMethod")</h4>
+                                                    }
+                                                    <!--=====///[  tab pagos ]///=====-->
+                                                    <div class="row">
+                                                        <div id="tab" class="btn-group" data-toggle="buttons">
+                                                            <a href="#apartar" class="btn btn-default active" data-toggle="tab" id="apartarTab">
+                                                                <input type="radio" />@SessionManager.GetText("ACC_Pago_ApartarStand_Label")
+                                                            </a>
+                                                            <a href="#un-pago" class="btn btn-default" data-toggle="tab" id="unPagoTab">
+                                                                <input type="radio" />@SessionManager.GetText("ACC_Pago_OnePaymentOnly_Label")
+                                                            </a>
+                                                        </div>
+                                                        <div class="tab-content">
+
+
+                                                            <!------apartar------>
+                                                            <div class="tab-pane active" id="apartar">
+                                                                <div class="col-lg-12 sp">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group">
+
+                                                                                <label class="soloPago">@SessionManager.GetText("ACC_Pago_SetItApart") @porcentajePago%:</label>
+                                                                                <input name="name" type="text" id="txtPercent" class="form-control" disabled>
+
+                                                                            </div>
+                                                                            <a style="float: left; margin-top: -20px; cursor: pointer; " data-toggle="modal" data-target="#info-cuenta">@SessionManager.GetText("ACC_Purchase_Account")</a>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!--primer select        -->
+                                                                    <div class="tab-container">
+                                                                        @*<div class="col-md-12 sp">
+                                                                                <span class="instruccion"><span class="step">1</span>@SessionManager.GetText("ACC_Pago_Choose_paymentMethod")</span>
+                                                                                <select class="form-control selectPago" id="metodoPagoApartar">
+                                                                                    <option disabled="" value="0" selected="">@SessionManager.GetText("ACC_Pago_Select")</option>
+                                                                                    @foreach (var p in pago)
+                                                                                    {
+                                                                                    //if (p.PaymentTransactionType == 1)
+                                                                                    //{
+                                                                                    <option value="@p.PaymentMethodId">@p.PaymentMethod</option>
+                                                                                    //}
+                                                                                    }
+                                                                                </select>
+
+
+                                                                            </div>*@
+                                                                    </div>
+                                                                    <!--  fin select      -->
+                                                                </div>
+                                                            </div>
+                                                            <!--fin apartar-->
+                                                            <!------un solo pago------>
+                                                            <div class="tab-pane" id="un-pago">
+                                                                <div class="col-lg-12">
+                                                                    <div class="row">
+                                                                        <div class="form-group">
+                                                                            <label>@SessionManager.GetText("ACC_Pago_TotalToPay"):</label>
+                                                                            <input name="name" type="text" class="form-control" required disabled id="pagarUnSoloPagoInput">
+                                                                        </div>
+                                                                        <a style="float: left; margin-top: -20px;" data-toggle="modal" data-target="#info-cuenta">@SessionManager.GetText("ACC_Purchase_Account")</a>
+                                                                    </div>
+                                                                    <!-- segundo select    -->
+                                                                    <div class="tab-container">
+                                                                        @*<div class="row">
+                                                                                <span class="instruccion"><span class="step">1</span>@SessionManager.GetText("ACC_Pago_Choose_paymentMethod")</span>
+                                                                                <select class="form-control selectPago" id="pagoUnSoloPago">
+                                                                                    <option disabled="" value="0" selected="">@SessionManager.GetText("ACC_Pago_Select")</option>
+
+                                                                                    @foreach (var p in pago)
+                                                                                    {
+                                                                                    //if (p.PaymentTransactionType == 2)
+                                                                                    //{
+                                                                                    <option value="@p.PaymentMethodId">@p.PaymentMethod</option>
+                                                                                    //}
+                                                                                    }
+                                                                                </select>
+
+
+                                                                            </div>*@
+                                                                    </div>
+                                                                    <!--fin segundo select   -->
+                                                                </div>
+                                                            </div>
+                                                            <!------fin un solo pago------>
+                                                            <!--Todos los metodos aqui-->
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+                                                                        <span class="instruccion"><span class="step">1</span>@SessionManager.GetText("ACC_Pago_Choose_paymentMethod")</span>
+                                                                        <select class="form-control selectPago" id="pagoUnSoloPago">
+                                                                            <option disabled="" value="0" selected="">@SessionManager.GetText("ACC_Pago_Select")</option>
+
+                                                                            @foreach (var p in pago)
+                                                                            {
+                                                                                //if (p.PaymentTransactionType == 2)
+                                                                                //{
+                                                                                <option value="@p.PaymentMethodId">@p.PaymentMethod</option>
+                                                                                //}
+                                                                            }
+                                                                        </select>
+
+                                                                    </div>
+
+                                                                    <div id="tarjetaForm" class="tab-content-select" style="display:none;">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+                                                                            <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_PaymentReceipt")<a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">Formato .jpg .png o .pdf</span></span></span></a></span>
+                                                                            <form action="@Url.Action(" Archivo", "Home" )" method="post" enctype="multipart/form-data" id="formComprobantePago">
+                                                                                <input type="file" id="comprobantePagoApartar" class="dropify" data-height="200" data-allowed-file-extensions="pdf png jpg" name="file" />
+                                                                                <input type="button" value="subir" id="comprobantePagoApartarBoton" style="display:none;" />
+                                                                            </form>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+                                                                            <div class="checkbox checkbox-success">
+                                                                                <input id="checkAceptoApaartar" type="checkbox">
+                                                                                <label for="checkAceptoApaartar">@SessionManager.GetText("ACC_Pago_Aceptar") <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_TerminosCondiciones")</a></label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="transferenciaForm" class="tab-content-select" style="display:none;">
+                                                                        <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_CreditCardInfo") </span>
+                                                                        <div class="col-lg-12">
+                                                                            <div class="form-group">
+                                                                                <div class="col-md-12 sp">
+                                                                                    <label class="control-label">@SessionManager.GetText("ACC_Pago_CreditCardName"):</label>
+                                                                                    <input name="name" type="text" class="form-control" id="titularTarjetaApartar">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-12">
+                                                                            <div class="form-group">
+                                                                                <div class="col-md-12 sp">
+                                                                                    <label class="horizontal"><span>@SessionManager.GetText("ACC_Pago_CreditCardNumber"):</span></label>
+                                                                                </div>
+                                                                                <!--<div class="col-xs-3 spLeft checkout--mb ">
+                                                                                    <input name="name" type="text" class="form-control" minlength="4" maxlength="4" id="numTarj1">
+                                                                                </div>
+                                                                                <div class="col-xs-3 checkout--mb ">
+                                                                                    <input name="name" type="text" class="form-control" minlength="4" maxlength="4" id="numTarj2">
+                                                                                </div>
+                                                                                <div class="col-xs-3 checkout--mb ">
+                                                                                    <input name="name" type="text" class="form-control" minlength="4" maxlength="4" id="numTarj3">
+                                                                                </div>
+                                                                                <div class="col-xs-3 spRight checkout--mb">
+                                                                                    <input name="name" type="text" class="form-control" minlength="4" maxlength="4" id="numtarj4">
+                                                                                </div>-->
+                                                                                <div class="col-xs-12 sp">
+                                                                                    <input class="form-control log " name="card_number" type="text" id="card-number_JS" maxlength="16">
+
+                                                                                </div>
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-12">
+
+                                                                            <div class="col-md-4">
+                                                                                <div class="form-group">
+                                                                                    <label>@SessionManager.GetText("ACC_Pago_CreditCardMonth"):</label>
+                                                                                    <select class="form-control" id="mesExpApartar">
+                                                                                        <option disabled="" selected=""></option>
+                                                                                        <option value="enero">Enero</option>
+                                                                                        <option value="febrero">Febrero</option>
+                                                                                        <option value="marzo">Marzo</option>
+                                                                                        <option value="abril">Abril</option>
+                                                                                        <option value="mayo">Mayo</option>
+                                                                                        <option value="junio">Junio</option>
+                                                                                        <option value="julio">Julio</option>
+                                                                                        <option value="agosto">Agosto</option>
+                                                                                        <option value="septiembre">Septiembre</option>
+                                                                                        <option value="octubre">Octubre</option>
+                                                                                        <option value="noviembre">Noviembre</option>
+                                                                                        <option value="diciembre">Diciembre</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4 spLeft">
+                                                                                <div class="form-group">
+                                                                                    <label>@SessionManager.GetText("ACC_Pago_CreditCardYear"):</label>
+                                                                                    <select class="form-control" id="anoExpApartar">
+                                                                                        <option disabled="" selected=""></option>
+                                                                                        <option value="2018">2018</option>
+                                                                                        <option value="2019">2019</option>
+                                                                                        <option value="2020">2020</option>
+                                                                                        <option value="2021">2021</option>
+                                                                                        <option value="2022">2022</option>
+                                                                                        <option value="2023">2023</option>
+                                                                                        <option value="2024">2024</option>
+                                                                                        <option value="2025">2025</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4 spRight">
+                                                                                <div class="form-group">
+                                                                                    <label>@SessionManager.GetText("ACC_Pago_CreditCardCVV"):<a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">3 números al reverso de tu tarjeta</span></span></span></a></label>
+                                                                                    <input name="name" type="number" class="form-control" id="codigoInputApartar">
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+
+
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="checkbox checkbox-success">
+                                                                                <input id="aceptoCkeckApartarTDC" type="checkbox">
+                                                                                <label for="aceptoTerminosRFC">@SessionManager.GetText("ACC_Pago_Aceptar") <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_TerminosCondiciones")</a></label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="comprobantePago" class="tab-content-select-2" style="display: none;">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+                                                                            <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_mod_payments_upload_inst") <a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@SessionManager.GetText("ACC_Pago_Format")</span></span></span></a></span>
+
+                                                                            <form action="@Url.Action(" Archivo", "Home" )" method="post" enctype="multipart/form-data">
+                                                                                <input type="file" id="transferenciaInputFile" class="dropify" data-height="200" data-allowed-file-extensions="pdf png jpg" />
+                                                                                <input type="submit" value="subir" id="transferenciaInputFileBoton" style="display: none;" />
+                                                                            </form>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+                                                                            <div class="checkbox checkbox-success">
+                                                                                <input id="checkAceptoTransferencia" type="checkbox">
+                                                                                <label for="checkAceptoTransferencia">@SessionManager.GetText("ACC_Pago_Aceptar") <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_TerminosCondiciones") </a></label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="facturaPago" class="tab-content-select-2" style="display: none;">
+                                                                        <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_mod_payments_verify_data")</span>
+                                                                        <div class="col-lg-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">Dirección:</label>
+                                                                                <select class="form-control" id="selectFacturacion">
+                                                                                    <option value="0" selected>Ingresar nueva dirección </option>
+                                                                                    @for (int df = 0; datosFacturacion.Count() > df; df++)
+                                                                                    {
+                                                                                        var dft = df + 1;
+                                                                                        <option value="@dft" idFiscalData="@datosFacturacion[df].FiscalDataId"> @datosFacturacion[df].Identifier </option>
+                                                                                    }
+
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_RazonSocial"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="razonSocial">
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_RFC"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="rfc">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Calle"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="calle">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Numero"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="numero">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Colonia"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="colonia">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_CP")</label>
+                                                                                <input name="name" type="number" class="form-control" id="cp" maxlength="5" min="0" max="10000">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Delegacion"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="delegacion">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Ciudad"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="ciudad">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Estado"):</label>
+                                                                                <input name="name" type="text" class="form-control" id="estado">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                                                            <div class="form-group">
+                                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_Pais"):</label>
+                                                                                <select class="form-control" id="pais">
+                                                                                    @foreach (var pais in paises)
+                                                                                    {
+                                                                                        var selected = "";
+
+                                                                                        if (pais.PaisDefault == 1)
+                                                                                        {
+                                                                                            selected = "selected";
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            selected = "";
+                                                                                        }
+
+                                                                                        <option value="@pais.PaisId" @selected>@pais.PaisNombre</option>
+                                                                                    }
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="checkbox checkbox-success">
+                                                                                <input id="aceptoTerminosRFC" type="checkbox">
+                                                                                <label for="aceptoTerminosRFC">@SessionManager.GetText("ACC_Pago_Aceptar") <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_TerminosCondiciones")</a></label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="cuentaPago" class="tab-content-select-2" style="display: none;">
+                                                                        <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_TakingAccount"):</span>
+                                                                        <p> Selecciona tu plazo.</p>
+                                                                        <select class="form-control" id="selectOrdenPago">
+                                                                            <option value="0">@SessionManager.GetText("ACC_Pago_Select")</option>
+                                                                            @foreach (var p in plazos)
+                                                                            {
+                                                                                if (p.PaymentMethodId == 4)
+                                                                                {
+                                                                                    <option value="@p.TermPaymentId">@p.TermDays @SessionManager.GetText("ACC_Pago_Days")</option>
+                                                                                }
+                                                                            }
+                                                                        </select>
+                                                                        <span class="instruccion"><span class="step">3</span>@SessionManager.GetText("ACC_Pago_mod_payments_upload_inst") <a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@SessionManager.GetText("ACC_Pago_Format")</span></span></span></a></span>
+                                                                        <form action="@Url.Action(" Archivo", "Home" )" method="post" enctype="multipart/form-data">
+                                                                            <input type="file" id="OrdenPagoInputFile" class="dropify" data-height="200" data-allowed-file-extensions="pdf png jpg" />
+                                                                            <input type="submit" value="subir" id="OrdenPagoInputFileBoton" style="display: none;" />
+                                                                        </form>
+
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="checkbox checkbox-success">
+                                                                                <input id="aceptoTerminosOrden" type="checkbox">
+                                                                                <label for="aceptoTerminosOrden">@SessionManager.GetText("ACC_Pago_Aceptar") <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_TerminosCondiciones")</a></label>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="cartaPago" class="tab-content-select-2" style="display: none;">
+                                                                        <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_TakingAccount"):</span>
+                                                                        <p> Selecciona tu plazo.</p>
+                                                                        <select class="form-control" id="selectCartaCompromiso">
+                                                                            <option value="0">@SessionManager.GetText("ACC_Pago_Select")</option>
+                                                                            @foreach (var p in plazos)
+                                                                            {
+                                                                                if (p.PaymentMethodId == 5)
+                                                                                {
+                                                                                    <option value="@p.TermPaymentId">@p.TermDays @SessionManager.GetText("ACC_Pago_Days")</option>
+                                                                                }
+                                                                            }
+                                                                        </select>
+
+                                                                        <span class="instruccion"><span class="step">3</span>@SessionManager.GetText("ACC_Pago_mod_payments_upload_inst") <a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@SessionManager.GetText("ACC_Pago_Format")</span></span></span></a></span>
+                                                                        <form action="@Url.Action(" Archivo", "Home" )" method="post" enctype="multipart/form-data">
+                                                                            <input type="file" id="CartaCompromisoInputFile" class="dropify" data-height="200" data-allowed-file-extensions="pdf png jpg" />
+                                                                            <input type="submit" value="subir" id="CartaCompromisoInputFileBoton" style="display: none;" />
+                                                                        </form>
+
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="checkbox checkbox-success">
+                                                                                <input id="aceptoTerminosCarta" type="checkbox">
+                                                                                <label for="aceptoTerminosCarta">@SessionManager.GetText("ACC_Pago_Aceptar") <a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_TerminosCondiciones")</a></label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!--=====///[ fin  tab pagos ]///=====-->
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <a class="btn btn-formSucces pull-left regresarAlMenu" href="@Url.Action(" Plano", "Exhibitor" )" style="margin-top:-30px;">Regresar al plano</a>
+                                        <a class="btn btn-formSucces btnNext pull-right" style="margin-top:-30px;">@SessionManager.GetText("ACC_Pago_datos_btn_continue")</a>
+
+                                    </div>
+
+
+
+                                    <!--resumen de compra-->
+                                    <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 sp" id="divCarrito">
+                                        @{Html.RenderAction("ShowCarrito", "Home");}
+                                    </div>
+                                </div>
+                            </div>
+                            <!--tab 2 PAGO-->
+                            <div class="tab-pane fade" id="datos">
+                                <!--formulario y resumen de compra -->
+                                <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 col-lg-push-2 col-md-push-2 col-xs-push-0">
+                                    <div class="row" style="padding-top: 50px;">
+                                        <div class="pago-heading">
+                                            <a class="btn btn-formSucces btnPrevious pull-left" style="margin-bottom:10px;">@SessionManager.GetText("ACC_Pago_datos_btn_regresar")</a>
+                                            <a class="btn btn-formSucces btnNext pull-right" style="margin-bottom:10px;">@SessionManager.GetText("ACC_Pago_datos_btn_continue")</a>
+                                        </div>
+                                    </div>
+                                    <div class="bloque white-box">
+                                        <!------formulario----->
+                                        <form id="GeneralDataForm">
+                                            <div class="col-lg-10 sp">
+                                                <div class="alert" id="panelAlertDatos" role="alert" style="display: none;">
+                                                    <p id="alertLoginText"></p>
+                                                </div>
+                                                <p class="instruccion"><span class="step"></span>@SessionManager.GetText("ACC_Pago_datos_desc")</p>
+                                                <div class="col-lg-12 sp">
+                                                    <div class="form-group">
+                                                        <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_Empresa")</label>
+                                                        <input name="Empresa" type="text" class="form-control datosPersonales" required id="empresa" value="@cliente.BusinessName">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_Nombre")</label>
+                                                        <input name="name" type="text" class="form-control datosPersonales" required id="nombreEmpresa" value="@cliente.Name">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_puesto")</label>
+                                                        <input name="job" type="text" class="form-control datosPersonales" required id="puesto" value="@cliente.Job">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_ProdyServ")</label>
+                                                        <input name="descripcion" type="text" class="form-control datosPersonales" required id="productosSrvs" value="@cliente.Description">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_Phone")</label>
+                                                        <input name="phone" type="number" class="form-control datosPersonales" required id="telefono" value="@cliente.PhoneContact">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_Email")</label>
+                                                        <input name="email" type="email" class="form-control datosPersonales" required id="email" value="@cliente.EmailBusiness">
+                                                    </div>
+                                                </div>
+                                                @*<p class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_datos_pass_Desc")</p>
+                                                    <div class="col-lg-12 sp">
+                                                        <div class="col-lg-6 spLeft">
+                                                            <div class="form-group">
+                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_pass")</label>
+                                                                <input name="password" type="password" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 spRight">
+                                                            <div class="form-group">
+                                                                <label class="control-label">@SessionManager.GetText("ACC_Pago_datos_pass_confirm")</label>
+                                                                <input name="passwordRep" type="password" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>*@
+                                            </div>
+                                        </form>
+                                        <!------ fin formulario ------>
+                                    </div>
+                                    <div class="row">
+                                        <a class="btn btn-formSucces btnPrevious pull-left"  style="margin-top:-40px; ">@SessionManager.GetText("ACC_Pago_datos_btn_regresar")</a>
+                                        <a class="btn btn-formSucces btnNext pull-right" style="margin-top: -40px;">@SessionManager.GetText("ACC_Pago_datos_btn_continue")</a>
+                                    </div>
+                                </div>
+                                <!--fin formulario y resumen de compra-->
+                            </div>
+                            <!--////===== TAB 3 ======////-->
+                            <div class="tab-pane fade" id="confirm">
+
+                                @{Html.RenderAction("PurchaseResume", "Home");}
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <!--fin stepper pago-->
+        </div>
+    </div>
+</div>
+<!-----=== FIN CONTENIDO DE SECCIÓN ===----->
+<!-- /.container-fluid -->
+@Scripts.Render("~/bundles/Shared")
+@Scripts.Render("~/bundles/Pago")
+@Scripts.Render("~/bundles/Toast")
+
+@section scripts{
+    <script src="~/Scripts/dropify/dropify.js"></script>
+    <script src="~/Scripts/jquery.ForceBankingCard.js"></script>
+    @*
+        <script src="~/Scripts/jquery.creditCardValidator.js"></script>*@
+
+    <script>
+
+        hideLoader();
+
+        /*-----------------------------------*/
+        /*-------- LANGUAGE LABELS ----------*/
+        /*-----------------------------------*/
+
+
+        var parcialidades = decode('@SessionManager.GetText("ACC_Pago_Resumen_Parcialidades")');
+        var pagoUnico = decode('@SessionManager.GetText("ACC_Pago_Resumen_PagoUnicos")');
+        var compraLabel = decode('@SessionManager.GetText("ACC_Pago_datos_Resumen_Purchase")');
+        var solicitudLabel = decode('@SessionManager.GetText("ACC_Pago_Resumen_Solicitud")');
+        var completarCampos = decode('@SessionManager.GetText("ACC_RequeriedFields_Label")');
+        var terminosCondiciones = decode('@SessionManager.GetText("ACC_Pago_Resumen_TermsConditions")');
+        var errorTitle = decode('@SessionManager.GetText("ACC_Error_Label")');
+        var errorLabel = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+        var exito = decode('@SessionManager.GetText("ACC_Toast_Success")');
+        var compraProcesada = decode('@SessionManager.GetText("ACC_Pago_Resumen_PurchaseProcesed")');
+        var menuPrincipal = decode('@SessionManager.GetText("ACC_Pago_Resumen_ReturnMainMenu")');
+        var compraProcesada100 = decode('@SessionManager.GetText("ACC_Pago_Resumen_PurchaseProcesed100")');
+
+        /*----------------------------------*/
+        /*----------- TABS PAGO ------------*/
+        /*----------------------------------*/
+
+        $("#metodoPagoApartar").change(function () {
+            var metodoPago = $("#metodoPagoApartar option:selected").val();
+            var metodoPagoLabel = $("#metodoPagoApartar option:selected").text();
+            $("#tipoCompraLabel").html("solicitud");
+
+            if (metodoPago == 0) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text("");
+            } else if (metodoPago == 1) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").show();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cartaPago").hide();
+                $("#cuentaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            } else if (metodoPago == 2) { //Pago con transferencia
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#transferenciaForm").show();
+                $("#tarjetaForm").hide();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            /*} else if (metodoPago == 3) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").show();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);*/
+            } else if (metodoPago == 3) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").show();
+                $("#cartaPago").hide();
+                $("#cuentaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            } else if (metodoPago == 4) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").show();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            } else if (metodoPago == 5) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#cartaPago").show();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            }
+        });
+
+        $("#pagoUnSoloPago").change(function () {
+            var metodoPago = $("#pagoUnSoloPago option:selected").val();
+            var metodoPagoLabel = $("#pagoUnSoloPago option:selected").text();
+
+            //$("#tipoCompraLabel").html("compra");
+
+            if (metodoPago == 0) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text("");
+            } else if (metodoPago == 1) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").show();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            } else if (metodoPago == 2) { //Pago con transferencia
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#transferenciaForm").show();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            /*} else if (metodoPago == 3) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").show();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);*/
+            } else if (metodoPago == 3) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").show();
+                $("#cuentaPago").hide();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            } else if (metodoPago == 4) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").show();
+                $("#cartaPago").hide();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            } else if (metodoPago == 5) {
+                $("#transferenciaForm").hide();
+                $("#tarjetaForm").hide();
+                $("#comprobantePago").hide();
+                $("#facturaPago").hide();
+                $("#cuentaPago").hide();
+                $("#cartaPago").show();
+                $("#metodoPagoLabel").text(metodoPagoLabel);
+            }
+
+        });
+
+        var tableta = 1;
+        $("#modalidadPagoLabel").text(parcialidades);
+
+        $("#apartarTab").click(function () {
+            tableta = 1;
+            if ($("#metodoPagoApartar option:selected").val() != 0) {
+                $("#proximoPagoLabel").html("$" + $("#txtPercent").val());
+                $("#modalidadPagoLabel").text(parcialidades);
+                //$("#tipoCompraLabel").html(solicitudLabel);
+                ocultarAlerta("#panelAlertPago");
+            }
+        });
+
+        $("#unPagoTab").click(function () {
+            tableta = 2;
+            if ($("#pagoUnSoloPago option:selected").val() != 0) {
+                $("#proximoPagoLabel").html("$" + $("#pagarUnSoloPagoInput").val());
+                $("#modalidadPagoLabel").html(pagoUnico);
+                //$("#tipoCompraLabel").html(compraLabel);
+                ocultarAlerta("#panelAlertPago");
+            }
+        });
+
+
+        /*-----------------------------------------*/
+        /*-- Visualización navegación entre tabs --*/
+        /*-----------------------------------------*/
+
+        /*$(".btnPrevious").hide();
+        $(".btnComprar").hide();*/
+
+        $('.nav-tabs a').on('shown.bs.tab', function (event) {
+            var x = $(event.target).text();         // active tab
+            var y = $(event.relatedTarget).text();  // previous tab
+
+            var taba = event.target.dataset.idtab;
+
+            if (taba == "pago") {
+                /*$(".botonesPagoUnicos").show();
+
+
+                $(".btnPrevious").hide();
+                $(".btnNext").show();
+                $(".btnFinalizar").hide();
+
+                $(".botonesPagoGenerales").hide();*/
+
+            } else if (taba == "datos") {
+                /*$(".botonesPagoUnicos").hide();
+                $(".botonesPagoGenerales").show();
+
+                $(".btnPrevious").show();
+                $(".btnNext").show();
+                $(".btnFinalizar").hide();
+                */
+                if (tableta == 2) {
+                    $("#modalidadPagoLabel").html(pagoUnico);
+                    $("#proximoPagoLabel").html("$" + $("#pagarUnSoloPagoInput").val());
+                } else {
+                    $("#proximoPagoLabel").html("$" + $("#txtPercent").val());
+                }
+            } else if (taba == "confirm") {
+                /*$(".botonesPagoUnicos").hide();
+                $(".botonesPagoGenerales").show();
+
+                $(".btnPrevious").show();
+                $(".btnNext").hide();
+                $(".btnFinalizar").show();*/
+
+                if (tableta == 2) {
+                    $("#modalidadPagoLabel").html(pagoUnico);
+                    $("#proximoPagoLabel").html("$" + $("#pagarUnSoloPagoInput").val());
+                } else {
+                    $("#proximoPagoLabel").html("$" + $("#txtPercent").val());
+                }
+            }
+        });
+
+        $("#pagoCirculo").click(function () {
+            /*$(".botonesPagoUnicos").show();
+
+            $(".btnPrevious").hide();
+            $(".btnNext").show();
+            $(".btnFinalizar").hide();
+
+            $(".botonesPagoGenerales").hide();*/
+
+        });
+
+        $("#datosCirculo").click(function () {
+            /*$(".botonesPagoUnicos").hide();
+            $(".botonesPagoGenerales").show();
+
+            $(".btnPrevious").show();
+            $(".btnNext").show();
+            $(".btnFinalizar").hide();*/
+
+        });
+
+        $("#confirmCirculo").click(function () {
+            /*$(".botonesPagoUnicos").hide();
+            $(".botonesPagoGenerales").show();
+
+            $(".btnPrevious").show();
+            $(".btnNext").hide();
+            $(".btnFinalizar").show();*/
+
+            if (tableta == 2) {
+                $("#modalidadPagoLabel").html(pagoUnico);
+                $("#proximoPagoLabel").html("$" + $("#pagarUnSoloPagoInput").val());
+            }
+        });
+
+        /*---------------------------------------*/
+        /*-------- CONFIRMAR COMRPA ------------*/
+        /*--------------------------------------*/
+
+        $('#comprobantePagoApartar').change(function () {
+            $('#comprobantePagoApartarBoton').click();
+        });
+
+        $('#OrdenPagoInputFile').change(function () {
+            $('#OrdenPagoInputFileBoton').click();
+        });
+
+        $('#CartaCompromisoInputFile').change(function () {
+            $('#CartaCompromisoInputFileBoton').click();
+        });
+
+        $(".btnFinalizar").click(function () {
+
+            /* Correo */
+            var ingresarLabel = "Ingesar";
+            var ingresarLink = (window.location.href).toLowerCase();
+
+            ingresarLink = ingresarLink.replace("/pago", "");
+            ingresarLink = ingresarLink.replace("/home", "");
+            ingresarLink = ingresarLink.replace("#", "");
+
+            if (ingresarLink.includes("esp") || ingresarLink.includes("eng")) {
+                ingresarLink = ingresarLink.replace("esp", "ESP");
+                ingresarLink = ingresarLink.replace("eng", "ENG");
+            } else {
+               ingresarLink = ingresarLink.concat("/" + '@idiomaId');
+            }
+
+            ingresarLink = ingresarLink.split("?", 1);
+            ingresarLink = ingresarLink[0].concat("/Home/Index");
+
+            /* Variables */
+            var acepto = false;
+            var montoPagar = 0;
+            var operacion = true;
+            var compra;
+            var idCupon = $("#cuponDescuentoLabel").text();
+
+            var tipoPago =@tipoPago;
+
+            /* Variables para los datos fiscales */
+            var empresa = $("#empresa").val();
+            var nombre = $("#nombreEmpresa").val();
+            var puesto = $("#puesto").val();
+            var productos = $("#productosSrvs").val();
+            var telefono = $("#telefono").val();
+            var email = $("#email").val();
+            var montoTotal = $("#totalReal").text().replace(",", "").replace("$", "");
+            var montoDescuento = $("#pagarUnSoloPagoInput").val().replace(",", "").replace("$", "").replace("MXN", "").replace("USD", "").replace(" ", "");
+            var metodo = 0;
+            var metodoLabel = "";
+
+            /* Se evalúa cual es la modalidad de pago */
+            if (tableta == 1) {                                             // Apartar Stand
+                montoPagar = $("#txtPercent").val().replace(",", "").replace("MXN", "").replace("USD", "").replace(" ", "");
+                metodo = $("#pagoUnSoloPago option:selected").val();
+                metodoLabel = $("#pagoUnSoloPago option:selected").text();
+
+            } else if (tableta == 2) {                                       //Un solo pago
+                montoPagar = $("#pagarUnSoloPagoInput").val().replace(",", "").replace("MXN", "").replace("USD", "").replace(" ", "");
+                metodo = $("#pagoUnSoloPago option:selected").val();
+                metodoLabel = $("#pagoUnSoloPago option:selected").text();
+            }
+
+            /* Se evalúa el método de pago */
+            if (metodo == 1) {  //Transferencia o depósito
+                var transferencia = $("#comprobantePagoApartar").val();
+                acepto = $("#checkAceptoApaartar").prop("checked");
+
+                if (tipoPago == 2) {
+                    if (transferencia == "") {
+                        mandarAlerta("#panelAlertPago", "alert-danger", "Debes completar tu pago");
+                        $('#pagoCirculo a').tab('show');
+                        operacion = false;
+                    }/* else {
+                        $('#comprobantePagoApartarBoton').click();
+                    }*/
+                } /*else {
+                    if (transferencia != "") {
+                        $('#comprobantePagoApartarBoton').click();
+                    }
+                }*/
+
+                compra = {
+                    info: {
+                        TotalPayment: montoPagar, TotalDiscount: montoDescuento, total: montoTotal, metodoId: metodo, tipoPago: tableta, CuponId: idCupon, MetodoPago: metodoLabel,
+                        datosFiscales: {
+                            EmailBusiness: email, Name: nombre, Job: puesto, BusinessName: empresa, Description: productos, PhoneContact: telefono
+                        }
+                    }, url: transferencia, ingresarLink: ingresarLink, ingresarLabel
+                };
+
+            } else if (metodo == 2) { //Pago con TDC
+                var titular = $("#titularTarjetaApartar").val();
+                var tarjeta = $("#card-number_JS").val(); // + $("#numTarj2").val() + $("#numTarj3").val() + $("#numTarj4").val();
+                var anoExp = $("#anoExpApartar").val();
+                var mesExp = $("#mesExpApartar").val();
+                var cvv = $("#codigoInputApartar").val();
+                acepto = $("#aceptoCkeckApartarTDC").is(":checked");
+
+                if (titular == "" || tarjeta == "" || anoExp == "" || mesExp == "" || cvv == "") {
+
+                    mandarAlerta("#panelAlertPago", "alert-danger", completarCampos);
+                    $('#pagoCirculo a').tab('show');
+                    operacion = false;
+                }
+
+                compra = {
+                    info: {
+                        TotalPayment: montoPagar, TotalDiscount: montoDescuento, Total: montoTotal, metodoId: metodo, tipoPago: tableta, CuponId: idCupon, MetodoPago: metodoLabel,
+                        datosFiscales: {
+                            EmailBusiness: email, Name: nombre, Job: puesto, BusinessName: empresa, Description: productos, PhoneContact: telefono
+                        }
+                    },
+                    factura: {
+                        razonSocial: razonSocial, rfc: rfc, calle: calle, numero: num, colonia: colonia, cp: codPost, delegacion: delegacion, ciudad: ciudad, estado: estado, pais: pais
+                    }, ingresarLink: ingresarLink, ingresarLabel
+                };
+
+            }
+            else if (metodo == 3) { //Solicitar factura
+                var razonSocial = $("#razonSocial").val();
+                var rfc = $("#rfc").val();
+                var calle = $("#calle").val();
+                var num = $("#numero").val();
+                var colonia = $("#colonia").val();
+                var codPost = $("#cp").val();
+                var delegacion = $("#delegacion").val();
+                var ciudad = $("#ciudad").val();
+                var estado = $("#estado").val();
+                var pais = $("#pais option:selected").text();
+
+                acepto = $("#aceptoTerminosRFC").is(":checked");
+
+                if (razonSocial == "" || rfc == "" || calle == "" || num == "" || colonia == "" || codPost == "" || delegacion == "" || ciudad == "" || estado == "" || pais == "") {
+
+                    mandarAlerta("#panelAlertPago", "alert-danger", completarCampos);
+                    $('#pagoCirculo a').tab('show');
+                    operacion = false;
+                }
+
+                if (codPost.length > 4) {
+                    codPost = codPost.slice(0, 5);
+                }
+
+                compra = {
+                    info: {
+                        TotalPayment: montoPagar, TotalDiscount: montoDescuento, Total: montoTotal, metodoId: metodo, tipoPago: tableta, CuponId: idCupon, MetodoPago: metodoLabel,
+                        datosFiscales: {
+                            EmailBusiness: email, Name: nombre, Job: puesto, BusinessName: empresa, Description: productos, PhoneContact: telefono
+                        }
+                    },
+                    factura: {
+                        razonSocial: razonSocial, rfc: rfc, calle: calle, numero: num, colonia: colonia, cp: codPost, delegacion: delegacion, ciudad: ciudad, estado: estado, pais: pais
+                    }, ingresarLink: ingresarLink, ingresarLabel
+                };
+
+            }
+            else if (metodo == 4) { //Pago con orden de pago
+                var plazo = $("#selectOrdenPago option:selected").val();
+                acepto = $("#aceptoTerminosOrden").is(":checked");
+
+                if (plazo == 0) {
+
+                    mandarAlerta("#panelAlertPago", "alert-danger", completarCampos);
+                    $('#pagoCirculo a').tab('show');
+                    operacion = false;
+                }
+
+                var transferencia = $("#OrdenPagoInputFile").val();
+
+                if (tipoPago == 2) {
+                    if (transferencia == "") {
+
+                        mandarAlerta("#panelAlertPago", "alert-danger", "Debes completar tu pago");
+                        $('#pagoCirculo a').tab('show');
+                        operacion = false;
+                    }
+                }
+
+                compra = {
+                    info: {
+                        TotalPayment: montoPagar, TotalDiscount: montoDescuento, total: montoTotal, metodoId: metodo, tipoPago: tableta, CuponId: idCupon, MetodoPago: metodoLabel, PlazoOrden: plazo,
+                        datosFiscales: {
+                            EmailBusiness: email, Name: nombre, Job: puesto, BusinessName: empresa, Description: productos, PhoneContact: telefono
+                        }
+                    }, url: transferencia, ingresarLink: ingresarLink, ingresarLabel
+                }
+
+            } else if (metodo == 5) { //Pago con carta compromiso
+                var plazo = $("#selectCartaCompromiso option:selected").val();
+                acepto = $("#aceptoTerminosCarta").is(":checked");
+
+                if (plazo == 0) {
+                    mandarAlerta("#panelAlertPago", "alert-danger", completarCampos);
+                    $('#pagoCirculo a').tab('show');
+                    operacion = false;
+                }
+
+                var transferencia = $("#CartaCompromisoInputFile").val();
+
+                if (tipoPago == 2) {
+                    if (transferencia == "") {
+                        mandarAlerta("#panelAlertPago", "alert-danger", "Debes completar tu pago");
+                        $('#pagoCirculo a').tab('show');
+                        operacion = false;
+                    }
+                }
+
+                compra = {
+                    info: {
+                        TotalPayment: montoPagar, TotalDiscount: montoDescuento, total: montoTotal, metodoId: metodo, tipoPago: tableta, CuponId: idCupon, MetodoPago: metodoLabel, PlazoOrden: plazo,
+                        datosFiscales: {
+                            EmailBusiness: email, Name: nombre, Job: puesto, BusinessName: empresa, Description: productos, PhoneContact: telefono
+                        }
+                    }, url: transferencia, ingresarLink: ingresarLink, ingresarLabel
+                }
+            }
+
+            if (empresa == "" || nombre == "" || puesto == "" || productos == "" || telefono == "" || email == "") {
+
+                $('#datosCirculo a').tab('show');
+                operacion = false;
+                mandarAlerta("#panelAlertDatos", "alert-danger", completarCampos);
+            }
+
+            if (acepto == false) {
+
+                mandarAlerta("#panelAlertPago", "alert-danger", terminosCondiciones);
+                $('#pagoCirculo a').tab('show');
+                operacion = false;
+
+                $("body").find("#loaderPagar").html("");
+            }
+
+            if (operacion == true) {
+
+                ocultarAlerta("#panelAlertPago");
+                ocultarAlerta("#panelAlertDatos");
+                // console.log(compra);
+                if (tipoPago == 1) {
+                    guardarCompra(compra, tableta);
+                } else {
+                    actualizarCompra(compra);
+                    console.log("actualizarCompra");
+                }
+            }
+
+        });
+
+        var quitarLoader = function () {
+            $("body").find("#loaderPagar").html("");
+        };
+
+        var guardarCompra = function (compra, tableta) {
+            /* Se despliega loader */
+
+            showLoader();
+
+            var url = '@Url.Action("SavePurchaseInformation", "Home")';
+
+            console.log(compra);
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: compra,
+                success: function (data) {
+
+                    hideLoader();
+
+                    if (data == "Ok") {
+
+                        if (tableta == 1) {
+
+                            swal(exito, compraProcesada, "success");
+
+                            swal({
+                                title: exito,
+                                text: compraProcesada,
+                                icon: "success",
+                                button: menuPrincipal,
+                            }).then((value) => {
+                                var ruta = (window.location.href).toLowerCase();
+                                ruta = ruta.replace("/pago", "");
+                                ruta = ruta.replace("/home", "");
+                                ruta = ruta.replace("#", "");
+                                if (ruta.includes("esp") || ruta.includes("eng")) {
+                                    ruta = ruta.replace("esp", "ESP");
+                                    ruta = ruta.replace("eng", "ENG");
+                                } else {
+
+                                    ruta = ruta.concat("/" + '@idiomaId');
+
+                                    }
+                                ruta = ruta.split("?", 1);
+
+                                ruta = ruta[0].concat("/Exhibitor/Plano");
+
+                                window.location.assign(ruta);
+                            });
+
+                        } else {
+                            swal(exito, compraProcesada100, "success");
+
+                            swal({
+                                title: exito,
+                                text: compraProcesada100,
+                                icon: "success",
+                                button: menuPrincipal,
+                            }).then((value) => {
+                                var ruta = (window.location.href).toLowerCase();
+                                ruta = ruta.replace("/pago", "");
+                                ruta = ruta.replace("/home", "");
+                                ruta = ruta.replace("#", "");
+                                if (ruta.includes("esp") || ruta.includes("eng")) {
+                                    ruta = ruta.replace("esp", "ESP");
+                                    ruta = ruta.replace("eng", "ENG");
+                                } else {
+
+                                    ruta = ruta.concat("/" + '@idiomaId');
+
+                                }
+                                ruta = ruta.split("?", 1);
+
+                                ruta = ruta[0].concat("/Exhibitor/Plano");
+
+                                window.location.assign(ruta);
+                            });
+                        }
+                    } else {
+                        MandarToastError(errorTitle, errorLabel);
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+        var actualizarCompra = function (compra) {
+            /* Se despliega loader */
+
+            $("body").prepend(
+                '<div id="loaderPagar">'
+                + '<div class="loader center-block">'
+                + '<svg id="loading" viewbox="0 0 100 80" class="load" >'
+                + '<defs>'
+                + '<linearGradient id="gradient" x1="100%" y1="0%" x2="0%" y2="100%">'
+                + '<stop offset="0%" stop-color="#4383b8" />'
+                + '<stop offset="100%" stop-color="#4aa06c" />'
+                + '</linearGradient>'
+
+                + '<clipPath id="rects">'
+                + '<rect class="rect" id="rect1" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '<rect class="rect" id="rect2" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '<rect class="rect" id="rect3" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '<rect class="rect" id="rect4" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '<rect class="rect" id="rect5" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '<rect class="rect" id="rect6" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '<rect class="rect" id="rect7" x="0" y="0" width="30" height="30" rx="2" ry="2" />'
+                + '</clipPath>'
+                + '</defs>'
+
+                + '<rect id="container" transform="translate(50) scale(0.707, 0.707) rotate(45)" x="0" y="0" width="100" height="100" fill="url(#gradient)" clip-path="url(#rects)" >'
+                + '</rect>'
+                + '</svg>'
+                + '</div>'
+                + '</div>'
+            );
+
+            var url = '@Url.Action("UpdatePurchaseInformation", "Home")';
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: compra,
+                success: function (data) {
+
+                    $("body").find("#loaderPagar").html("");
+
+                    if (data == "Ok") {
+                        swal(exito, "Se ha mandado tu pago para su validación", "success");
+
+                        swal({
+                            title: exito,
+                            text: compraProcesada,
+                            icon: "success",
+                            button: menuPrincipal,
+                        }).then((value) => {
+                            var ruta = (window.location.href).toLowerCase();
+                            ruta = ruta.replace("/pago", "");
+                            ruta = ruta.replace("/home", "");
+                            ruta = ruta.replace("#", "");
+                            if (ruta.includes("esp") || ruta.includes("eng")) {
+                                ruta = ruta.replace("esp", "ESP");
+                                ruta = ruta.replace("eng", "ENG");
+                            } else {
+                                ruta = ruta.concat("/" + '@idiomaId');
+
+                            }
+                            ruta = ruta.split("?", 1);
+                            ruta = ruta[0].concat("/Exhibitor/Plano");
+
+                            window.location.assign(ruta);
+                        });
+
+                    } else {
+                        MandarToastError(errorTitle, errorLabel);
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+        $('#transferenciaInputFileBoton').on('click', function (event) {
+            //MandarToastAdvertencia("Ignorame", "Soy una prueba");
+            event.preventDefault();
+        });
+
+        $('#comprobantePagoApartarBoton').on('click', function (event) {
+            //MandarToastAdvertencia("Quiondis", $("#comprobantePagoApartar").get(0).files[0]);
+
+            var url = '@Url.Action("Archivo", "Home")';
+
+            var file = $("#comprobantePagoApartar").get(0).files[0];
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                contentType: false,
+                cache: false,
+                processData: false,
+                data: formData,
+                success: function (data) {
+                    // MandarToastExito("exito", "chavods");
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        });
+
+        $('#OrdenPagoInputFileBoton').on('click', function (event) {
+            //MandarToastAdvertencia("Ignorame", "Soy una prueba");
+            event.preventDefault();
+        });
+
+        $('#OrdenPagoInputFileBoton').on('click', function (event) {
+            //MandarToastAdvertencia("Quiondis", $("#OrdenPagoInputFile").get(0).files[0]);
+            var url = '@Url.Action("Archivo", "Home")';
+
+            var file = $("#OrdenPagoInputFile").get(0).files[0];
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                contentType: false,
+                cache: false,
+                processData: false,
+                data: formData,
+                success: function (data) {
+                    // MandarToastExito("exito", "chavods");
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        });
+
+        $('#CartaCompromisoInputFileBoton').on('click', function (event) {
+            //MandarToastAdvertencia("Ignorame", "Soy una prueba");
+            event.preventDefault();
+        });
+
+        $('#CartaCompromisoInputFileBoton').on('click', function (event) {
+           // MandarToastAdvertencia("Quiondis", $("#CartaCompromisoInputFile").get(0).files[0]);
+
+            var url = '@Url.Action("Archivo", "Home")';
+
+            var file = $("#CartaCompromisoInputFile").get(0).files[0];
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                contentType: false,
+                cache: false,
+                processData: false,
+                data: formData,
+                success: function (data) {
+                    // MandarToastExito("exito", "chavods");
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        });
+
+        /* ------------ TDC & TDD --------------*/
+        $("#card-number_JS").ForceBankingCard({
+            charSeparator: "-",
+            digitsGroup: 4,
+            blockCutCopyPaste: true,
+            validateCard: true,
+            length: 16
+
+        });
+
+        /*  $('#card-number_JS input[type=text]').on('keyup', function () {
+                cardFormValidate();
+            });
+
+            $('#card-number_JS').validateCreditCard(function (result) {
+                if (result.valid) {
+                    $("#card-number_JS").removeClass('required');
+                    cardValid = 1;
+                } else {
+                    $("#card-number_JS").addClass('required');
+                    cardValid = 0;
+                }
+            });*/
+
+
+        /*-----------------------------------------*/
+        /*------ DATOS DE FACTURACIÓN -------------*/
+        /*-----------------------------------------*/
+
+        $("#selectFacturacion").change(function () {
+            var op = $("#selectFacturacion option:selected").val();
+
+            var datosFacturacion = JSON.parse('@Html.Raw(datosFacturacionJson)');
+
+            if (op != 0) {
+                $("#razonSocial").val(datosFacturacion[op - 1].RazonSocial);
+                $("#rfc").val(datosFacturacion[op - 1].Rfc);
+                $("#calle").val(datosFacturacion[op - 1].Calle);
+                $("#numero").val(datosFacturacion[op - 1].NoExterior + " " + datosFacturacion[op - 1].NoInterior);
+                $("#colonia").val(datosFacturacion[op - 1].Colonia);
+                $("#cp").val(datosFacturacion[op - 1].CodigoPostal);
+                $("#delegacion").val(datosFacturacion[op - 1].Municipio);
+                $("#ciudad").val(datosFacturacion[op - 1].Ciudad);
+                $("#estado").val(datosFacturacion[op - 1].Estado);
+                $("#pais").val(datosFacturacion[op - 1].Pais);
+                $("#pais").change();
+            } else {
+                $("#razonSocial").val("");
+                $("#rfc").val("");
+                $("#calle").val("");
+                $("#numero").val("");
+                $("#colonia").val("");
+                $("#cp").val("");
+                $("#delegacion").val("");
+                $("#ciudad").val("");
+                $("#estado").val("");
+                $("#pais").val("MX");
+
+            }
+        });
+
+        /*-----------------------------------------------*/
+        /*------------- PAGO DE SOLICITUD ---------------*/
+        /*-----------------------------------------------*/
+
+        var tipoPago = @tipoPago;
+
+        var previousPaymentMethod
+        //2 Para hacer Insert
+        if (tipoPago == 2) {
+            //Ocultar tabs
+            $("#unPagoTab").addClass("active");
+            $("#apartarTab").removeClass("active");
+            $("#tab").hide();
+
+            //Establecer el total
+            $("#txtPercent").val('@String.Format("{0:n}", listItems[0].Cost)');
+            $("#pagarUnSoloPagoInput").val('@String.Format("{0:n}", listItems[0].Cost)');
+
+
+            //Ocultar etiquetas
+            $(".datosPersonales").attr("disabled", true);
+            $(".soloPago").hide();
+        }
+
+    </script>
+}
+
+
+

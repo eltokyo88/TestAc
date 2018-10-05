@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "Error404";
+    Layout = null;
+    string googleAnalyticsId = (string)ViewBag.GoogleAnalyticsId;
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>error404</title>
+    <!-- Bootstrap -->
+    @Styles.Render("~/Content/Shared")
+    @Styles.Render("~/Content/Fuentes")
+</head>
+<body>
+    <div class="Contenterror">
+        <div class="wrap_1024Error">
+            <div class="grid grid_12 alnCentrado" style="margin-top: 150px;">
+                <img src="~/Content/img/error404.gif" alt="" style="width: 60%; max-width: 800px; height: auto; position: relative;" />
+                <div id="fadein">
+                    <div id="moving">
+                        <h3 class="marginTop_xl bold">Error página no encontrada</h3>
+                        <h4 class="marginTop_lg">La página que intentas solicitar no está en el servidor.</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Chat PriceTravel -->
+    @*<script type="text/javascript">
+        (function (d, src, c) { var t = d.scripts[d.scripts.length - 1], s = d.createElement('script'); s.id = 'la_x2s6df8d'; s.async = true; s.src = src; s.onload = s.onreadystatechange = function () { var rs = this.readyState; if (rs && (rs != 'complete') && (rs != 'loaded')) { return; } c(this); }; t.parentElement.insertBefore(s, t.nextSibling); })(document,
+            'https://pricetravel.ladesk.com/scripts/track.js',
+            function (e) { LiveAgent.createButton('85541b5a', e); });
+    </script>*@
+
+    <!-- Google analytics -->
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', '@googleAnalyticsId', 'auto');
+        ga('send', 'pageview');
+    </script>
+</body>
+</html>

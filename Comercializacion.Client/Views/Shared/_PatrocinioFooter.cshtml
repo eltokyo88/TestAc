@@ -1,0 +1,24 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.Model
+@using Comercializacion.Service.BLL
+@{
+
+    var logos = new List<SponsorshipLogoBanner>();
+    if (SessionManager.EventoData != null)
+    {
+        logos = SponsorshipLogoBannerService.GetSponsorshipLogoBanner(SessionManager.EventoData.IdEvento);
+    }
+}
+<div class="patrocinios">
+    <div class='patrocinios-container'>
+        <!-- Patrocinios CAROUSEL -->
+        <h3>@SessionManager.GetText("ACC_Home_FootPartner")</h3>
+        <div id="owl-demo2" class="owl-carousel margin-bottom">
+
+            @foreach (var item in logos)
+            {
+                <div class="item"><img src="@item.UrlImage" alt=""> </div>@*<a href="@item.UrlLink" target="_blank"></a>*@
+    }
+</div>
+    </div>
+</div>

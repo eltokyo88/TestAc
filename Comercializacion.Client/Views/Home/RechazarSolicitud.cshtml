@@ -1,0 +1,174 @@
+﻿@using Comercializacion.Service.Model;
+@using Comercializacion.Client.Common;
+@{
+    ViewBag.Title = "RechazarSolicitud";
+    Layout = null;
+    Solicitud solicitud = (Solicitud)ViewData["solicitud"];
+    string idiomaId = (string)ViewData["languageId"];
+}
+@Styles.Render("~/Content/Index")
+
+<header class="notification__header">
+    <img src="@SessionManager.logoEventoChiquitoURL" alt="" style="height: 80px;">
+</header>
+<div class="container-fluid notification__content">
+    <div class="notification__container">
+        <div class="notification__ttl text-center">
+            @*¿Estás seguro de rechazar esta solicitud?*@
+            Rechazando solicitud. Espere...
+        </div>
+        @*<div class="notification__data">
+            <div class="form-group notification__col-1-1">
+                <label class="notification__label" for="empresa">
+                    @SessionManager.GetText("ACC_Login_Form_Business")
+                </label>
+                <div class="notification__input">
+                    @solicitud.Empresa
+                </div>
+            </div>
+            <div class="form-group notification__col-1-1">
+                <label class="notification__label" for="cliente">
+                    @SessionManager.GetText("ACC_Login_Form_Client")
+                </label>
+                <div class="notification__input">
+                    @solicitud.Representante
+                </div>
+            </div>
+            <div class="form-group notification__col-1-1">
+                <label class="notification__label" for="tfc">
+                    @SessionManager.GetText("ACC_Login_Form_RFC")
+                </label>
+                <div class="notification__input">
+                    @solicitud.Rfc
+                </div>
+            </div>
+            <div class="form-group notification__col-1-1">
+                <label class="notification__label" for="web">@SessionManager.GetText("ACC_Login_Form_WebSite")</label>
+                <div class="notification__input">
+                    <a class="notification__anchor" href="@solicitud.SitioWeb" target="_blank">
+                        @solicitud.SitioWeb
+                    </a>
+                </div>
+            </div>
+            <div class="form-group notification__col-1-1">
+                <label class="notification__label" for="phone">
+                    @SessionManager.GetText("ACC_Pago_datos_Phone")
+                </label>
+                <div class="notification__input">
+                    @solicitud.Telefono
+                </div>
+            </div>
+
+
+            <div class="notification__btn-container">
+                <button class="btn notification__btn notification__btn--success" id="rechazarBoton"> @SessionManager.GetText("ACC_EmailRequest_IAmSure")</button>
+                <a class="btn notification__btn notification__btn--reject" href="@Url.Action("Index", "Home")">@SessionManager.GetText("ACC_EmailRequest_Cancelar")</a>
+            </div>
+        </div>*@
+    </div>
+
+    @Scripts.Render("~/bundles/Shared")
+    @Scripts.Render("~/bundles/Toast")
+
+<script>
+
+    jQuery(function () {
+        rechazarAhora();
+    });
+
+    //$("#rechazarBoton").click(function () {
+    var rechazarAhora = function () {
+        var url = '@Url.Action("MandarMailRechazo", "Home")';
+        var comentarioRechazo = decode('@SessionManager.GetText("ACC_EmailRequest_RejectComment")');
+        var escribeComentario = decode('@SessionManager.GetText("ACC_EmailRequest_WriteComment")');
+        var exito = decode('@SessionManager.GetText("ACC_Toast_Success")');
+        var respuestaEnviada = decode('@SessionManager.GetText("ACC_Toast_AnswerSended")');
+        var respuestaNoEnviada = decode('@SessionManager.GetText("ACC_Toast_AnswerNotSended")');
+        var error = decode('@SessionManager.GetText("ACC_Error_Label")');
+        var algoSalioMal = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+        var aceptar = decode('@SessionManager.GetText("ACC_Alert_OkMessage")');
+
+        swal({
+            title: comentarioRechazo,
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: escribeComentario,
+                    type: "text",
+                },
+            },
+            buttons: {
+                confirm: {
+                    text: "Enviar",
+                    value: true,
+                    visible: true,
+                    closeModal: false,
+                },
+            },
+            closeModal: false,
+            closeOnClickOutside: false,
+            icon: "info",
+        }).then((value) => {
+
+            if (value != "") {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: { email: '@solicitud.Email', motivos: value },
+                    success: function (data) {
+
+                        if (data == "Enviado") {
+                            swal({
+                                title: exito,
+                                text: respuestaEnviada,
+                                icon: "success",
+                                buttons : {
+                                    confirm: {
+                                        text: aceptar,
+                                        value: true,
+                                        visible: true,
+                                        closeModal: true,
+                                    },
+                                },
+                            }).then((confirm) => {
+
+                                if (confirm) {
+                                    var ruta = (window.location.href).toLowerCase();
+
+                                    ruta = ruta.replace("/rechazarsolicitud", "");
+                                    ruta = ruta.replace("/home", "");
+                                    ruta = ruta.replace("#", "");
+                                    if (ruta.includes("esp") || ruta.includes("eng")) {
+                                        ruta = ruta.replace("esp", "ESP");
+                                        ruta = ruta.replace("eng", "ENG");
+                                    } else {
+                                        ruta = ruta.concat("/" + '@idiomaId');
+                                    }
+                                    ruta = ruta.split("?", 1);
+                                    ruta = ruta[0].concat("/Home/Index");
+
+                                    window.location.assign(ruta);
+                                }
+                           });
+
+                        } else {
+                            swal(error, respuestaNoEnviada, "error");
+                        }
+
+                    },
+                    error: function (jqXHR, exception) {
+                        swal(error, algoSalioMal, "error");
+                    }
+                });
+            }
+        }).catch(err => {
+            if (err) {
+                swal(error, algoSalioMal, "error");
+            } else {
+                swal.stopLoading();
+                swal.close();
+            }
+        })
+
+    };
+    </script>

@@ -1,0 +1,2413 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.DTO
+@using Comercializacion.Service.Model
+@using System.Globalization;
+@{
+    ViewBag.Title = "Mis Solicitudes";
+    Layout = "~/Views/Shared/_LayoutExhibitor.cshtml";
+}
+
+@Styles.Render("~/Content/Toast")
+@{
+    List<Requests> misSolicitudes = (List<Requests>)ViewData["misSolicitudes"];
+    int maximoPagos = (int)ViewData["maxPagos"];
+    EventoComercial eventoFechas = (EventoComercial)ViewData["eventDates"];
+    DateTime endDate = eventoFechas.EndDate.Date;
+    DateTime fTermino = eventoFechas.EndDate.Date.AddMonths(-1);
+    List<CatalogoPais> paises = (List<CatalogoPais>)ViewData["catalogoPais"];
+    List<FiscalData> datosFacturacion = (List<FiscalData>)ViewData["datosFacturacion"];
+    string datosFacturacionJson = (string)ViewData["datosFacturacionJson"];
+    string idiomaId = (string)ViewData["languageId"];
+    string misSolicitudesJson = (string)ViewData["misSolicitudesJson"];
+    int elementosCarrito = (int)ViewData["elementosCarrito"];
+
+    int purId = 0;
+}
+<!-- modal agendar pago -->
+<div id="agendarPagoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="firstPayLabel">@SessionManager.GetText("ACC_MisSolicitudes_AgendaPago")</h4>
+            </div>
+            <div class="modal-body">
+                <p>@SessionManager.GetText("ACC_MisSolicitudes_RecuerdaPagar") @endDate.</p>
+                <div class="alert" id="panelAlertPagosDispo" role="alert" style="display:none;">
+                    <p id="alertPagosText"></p>
+                </div>
+                <div class="row" style="display: none;">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="alert" id="panelAlertPagosModal" role="alert" style="display:none;">
+                            <p id="alertPagosText"></p>
+                        </div>
+                        <input type='text' class='form-control' id="paymentMethodIdPago" style="display:none;">
+                        <input type='text' class='form-control' id="purchaseIdPago" style="display:none;">
+                        <div class="form-group">
+                            <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_Concepto")</label>
+                            <select class="form-control" name="" id="selectAgendarPago">
+                                <option value="0">@SessionManager.GetText("ACC_Pago_Select")</option>
+
+                                @foreach (var s in misSolicitudes)
+                                {
+                                    if (purId != s.PurchaseId)
+                                    {
+                                        <option value="@s.PurchaseId">@s.PurchaseCode</option>
+                                    }
+                                    purId = s.PurchaseId;
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="panelModalInfo">
+
+                    <div class="row" id="panelAgregaPagos">
+                        <div class="request__form-container">
+                            <div class="form-group request__form-col-1-2">
+                                <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_MontoPagar"):</label>
+                                <input name="pay" type="number" class="form-control montoPago" id="montoPago0">
+                            </div>
+                            <div class="form-group request__form-col-1-2">
+                                <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_FechaPagar"):</label>
+                                <div class='input-group date'>
+                                    <input type='text' class='datepicker-here form-control calendarioPago' data-language='es' id="calendarioPago0">
+                                    <span class="input-group-addon" id='calendarioPagoBoton'>
+                                        <span class="glyphicon glyphicon-calendar show-datepicker_JS"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <a href="#" class="request__schedule-icon" id="agregarFechasPago">
+                                <i class="fa fa-plus text-white"></i>
+                                <span class="request__schedule-text">@SessionManager.GetText("ACC_MisSolicitudes_AgendarPago")</span>
+                            </a>
+                        </div>
+                        <div id="pagosAdicionalesPago">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="text-center">
+                                <b>@SessionManager.GetText("ACC_MisSolicitudes_PagosAgendados")</b>
+                                <br>
+                                <small>@SessionManager.GetText("ACC_MisSolicitudes_PagoLimite") @maximoPagos @SessionManager.GetText("ACC_MisSolicitudes_CubrirPago")</small>
+                            </h4>
+                            <div class="row">
+                                <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                                    <ul class="nav nav-pills request__counters-container" role="tablist">
+                                        <li class="request__info" role="presentation">
+                                            <span class="request__info-label">@SessionManager.GetText("ACC_MisSolicitudes_PendientePago")</span>
+                                            <span class="badge" id="montoPendientePago">$</span>
+
+                                        </li>
+                                        <li class="request__info" role="presentation">
+                                            <span class="request__info-label">@SessionManager.GetText("ACC_MisSolicitudes_MontoTotal")</span>
+                                            <span class="badge" id="montoTotalPago">$</span>
+                                        </li>
+                                        <li class="request__info" role="presentation">
+                                            <span class="request__info-label">@SessionManager.GetText("ACC_MisSolicitudes_PagosRestantes")</span>
+                                            <span class="badge" id="pagosRestantesModal">0</span>
+                                            <span id="pagosRestantesModal" style="display:none;"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 request__payments-container">
+                                    <div class="request__pays-container" id="panelPagosAgendos">
+                                        <div class="request__pay-head">
+                                            <h5 class="request__pays-title ">@SessionManager.GetText("ACC_MisSolicitudes_Pago1") 1</h5>
+                                            <div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Pagado")</div>
+                                        </div>
+                                        <div class="request__pays-col-1-2">
+                                            <label class="request__pays-label control-label">@SessionManager.GetText("ACC_MisSolicitudes_MontoPagar"):</label>
+                                            <input class="form-control request__pays-data" value="" readonly>
+                                        </div>
+                                        <div class="request__pays-col-1-2">
+                                            <label class="request__pays-label control-label">@SessionManager.GetText("ACC_MisSolicitudes_FechaPagar"):</label>
+                                            <input class="form-control request__pays-data" value="" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row payments__save">
+                    <div class="col-xs-4 col-xs-offset-8">
+                        <button type="button" class="btn btn-success pull-right" id="botonGuardarPago">@SessionManager.GetText("ACC_MisSolicitudes_Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<!-- modal content -->
+
+<div id="facturaModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">@SessionManager.GetText("ACC_MisSolicitudes_InvoiceModal_RequestInvoice")</h4>
+            </div>
+            <div class="modal-body">
+                <p>@SessionManager.GetText("ACC_MisSolicitudes_InvoiceModal_CompleteInfo").</p>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="alert" id="panelAlertFacturacionModal" role="alert" style="display:none;">
+                            <p id="alertFacturacionText"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_MisSolicitudes_InvoiceModal_Address"):</label>
+                            <select class="form-control" id="selectFacturacion">
+                                <option value="0" selected>@SessionManager.GetText("ACC_MisSolicitudes_InvoiceModal_NewAddress") </option>
+                                @for (int df = 0; datosFacturacion.Count() > df; df++)
+                                {
+                                    var dft = df + 1;
+                                    <option value="@dft" idFiscalData="@datosFacturacion[df].FiscalDataId"> @datosFacturacion[df].Identifier </option>
+                                }
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group " id="identifierDiv">
+                            <label class="control-label">@SessionManager.GetText("ACC_MisSolicitudes_InvoiceModal_NameAddress"):</label>
+                            <input name="name" type="text" class="form-control" id="identifier" value="">
+                        </div>
+                        <div class="form-group" id="razonSocialForm">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_RazonSocial"):</label>
+                            <input name="name" type="text" class="form-control" id="razonSocial" value="">
+                        </div>
+                        <div class="form-group" id="rfcForm">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_RFC"):</label>
+                            <input name="name" type="text" class="form-control" id="rfc" maxlength="15">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Calle"):</label>
+                            <input name="name" type="text" class="form-control" id="calle">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Numero"):</label>
+                            <input name="name" type="text" class="form-control" id="numero">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Colonia"):</label>
+                            <input name="name" type="text" class="form-control" id="colonia">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_CP")</label>
+                            <input name="name" type="number" class="form-control" id="cp" maxlength="5" min="0" max="10000">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Delegacion"):</label>
+                            <input name="name" type="text" class="form-control" id="delegacion">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Ciudad"):</label>
+                            <input name="name" type="text" class="form-control" id="ciudad">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Estado"):</label>
+                            <input name="name" type="text" class="form-control" id="estado">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label">@SessionManager.GetText("ACC_Pago_Pais"):</label>
+                            <select class="form-control" id="pais">
+                                @{string PaisId = ""; }
+                                @foreach (var pais in paises)
+                                {
+
+                                    if (pais.PaisDefault == 1)
+                                    {
+                                        PaisId = pais.PaisId;
+                                        <option value="@pais.PaisId" selected>@pais.PaisNombre</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@pais.PaisId">@pais.PaisNombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-formSucces btnNext pull-right" id="solicitarFactura">@SessionManager.GetText("ACC_MisSolicitudes_InvoiceModal_RequestButton")</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<!-- modal extención de pago -->
+<div id="extendDate" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="firstPayLabel">@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_PaymentExtension")</h4>
+            </div>
+            <div class="modal-body">
+                <p>@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_DateExpired").</p>
+                <p class="request__note">
+                    <i class="glyphicon glyphicon-exclamation-sign" style="margin-right: 10px"></i>@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_Remember"):
+                    <br /><center class="request__note"><span id="prorrogaMontoAdvertencia"></span></center>
+                </p>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="alert" id="panelAlertProrrogaModal" role="alert" style="display:none;">
+                            <p id="alertProrrogaText"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_PaymentAmount"):</label>
+                            <!-- El monto que pueden elegir para solicitar su prórroga, no debe ser menor al que habían acordado para el pago véncido -->
+                            <input name="pay" type="number" class="form-control" id="montoPagarProrroga" placeholder="" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_PaymentDate"):</label>
+                            <div class='input-group date'>
+                                <input type='text' class='datepicker-here form-control' id="fechaPagoProrroga" data-language='es'>
+                                <span class="input-group-addon show-datepicker_JS" id="fechaPagoProrrogaCalendario">
+                                    <span class="glyphicon glyphicon-calendar show-datepicker_JS"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_Reasons")</label>
+                            <textarea class="form-control" rows="3" id="motivoProrroga"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row payments__save">
+                    <div class="col-xs-4 col-xs-offset-8">
+                        <button type="button" class="btn btn-success pull-right" id="enviarProrroga">@SessionManager.GetText("ACC_MisSolicitudes_ProrrogaModal_Send")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<!-- modal first pay -->
+<div id="firstPay" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="firstPayLabel">@SessionManager.GetText("ACC_MisSolicitudes_AgendaPago")</h4>
+            </div>
+            <div class="modal-body">
+                <p>@SessionManager.GetText("ACC_MisSolicitudes_RecuerdaPagar") @endDate.</p>
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="alert" id="panelAlertGeneralPagosModal" role="alert" style="display:none;">
+                            <p id="alertPagosGeneralText"></p>
+                        </div>
+                        <input type='text' class='form-control' id="paymentMethodIdGeneralPago" style="display:none;">
+                        <input type='text' class='form-control' id="purchaseIdGeneralPago" style="display:none;">
+                        <div class="form-group">
+                            <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_AgendarGralModal_PurchaseDate")</label>
+                            <select class="form-control" name="" id="selectAgendarPagoGeneral">
+                                <option value="0">@SessionManager.GetText("ACC_Pago_Select")</option>
+
+                                @foreach (var s in misSolicitudes)
+                                {
+                                    if (purId != s.PurchaseId)
+                                    {
+                                        <option value="@s.PurchaseId">@s.PurchaseDate</option>
+                                    }
+                                    purId = s.PurchaseId;
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="panelModalInfoGeneral" style="display: none;">
+
+                    <div class="row" id="panelAgregaGeneralPagos">
+                        <div class="request__form-container">
+                            <div class="form-group request__form-col-1-2">
+                                <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_MontoPagar"):</label>
+                                <input name="pay" type="number" class="form-control montoPagoGeneral" id="montoPagoGeneral0">
+                            </div>
+                            <div class="form-group request__form-col-1-2">
+                                <label class="control-label request--size-label">@SessionManager.GetText("ACC_MisSolicitudes_FechaPagar"):</label>
+                                <div class='input-group date'>
+                                    <input type='text' class='datepicker-here form-control calendarioPagoGeneral' data-language='es' id="calendarioPagoGeneral0">
+                                    <span class="input-group-addon show-datepicker_JS" id='calendarioPagoGeneralBoton'>
+                                        <span class="glyphicon glyphicon-calendar show-datepicker_JS"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <a href="#" class="request__schedule-icon" id="agregarFechasGeneralesPago">
+                                <i class="fa fa-plus text-white"></i>
+                                <span class="request__schedule-text">@SessionManager.GetText("ACC_MisSolicitudes_AgendarPago")</span>
+                            </a>
+                        </div>
+                        <div id="pagosAdicionalesGeneralPago">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="text-center">
+                                <b>@SessionManager.GetText("ACC_MisSolicitudes_PagosAgendados")</b>
+                                <br>
+                                <small>@SessionManager.GetText("ACC_MisSolicitudes_PagoLimite") @maximoPagos @SessionManager.GetText("ACC_MisSolicitudes_CubrirPago").</small>
+                            </h4>
+                            <div class="row">
+                                <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                                    <ul class="nav nav-pills request__counters-container" role="tablist">
+                                        <li class="request__info" role="presentation">
+                                            <span class="request__info-label">@SessionManager.GetText("ACC_MisSolicitudes_PendientePago")</span>
+                                            <span class="badge" id="montoPendientePagoGeneral">$</span>
+
+                                        </li>
+                                        <li class="request__info" role="presentation">
+                                            <span class="request__info-label">@SessionManager.GetText("ACC_MisSolicitudes_MontoTotal")</span>
+                                            <span class="badge" id="montoTotalPagoGeneral">$</span>
+                                        </li>
+                                        <li class="request__info" role="presentation">
+                                            <span class="request__info-label">@SessionManager.GetText("ACC_MisSolicitudes_PagosRestantes")</span>
+                                            <span class="badge" id="pagosRestantesGeneralModal">0</span>
+                                            <span id="pagosRestantesGeneralModal" style="display:none;"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 request__payments-container">
+                                    <div class="request__pays-container" id="panelPagosGeneralesAgendos">
+                                        <div class="request__pay-head">
+                                            <h5 class="request__pays-title ">@SessionManager.GetText("ACC_MisSolicitudes_Pago1") 1</h5>
+                                            <div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Pagado")</div>
+                                        </div>
+                                        <div class="request__pays-col-1-2">
+                                            <label class="request__pays-label control-label">@SessionManager.GetText("ACC_MisSolicitudes_MontoPagar"):</label>
+                                            <input class="form-control request__pays-data" value="30,000" readonly>
+                                        </div>
+                                        <div class="request__pays-col-1-2">
+                                            <label class="request__pays-label control-label">@SessionManager.GetText("ACC_MisSolicitudes_FechaPagar"):</label>
+                                            <input class="form-control request__pays-data" value="14/05/2018" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row payments__save">
+                    <div class="col-xs-4 col-xs-offset-8">
+                        <button type="button" class="btn btn-success pull-right" id="botonGuardarPagoGeneral">@SessionManager.GetText("ACC_MisSolicitudes_Save")</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div class="row">
+    <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+        <div class="white-box">
+
+            <p class="text-muted m-b-20">@SessionManager.GetText("ACC_MisSolicitudes_Table_CheckStatus"). <span class="text-info">@SessionManager.GetText("ACC_MisSolicitudes_Table_Reminder") @endDate</span>.</p>
+            <div class="table-responsive tb-patrocinios">
+                <table class="table" id="tablaMisSolicitudes">
+                    <thead>
+                        <tr>
+                            <th>@SessionManager.GetText("ACC_MisSolicitudes_Table_PurchaseDate")</th>
+                            <th>@SessionManager.GetText("ACC_MisSolicitudes_Table_Concepto")</th>
+                            <th>@SessionManager.GetText("ACC_MisSolicitudes_Table_Total")</th>
+                            <th>@SessionManager.GetText("ACC_MisSolicitudes_Table_TotalPayed")</th>
+                            <th>@SessionManager.GetText("ACC_MisSolicitudes_Table_TotalLeft")</th>
+                            <th>@SessionManager.GetText("ACC_MisSolicitudes_Table_Status")</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            decimal fechasAgendadas = 0;
+                            string compras = "";
+                            string paymentsIds = "";
+                            DateTime fProx = DateTime.Now;
+                            string moneda = "";
+                            int numPago = 0;
+                        }
+
+                        @if (misSolicitudes.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7">@SessionManager.GetText("ACC_MisSolicitudes_PurchasesMaded")</td>
+                            </tr>
+                        }
+
+                        @for (int i = 0; i < misSolicitudes.Count; i++)
+                        {
+                            if (i + 1 < misSolicitudes.Count)
+                            {
+                                if (misSolicitudes[i + 1].PurchaseId != misSolicitudes[i].PurchaseId)
+                                {
+
+
+                                    fechasAgendadas = 1;
+                                    paymentsIds += misSolicitudes[i].PaymentId;
+                                    numPago += 1;
+
+                                    if (misSolicitudes[i].SponsorshipId != 0)
+                                    {
+                                        compras += "Patrocinio: '" + misSolicitudes[i].SponsorshipName + "'";
+                                        moneda = misSolicitudes[i].SponsorshipCurrency;
+                                    }
+                                    else
+                                    {
+                                        compras += "Stand " + misSolicitudes[i].StandId;
+                                        moneda = misSolicitudes[i].StandCurrency;
+                                    }
+
+                                    <tr>
+                                        <td>
+                                            @* misSolicitudes[i].PaymentMethodId == 1 &&*@
+                                            @*@if(misSolicitudes[i].IsPayed == 1){*@
+                                            <div class="request__icon-container request__icon-container_JS">
+                                                <i class="fa fa-plus-circle request__icon request__icon_JS clickable" data-toggle="collapse" id="pagosItem-@i" data-target=".pagosItem-@i"></i>
+                                                @misSolicitudes[i].PurchaseDate
+
+                                            </div>
+                                            @*}
+                                                else
+                                                {
+                                                    @misSolicitudes[i].PurchaseDate
+                                                }*@
+                                        </td>
+                                        @{decimal resta = misSolicitudes[i].PaymentWithDiscount - misSolicitudes[i].HasPayed;}
+                                        <td class="paymentId" style="display: none;">@paymentsIds</td>
+                                        <td class="purchaseId" style="display: none;">@misSolicitudes[i].PurchaseId</td>
+                                        <td class="montoPagado" style="display: none;">@misSolicitudes[i].HasPayed</td>
+                                        <td class="montoPendiente" style="display: none;">@misSolicitudes[i].PaymentWithDiscount  </td>
+                                        <td class="montoHasNotPayed" style="display: none;">@resta </td>
+                                        <td class="fechasAgendadas" style="display: none;">@fechasAgendadas</td>
+                                        <td class="paymentMethodId" style="display: none;">@misSolicitudes[i].PaymentMethodId</td>
+                                        <td class="paymentPromise" style="display: none;">@misSolicitudes[i].PaymentPromise</td>
+                                        <td class="montoPromesa" style="display: none;">@misSolicitudes[i].Total </td>
+
+                                        @if (misSolicitudes[i].SponsorshipId != 0)
+                                        {
+                                            <td class="idElement" style="display: none;">@misSolicitudes[i].SponsorshipId</td>
+                                            <td class="isStand" style="display: none;">0</td>
+                                            <td class="nameElement"> @compras</td>
+                                            <td>$ @String.Format("{0:n}", @misSolicitudes[i].PaymentWithDiscount) @misSolicitudes[i].SponsorshipCurrency</td>
+                                            <td>$ <span class="">@String.Format("{0:n}", resta) </span> @misSolicitudes[i].SponsorshipCurrency</td>
+                                            <td>$ @String.Format("{0:n}", @misSolicitudes[i].HasPayed) @misSolicitudes[i].SponsorshipCurrency</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="idElement" style="display: none;">@misSolicitudes[i].StandId</td>
+                                            <td class="isStand" style="display: none;">1</td>
+                                            <td class="nameElement">@compras</td>
+                                            <td>$ @String.Format("{0:n}", @misSolicitudes[i].PaymentWithDiscount) @misSolicitudes[i].StandCurrency</td>
+
+                                            <td>$ @String.Format("{0:n}", @misSolicitudes[i].HasPayed) @misSolicitudes[i].StandCurrency</td>
+
+                                            <td class="">$ @String.Format("{0:n}", resta) @misSolicitudes[i].StandCurrency</td>
+
+                                        }
+
+                                        @if (misSolicitudes[i].IsApproved == 2)
+                                        {
+                                            <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Rejected")</div></td>
+                                            <td><button class="btn btn-block btn-outline btn-primary">@SessionManager.GetText("ACC_MisSolicitudes_Table_Upload")</button></td>
+                                        }
+                                        else
+                                        {
+
+                                            if (misSolicitudes[i].IsPayed == 0)
+                                            {
+                                                @*<td>@misSolicitudes[i].PurchaseId</td>
+                                                    <td>@misSolicitudes[i].PaymentPromise</td>*@
+                                                //Si es pago unico
+                                                if (misSolicitudes[i].Total == misSolicitudes[i].TotalPayment)
+                                                {
+                                                    if (misSolicitudes[i].PaymentPromise >= DateTime.Now)
+                                                    {
+                                                        <td><div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pending")</div></td>
+                                                        <td>
+                                                            <button class="btn btn-block btn-outline btn-success pagar" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                            <button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Overdue")</div></td>
+                                                        if (misSolicitudes[i].ExtensionRequested == 0)
+                                                        {
+                                                            <td><button class="btn btn-block btn-outline btn-warning prorroga" data-toggle="modal" data-target="#extendDate">@SessionManager.GetText("ACC_MisSolicitudes_Table_Prorroga")</button></td>// data-toggle="modal" data-target="#agendarPagoModal"
+                                                        }
+                                                        else
+                                                        {
+                                                            <td><div class="label label-table label-warning">Prórroga solicitada</div></td>
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+
+                                                    //Si al fecha proxima de pago es mayor a hoy, aún está a tiempo de pagar, sino reagendará pagos.
+                                                    if (misSolicitudes[i].PaymentPromise >= DateTime.Now) //siempre y cuando los pagos sean menores al total que debe pagar
+                                                    {
+                                                        <td><div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pending")</div></td>
+                                                        //Si ya está cubierto su monto próximo a pagar, puede reagendar las próximas fechas de pago
+                                                        if (misSolicitudes[i].IsPayed == 1 && misSolicitudes[i].IsApproved == 1)
+                                                        {
+                                                            if (fechasAgendadas < (maximoPagos + 1))
+                                                            {
+                                                                <td><button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button></td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td></td>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <td>
+                                                                <button class="btn btn-block btn-outline btn-success pagar" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                                <button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button>
+                                                            </td>
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Overdue")</div></td>
+                                                        if (misSolicitudes[i].ExtensionRequested == 0)
+                                                        {
+                                                            <td><button class="btn btn-block btn-outline btn-warning prorroga" data-toggle="modal" data-target="#extendDate">@SessionManager.GetText("ACC_MisSolicitudes_Table_Prorroga")</button></td>// data-toggle="modal" data-target="#agendarPagoModal"
+                                                        }
+                                                        else
+                                                        {
+                                                            <td><div class="label label-table label-warning">Prórroga solicitada</div></td>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else if (misSolicitudes[i].IsPayed == 1)
+                                            {
+                                                if (misSolicitudes[i].IsApproved == 0)
+                                                {
+                                                    <td><div class="label label-table label-rouded label-default">@SessionManager.GetText("ACC_MisSolicitudes_Table_Review")</div></td>
+                                                    <td></td>
+                                                }
+                                                else if (misSolicitudes[i].IsApproved == 1)
+                                                {
+
+
+                                                    if (misSolicitudes[i].IsInvoiced == 1)
+                                                    {
+                                                        <td><button class="btn btn-block btn-outline btn-primary" download="@misSolicitudes[i].PurchaseCode" target="_blank">@SessionManager.GetText("ACC_MisSolicitudes_Table_Download")</button></td>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (resta == 0)
+                                                        {
+                                                            <td><div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pagado")</div></td>
+                                                            if (misSolicitudes[i].InvoiceRequested == 0)
+                                                            {
+                                                                <td>@*<button class="btn btn-block btn-outline btn-primary facturacion">@SessionManager.GetText("ACC_MisSolicitudes_Table_Invoice")</button>*@</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td><div class="label label-table label-primary">Factura solicitada</div></td>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <td><div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_PendingPay")</div></td>
+                                                            <td>
+                                                                <button class="btn btn-block btn-outline btn-success pagar" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                                <button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button>
+                                                            </td>
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <td></td>
+                                                    <td>lolololo</td>
+                                                }
+                                            }
+                                            else if (misSolicitudes[i].IsPayed == 2) //Rechazado
+                                            {
+                                                <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Rejected")</div></td>
+                                                <td></td>
+                                            }
+                                            else if (misSolicitudes[i].IsPayed == 3) //Liberado por no pagar
+                                            {
+                                                <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Cancel")</div></td>
+                                                <td></td>
+                                            }
+
+                                        }
+
+
+                                    </tr>
+                                    @* misSolicitudes[i].PaymentMethodId == 1 &&*@
+                                    int y = 0;
+                                    int auxPay = 0;
+
+                                    for (var u = 0; u < misSolicitudes.Count; u++)
+                                    {
+
+                                        if (misSolicitudes[u].PurchaseId == misSolicitudes[i].PurchaseId)
+                                        {
+
+                                            if ((auxPay != misSolicitudes[u].PaymentId))
+                                            {
+                                                y = y + 1;
+                                                <tr class="collapse pagosItem-@i estiloColumna">
+
+                                                    @if (misSolicitudes[u].SponsorshipId != 0)
+                                                    {
+                                                        <td class="idElement" style="display: none;">@misSolicitudes[u].SponsorshipId</td>
+                                                        <td class="isStand" style="display: none;">0</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="idElement" style="display: none;">@misSolicitudes[u].StandId</td>
+                                                        <td class="isStand" style="display: none;">1</td>
+                                                    }
+
+                                                    <td class="purchaseId" style="display: none;">@misSolicitudes[u].PurchaseId</td>
+                                                    <td class="paymentId" style="display: none;">@misSolicitudes[u].PaymentId</td>
+                                                    <td class="paymentMethodId" style="display: none;">@misSolicitudes[u].PaymentMethodId</td>
+                                                    <td class="nameElement" style="display: none;"> @compras</td>
+                                                    <td class="paymentPromiseIndividual" style="display: none;">@misSolicitudes[u].PaymentPromise</td>
+                                                    <td class="totalFactura" style="display: none;">@misSolicitudes[u].Total</td>
+                                                    <td class="conceptoFactura" style="display: none;">@compras</td>
+
+                                                    <td class="text-right">
+                                                        @SessionManager.GetText("ACC_MisSolicitudes_PagoNumberLabel") @y
+                                                        <br /><br />
+                                                        @if (misSolicitudes[u].IsPayed == 2)
+                                                        {
+                                                            <div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Cancel")</div>
+                                                        }
+                                                        else if (misSolicitudes[u].IsPayed == 1)
+                                                        {
+                                                            if (misSolicitudes[u].IsApproved == 0)
+                                                            {
+                                                                <div class="label label-table label-default">@SessionManager.GetText("ACC_MisSolicitudes_Table_Review")</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pagado")</div>
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+                                                            if (misSolicitudes[u].PaymentPromise >= DateTime.Now)
+                                                            {
+                                                                <div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pending")</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="label label-table label-primary">@SessionManager.GetText("ACC_MisSolicitudes_Table_Vencido")</div>
+                                                            }
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <p>@SessionManager.GetText("ACC_MisSolicitudes_Table_PaymentPromise")</p>
+                                                        <span>@misSolicitudes[u].PaymentPromise</span>
+                                                    </td>
+                                                    <td class="text-center" colspan="2">
+                                                        <p>@SessionManager.GetText("ACC_MisSolicitudes_Table_Amout")</p>
+                                                        <span class="montoPromesaIndividual">$ @String.Format("{0:n}", @misSolicitudes[u].Total) @moneda</span>
+                                                    </td>
+                                                    <td class="text-center" colspan="2">
+                                                        <p>@SessionManager.GetText("ACC_MisSolicitudes_Table_Method")</p>
+                                                        @if (misSolicitudes[u].PaymentMethodId == 0)
+                                                        {
+                                                            <span>@SessionManager.GetText("ACC_MisSolicitudes_Table_NotDefined")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>@misSolicitudes[u].PaymentMethod</span>
+                                                        }
+                                                    </td>
+
+                                                    <td class="text-center">
+                                                        @if ((misSolicitudes[u].IsPayed < 1) && (misSolicitudes[u].PaymentPromise >= DateTime.Now))
+                                                        {
+                                                            <button class="btn btn-block btn-outline btn-success pagarIndividual" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            if (misSolicitudes[u].PaymentMethodId == 1)
+                                                            {
+                                                                <button class="btn btn-block btn-outline btn-success" href="@misSolicitudes[u].UrlPaymentFile" download="@misSolicitudes[u].PurchaseCode" target="_blank">@SessionManager.GetText("ACC_MisSolicitudes_Table_Comprobante")</button>
+                                                            }
+
+                                                        }
+
+                                                        @*Celda para factura*@
+                                                        @if (misSolicitudes[u].IsPayed == 1 && misSolicitudes[u].IsApproved == 1)
+                                                        {
+                                                            if (misSolicitudes[u].InvoiceRequested == 0 && misSolicitudes[u].IsPayed != 2)
+                                                            {
+                                                                <button class="btn btn-block btn-outline btn-primary facturacion">@SessionManager.GetText("ACC_MisSolicitudes_Table_Invoice")</button>
+                                                                
+                                                            }
+                                                            else
+                                                            {
+                                                                <p><div class="label label-table label-primary">Factura solicitada</div></p>
+                                                            }
+                                                        }
+
+                                                    </td>
+                                                </tr>
+                                                auxPay = misSolicitudes[u].PaymentId;
+                                            }
+                                            else
+                                            {
+                                                y = 0;
+                                            }
+                                        }
+                                    }
+                                    compras = ""; paymentsIds = ""; numPago = 0;
+
+                                }
+                                else
+                                {
+                                    fechasAgendadas++;
+                                    paymentsIds += misSolicitudes[i].PaymentId + ", ";
+                                    numPago += 1;
+
+                                    if (misSolicitudes[i].SponsorshipId != 0)
+                                    {
+                                        compras = @SessionManager.GetText("ACC_MisSolicitudes_Table_Sponsor") + ": " + misSolicitudes[i].SponsorshipName + "', ";
+                                        moneda = misSolicitudes[i].SponsorshipCurrency;
+                                    }
+                                    else
+                                    {
+                                        compras = @SessionManager.GetText("ACC_MisSolicitudes_Table_Stand") + " " + misSolicitudes[i].StandId + ", ";
+                                        moneda = misSolicitudes[i].StandCurrency;
+                                    }
+
+                                    @* misSolicitudes[i].PaymentMethodId == 1 &&*@
+                                    int y = 0;
+                                    int auxPay = 0;
+
+                                    for (var u = 0; u < misSolicitudes.Count; u++)
+                                    {
+
+                                        if (misSolicitudes[u].PurchaseId == misSolicitudes[i].PurchaseId)
+                                        {
+                                            if ((auxPay != misSolicitudes[u].PaymentId))
+                                            {
+                                                y = y + 1;
+                                                <tr class="collapse pagosItem-@i estiloColumna">
+
+                                                    @if (misSolicitudes[u].SponsorshipId != 0)
+                                                    {
+                                                        <td class="idElement" style="display: none;">@misSolicitudes[u].SponsorshipId</td>
+                                                        <td class="isStand" style="display: none;">0</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="idElement" style="display: none;">@misSolicitudes[u].StandId</td>
+                                                        <td class="isStand" style="display: none;">1</td>
+                                                    }
+
+                                                    <td class="purchaseId" style="display: none;">@misSolicitudes[u].PurchaseId</td>
+                                                    <td class="paymentId" style="display: none;">@misSolicitudes[u].PaymentId</td>
+                                                    <td class="nameElement" style="display: none;"> @compras</td>
+                                                    <td class="paymentMethodId" style="display: none;">@misSolicitudes[u].PaymentMethodId</td>
+                                                    <td class="paymentPromiseIndividual" style="display: none;">@misSolicitudes[u].PaymentPromise</td>
+                                                    <td class="totalFactura" style="display: none;">@misSolicitudes[u].Total</td>
+                                                    <td class="conceptoFactura" style="display: none;">@compras</td>
+
+                                                    <td class="text-right">
+                                                        @SessionManager.GetText("ACC_MisSolicitudes_PagoNumberLabel") @y
+                                                        <br /><br />
+                                                        @if (misSolicitudes[u].IsPayed == 2)
+                                                        {
+                                                            <div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Cancel")</div>
+                                                        }
+                                                        else if (misSolicitudes[u].IsPayed == 1)
+                                                        {
+                                                            if (misSolicitudes[u].IsApproved == 0)
+                                                            {
+                                                                <div class="label label-table label-default">@SessionManager.GetText("ACC_MisSolicitudes_Table_Review")</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pagado")</div>
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+                                                            if (misSolicitudes[u].PaymentPromise >= DateTime.Now)
+                                                            {
+                                                                <div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pending")</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="label label-table label-primary">@SessionManager.GetText("ACC_MisSolicitudes_Table_Vencido")</div>
+                                                            }
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <p><b>@SessionManager.GetText("ACC_MisSolicitudes_Table_PaymentPromise")</b></p>
+                                                        <span class="montoPromesaIndividual">@misSolicitudes[u].PaymentPromise</span>
+                                                    </td>
+                                                    <td class="text-center" colspan="2">
+                                                        <p><b>@SessionManager.GetText("ACC_MisSolicitudes_Table_Amout")</b></p>
+                                                        <span>$ @String.Format("{0:n}", @misSolicitudes[u].Total) @moneda</span>
+                                                    </td>
+                                                    <td class="text-center" colspan="2">
+                                                        <p><b>@SessionManager.GetText("ACC_MisSolicitudes_Table_Method")</b></p>
+                                                        @if (misSolicitudes[u].PaymentMethodId == 0)
+                                                        {
+                                                            <span>@SessionManager.GetText("ACC_MisSolicitudes_Table_NotDefined")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>@misSolicitudes[u].PaymentMethod</span>
+                                                        }
+                                                    </td>
+
+
+
+
+                                                    <td class="text-center">
+                                                        @if ((misSolicitudes[u].IsPayed < 1) && (misSolicitudes[u].PaymentPromise >= DateTime.Now))
+                                                        {
+                                                            <button class="btn btn-block btn-outline btn-success pagarIndividual" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            if (misSolicitudes[u].PaymentMethodId == 1)
+                                                            {
+                                                                <button class="btn btn-block btn-outline btn-success" href="@misSolicitudes[u].UrlPaymentFile" download="@misSolicitudes[u].PurchaseCode" target="_blank">@SessionManager.GetText("ACC_MisSolicitudes_Table_Comprobante") </button>
+
+                                                            }
+
+                                                        }
+
+                                                        @*Celda para factura*@
+                                                        @if (misSolicitudes[u].IsPayed == 1 && misSolicitudes[u].IsApproved == 1)
+                                                        {
+                                                            if (misSolicitudes[u].InvoiceRequested == 0 && misSolicitudes[u].IsPayed != 2)
+                                                            {
+                                                                <button class="btn btn-block btn-outline btn-primary facturacion">@SessionManager.GetText("ACC_MisSolicitudes_Table_Invoice")</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p><div class="label label-table label-primary">Factura solicitada</div></p>
+                                                            }
+                                                        }
+                                                    </td>
+                                                </tr>
+                                                auxPay = misSolicitudes[u].PaymentId;
+                                            }
+                                            else
+                                            {
+                                                y = 0;
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                fechasAgendadas = 1;
+                                paymentsIds += misSolicitudes[i].PaymentId;
+                                numPago += 1;
+
+                                if (misSolicitudes[i].SponsorshipId != 0)
+                                {
+                                    compras += @SessionManager.GetText("ACC_MisSolicitudes_Table_Sponsor") + ": " + misSolicitudes[i].SponsorshipName + "', ";
+                                    moneda = misSolicitudes[i].SponsorshipCurrency;
+                                }
+                                else
+                                {
+                                    compras += @SessionManager.GetText("ACC_MisSolicitudes_Table_Stand") + " " + misSolicitudes[i].StandId + ", ";
+                                    moneda = misSolicitudes[i].StandCurrency;
+                                }
+
+                                <tr>
+                                    <td>
+                                        @* misSolicitudes[i].PaymentMethodId == 1 &&*@
+                                        @*@if(misSolicitudes[i].IsPayed == 1){*@
+                                        <div class="request__icon-container request__icon-container_JS">
+                                            <i class="fa fa-plus-circle request__icon request__icon_JS clickable" data-toggle="collapse" id="pagosItem-@i" data-target=".pagosItem-@i"></i>
+                                            @misSolicitudes[i].PurchaseDate
+
+                                        </div>
+                                        @*}
+                                            else
+                                            {
+                                                @misSolicitudes[i].PurchaseDate
+                                            }*@
+                                    </td>
+                                    @{decimal resta = misSolicitudes[i].PaymentWithDiscount - misSolicitudes[i].HasPayed;}
+                                    <td class="paymentId" style="display: none;">@paymentsIds</td>
+                                    <td class="purchaseId" style="display: none;">@misSolicitudes[i].PurchaseId</td>
+                                    <td class="montoPagado" style="display: none;">@misSolicitudes[i].HasPayed</td>
+                                    <td class="montoPendiente" style="display: none;">@misSolicitudes[i].PaymentWithDiscount  </td>
+                                    <td class="montoHasNotPayed" style="display: none;">@resta </td>
+                                    <td class="fechasAgendadas" style="display: none;">@fechasAgendadas</td>
+                                    <td class="paymentMethodId" style="display: none;">@misSolicitudes[i].PaymentMethodId</td>
+                                    <td class="paymentPromise" style="display: none;">@misSolicitudes[i].PaymentPromise</td>
+                                    <td class="montoPromesa" style="display: none;">@String.Format("{0:n}", @misSolicitudes[i].Total) </td>
+
+                                    @if (misSolicitudes[i].SponsorshipId != 0)
+                                    {
+                                        <td class="idElement" style="display: none;">@misSolicitudes[i].SponsorshipId</td>
+                                        <td class="isStand" style="display: none;">0</td>
+                                        <td class="nameElement"> @compras</td>
+                                        <td>$ @String.Format("{0:n}", @misSolicitudes[i].PaymentWithDiscount) @misSolicitudes[i].SponsorshipCurrency</td>
+
+                                        <td>$ @String.Format("{0:n}", @misSolicitudes[i].HasPayed) @misSolicitudes[i].SponsorshipCurrency</td>
+
+                                        <td class="">$ @String.Format("{0:n}", resta) @misSolicitudes[i].StandCurrency</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="idElement" style="display: none;">@misSolicitudes[i].StandId</td>
+                                        <td class="isStand" style="display: none;">1</td>
+                                        <td class="nameElement"> @compras</td>
+                                        <td>$ @String.Format("{0:n}", @misSolicitudes[i].PaymentWithDiscount) @misSolicitudes[i].StandCurrency</td>
+
+                                        <td>$ @String.Format("{0:n}", @misSolicitudes[i].HasPayed) @misSolicitudes[i].StandCurrency</td>
+
+                                        <td class="">$ @String.Format("{0:n}", resta) @misSolicitudes[i].StandCurrency</td>
+
+                                    }
+
+                                    @if (misSolicitudes[i].IsApproved == 2)
+                                    {
+                                        <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Rejected")</div></td>
+                                        <td><button class="btn btn-block btn-outline btn-primary">@SessionManager.GetText("ACC_MisSolicitudes_Table_Upload")</button></td>
+                                    }
+                                    else
+                                    {
+
+                                        if (misSolicitudes[i].IsPayed == 0)
+                                        {
+                                            @*<td>@misSolicitudes[i].PurchaseId</td>
+                                                <td>@misSolicitudes[i].PaymentPromise</td>*@
+                                            //Si es pago unico
+                                            if (misSolicitudes[i].Total == misSolicitudes[i].TotalPayment)
+                                            {
+                                                if (misSolicitudes[i].PaymentPromise >= DateTime.Now)
+                                                {
+                                                    <td><div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_PendingPay")</div></td>
+                                                    <td>
+                                                        <button class="btn btn-block btn-outline btn-success pagar" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                        <button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Overdue")</div></td>
+
+                                                    if (misSolicitudes[i].ExtensionRequested == 0)
+                                                    {
+                                                        <td><button class="btn btn-block btn-outline btn-warning prorroga" data-toggle="modal" data-target="#extendDate">@SessionManager.GetText("ACC_MisSolicitudes_Table_Prorroga")</button></td>// data-toggle="modal" data-target="#agendarPagoModal"
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><div class="label label-table label-warning">Prórroga solicitada</div></td>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+
+                                                //Si al fecha proxima de pago es mayor a hoy, aún está a tiempo de pagar, sino reagendará pagos.
+                                                if (misSolicitudes[i].PaymentPromise >= DateTime.Now) //siempre y cuando los pagos sean menores al total que debe pagar
+                                                {
+                                                    <td><div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_PendingPay")</div></td>
+                                                    //Si ya está cubierto su monto próximo a pagar, puede reagendar las próximas fechas de pago
+                                                    if (misSolicitudes[i].IsPayed == 1 && misSolicitudes[i].IsApproved == 1)
+                                                    {
+                                                        if (fechasAgendadas < (maximoPagos + 1))
+                                                        {
+                                                            <td><button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button></td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td></td>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>
+                                                            <button class="btn btn-block btn-outline btn-success pagar" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                            <button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button>
+                                                        </td>
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Overdue")</div></td>
+                                                    if (misSolicitudes[i].ExtensionRequested == 0)
+                                                    {
+                                                        <td><button class="btn btn-block btn-outline btn-warning prorroga" data-toggle="modal" data-target="#extendDate">@SessionManager.GetText("ACC_MisSolicitudes_Table_Prorroga")</button></td>// data-toggle="modal" data-target="#agendarPagoModal"
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><div class="label label-table label-warning">Prórroga solicitada</div></td>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (misSolicitudes[i].IsPayed == 1)
+                                        {
+
+                                            if (misSolicitudes[i].IsApproved == 0)
+                                            {
+                                                <td><div class="label label-table label-rouded label-default">@SessionManager.GetText("ACC_MisSolicitudes_Table_Review")</div></td>
+                                                <td></td>
+                                            }
+                                            else if (misSolicitudes[i].IsApproved == 1)
+                                            {
+
+
+                                                if (misSolicitudes[i].IsInvoiced == 1)
+                                                {
+                                                    <td><button class="btn btn-block btn-outline btn-primary" download="@misSolicitudes[i].PurchaseCode" target="_blank">@SessionManager.GetText("ACC_MisSolicitudes_Table_Download")</button></td>
+                                                }
+                                                else
+                                                {
+                                                    if (resta == 0)
+                                                    {
+                                                        <td><div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</div></td>
+                                                        if (misSolicitudes[i].InvoiceRequested == 0)
+                                                        {
+                                                            <td>@*<button class="btn btn-block btn-outline btn-primary facturacion">@SessionManager.GetText("ACC_MisSolicitudes_Table_Invoice")</button>*@</td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td><div class="label label-table label-primary">Factura solicitada</div></td>
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_PendingPay")</div></td>
+                                                        <td>
+                                                            <button class="btn btn-block btn-outline btn-success pagar" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                            <button class="btn btn-block btn-outline btn-grayline agendar" data-toggle="modal" data-target="#agendarPagoModal">@SessionManager.GetText("ACC_MisSolicitudes_Table_Schedule")</button>
+                                                        </td>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                                <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Overdue") </div></td>
+                                            }
+
+
+                                        }
+                                        else if (misSolicitudes[i].IsPayed == 2) //Rechazado
+                                        {
+                                            <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Rejected")</div></td>
+                                            <td></td>
+                                        }
+                                        else if (misSolicitudes[i].IsPayed == 3) //Liberado por no pagar
+                                        {
+                                            <td><div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Cancel")</div></td>
+                                            <td></td>
+                                        }
+
+
+                                    }
+
+
+                                </tr>
+                                int y = 0;
+                                int auxPay = 0;
+
+                                for (var u = 0; u < misSolicitudes.Count; u++)
+                                {
+
+                                    if (misSolicitudes[u].PurchaseId == misSolicitudes[i].PurchaseId)
+                                    {
+                                        if ((auxPay != misSolicitudes[u].PaymentId))
+                                        {
+                                            y = y + 1;
+                                            <tr class="collapse pagosItem-@i estiloColumna">
+
+                                                @if (misSolicitudes[u].SponsorshipId != 0)
+                                                {
+                                                    <td class="idElement" style="display: none;">@misSolicitudes[u].SponsorshipId</td>
+                                                    <td class="isStand" style="display: none;">0</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="idElement" style="display: none;">@misSolicitudes[u].StandId</td>
+                                                    <td class="isStand" style="display: none;">1</td>
+                                                }
+
+                                                <td class="purchaseId" style="display: none;">@misSolicitudes[u].PurchaseId</td>
+                                                <td class="paymentId" style="display: none;">@misSolicitudes[u].PaymentId</td>
+                                                <td class="paymentMethodId" style="display: none;">@misSolicitudes[u].PaymentMethodId</td>
+                                                <td class="nameElement" style="display: none;"> @compras</td>
+                                                <td class="paymentPromiseIndividual" style="display: none;">@misSolicitudes[u].PaymentPromise</td>
+                                                 <td class="totalFactura" style="display: none;">@misSolicitudes[u].Total</td>
+                                                <td class="conceptoFactura" style="display: none;">@compras</td>
+
+                                                <td class="text-right">
+                                                    @SessionManager.GetText("ACC_MisSolicitudes_PagoNumberLabel") @y
+                                                    <br /><br />
+
+                                                    @if (misSolicitudes[u].IsPayed == 2)
+                                                    {
+                                                        <div class="label label-table label-danger">@SessionManager.GetText("ACC_MisSolicitudes_Table_Rejected")</div>
+                                                    }
+                                                    else if (misSolicitudes[u].IsPayed == 1)
+                                                    {
+                                                        if (misSolicitudes[u].IsApproved == 0)
+                                                        {
+                                                            <div class="label label-table label-default">@SessionManager.GetText("ACC_MisSolicitudes_Table_Review")</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="label label-table label-success">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pagado")</div>
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        if (misSolicitudes[u].PaymentPromise >= DateTime.Now)
+                                                        {
+                                                            <div class="label label-table label-warning">@SessionManager.GetText("ACC_MisSolicitudes_Table_Pending")</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="label label-table label-primary">@SessionManager.GetText("ACC_MisSolicitudes_Table_Vencido")</div>
+                                                        }
+                                                    }
+
+                                                </td>
+                                                <td class="text-center">
+                                                    <p>@SessionManager.GetText("ACC_MisSolicitudes_Table_PaymentPromise")</p>
+                                                    <span>@misSolicitudes[u].PaymentPromise</span>
+                                                </td>
+                                                <td class="text-center" colspan="2">
+                                                    <p>@SessionManager.GetText("ACC_MisSolicitudes_Table_Amout")</p>
+                                                    <span class="montoPromesaIndividual">$ @String.Format("{0:n}", @misSolicitudes[u].Total) @moneda</span>
+                                                </td>
+                                                <td class="text-center" colspan="2">
+                                                    <p>@SessionManager.GetText("ACC_MisSolicitudes_Table_Method")</p>
+                                                    @if (misSolicitudes[u].PaymentMethodId == 0)
+                                                    {
+                                                        <span>@SessionManager.GetText("ACC_MisSolicitudes_Table_NotDefined")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>@misSolicitudes[u].PaymentMethod</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if ((misSolicitudes[u].IsPayed < 1) && (misSolicitudes[u].PaymentPromise >= DateTime.Now))
+                                                    {
+                                                        <button class="btn btn-block btn-outline btn-success pagarIndividual" @*href="@Url.Action("Pago", "Home", new { pago = "2" })"*@>@SessionManager.GetText("ACC_MisSolicitudes_Table_Pay")</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (misSolicitudes[u].PaymentMethodId == 1)
+                                                        {
+                                                            <button class="btn btn-block btn-outline btn-success" href="@misSolicitudes[u].UrlPaymentFile" download="@misSolicitudes[u].PurchaseCode" target="_blank">@SessionManager.GetText("ACC_MisSolicitudes_Table_Comprobante")</button>
+
+                                                        }
+
+                                                    }
+
+                                                    @*Celda para factura*@
+                                                    @if (misSolicitudes[u].IsPayed == 1 && misSolicitudes[u].IsApproved == 1)
+                                                    {
+                                                        if (misSolicitudes[u].InvoiceRequested == 0 && misSolicitudes[u].IsPayed != 2)
+                                                        {
+                                                            <button class="btn btn-block btn-outline btn-primary facturacion">@SessionManager.GetText("ACC_MisSolicitudes_Table_Invoice")</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p><div class="label label-table label-default">Factura solicitada</div></p>
+                                                        }
+                                                    }
+
+                                                </td>
+
+
+                                            </tr>
+                                            auxPay = misSolicitudes[u].PaymentId;
+                                        }
+                                        else
+                                        {
+                                            y = 0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-12 col-xs-12">
+
+        <div class="alert schedule__container text-white ">
+            <span class="schedule__btn-text">@SessionManager.GetText("ACC_MisSolicitudes_Table_RememberSchedule")</span>
+            <button class="btn schedule__btn" data-toggle="modal" data-target="#firstPay">
+                <i class="ico ico-calendar text-white"></i>
+            </button>
+        </div>
+
+        <div class="white-box payments__container ">
+            <h3 class="box-title text-center">@SessionManager.GetText("ACC_MisSolicitudes_Table_NextPayments")</h3>
+
+            <ul class="payments__list" style="list-style: none; padding: 0; margin: 0;">
+                @{ compras = ""; int auxComprasNumber = 0;}
+                @for (int i = 0; i < misSolicitudes.Count; i++)
+                {
+                    if ((i + 1) < misSolicitudes.Count)
+                    {
+                        if (@misSolicitudes[i].PaymentPromise >= DateTime.Today)
+                        {
+                            if ((misSolicitudes[i + 1].PurchaseId != misSolicitudes[i].PurchaseId))
+                            {
+                                if (misSolicitudes[i].SponsorshipId != 0)
+                                {
+                                    compras += @SessionManager.GetText("ACC_MisSolicitudes_Table_Sponsor") + ": " + misSolicitudes[i].SponsorshipName + "' ";
+                                }
+                                else
+                                {
+                                    compras += @SessionManager.GetText("ACC_MisSolicitudes_Table_Stand") + " " + misSolicitudes[i].StandId;
+                                }
+
+
+                                int mes = @misSolicitudes[i].PaymentPromise.Month;
+                                string mesNombre = GetNameMonth(mes);
+
+                                <li class="payments__item">
+                                    <a class="payments__item" href="#">
+                                        <div class="payments__date">
+                                            <span class="payments__date-number">@misSolicitudes[i].PaymentPromise.Day</span>
+                                            <span class="payments__date-month">@mesNombre</span>
+                                        </div>
+                                        <div class="payments__product">
+                                            @*@if (misSolicitudes[i].SponsorshipId != 0)
+                                                {Patrocinio:*@
+                                            <td> @compras</td>
+                                            @*}
+                                                else
+                                                {
+                                                    <td>Stand: @compras</td>
+                                                }*@
+                                        </div>
+                                    </a>
+                                </li>
+                                compras = "";
+                                auxComprasNumber++;
+                            }
+
+
+                            else
+                            {
+                                if (misSolicitudes[i].SponsorshipId != 0)
+                                {
+                                    compras = @SessionManager.GetText("ACC_MisSolicitudes_Table_Sponsor") + ": '" + misSolicitudes[i].SponsorshipName + "', ";
+
+                                }
+                                else
+                                {
+                                    compras = @SessionManager.GetText("ACC_MisSolicitudes_Table_Stand") + " " + misSolicitudes[i].StandId + ", ";
+                                }
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (@misSolicitudes[i].PaymentPromise >= DateTime.Today)
+                        {
+                            if (misSolicitudes[i].SponsorshipId != 0)
+                            {
+                                compras += @SessionManager.GetText("ACC_MisSolicitudes_Table_Sponsor") + ": " + misSolicitudes[i].SponsorshipName;
+                            }
+                            else
+                            {
+                                compras += @SessionManager.GetText("ACC_MisSolicitudes_Table_Stand") + " " + misSolicitudes[i].StandId;
+                            }
+
+                            int mes = @misSolicitudes[i].PaymentPromise.Month;
+                            string mesNombre = GetNameMonth(mes);
+
+                            <li class="payments__item">
+                                <a class="payments__item" href="#">
+                                    <div class="payments__date">
+                                        <span class="payments__date-number">@misSolicitudes[i].PaymentPromise.Day</span>
+                                        <span class="payments__date-month">@mesNombre</span>
+                                    </div>
+                                    <div class="payments__product">
+                                        <td>@compras</td>
+                                    </div>
+                                </a>
+                            </li>
+                        }
+
+                        compras = "";
+                    }
+
+
+                }
+
+                @if (auxComprasNumber == 0)
+                {
+                    <li class="text-center">No tienes próximos pagos</li>
+                }
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+@{
+    string GetNameMonth(int mes)
+    {
+        string mesNombre = "";
+        if (idiomaId.Equals("ESP") || idiomaId.Equals("esp"))
+        {
+            switch (mes)
+            {
+                case 1:
+                    mesNombre = "Ene";
+                    break;
+                case 2:
+                    mesNombre = "Feb";
+                    break;
+                case 3:
+                    mesNombre = "Mar";
+                    break;
+                case 4:
+                    mesNombre = "Abr";
+                    break;
+                case 5:
+                    mesNombre = "May";
+                    break;
+                case 6:
+                    mesNombre = "Jun";
+                    break;
+                case 7:
+                    mesNombre = "Jul";
+                    break;
+                case 8:
+                    mesNombre = "Ago";
+                    break;
+                case 9:
+                    mesNombre = "Sep";
+                    break;
+                case 10:
+                    mesNombre = "Oct";
+                    break;
+                case 11:
+                    mesNombre = "Nov";
+                    break;
+                case 12:
+                    mesNombre = "Dic";
+                    break;
+            }
+        }
+        else
+        {
+            switch (mes)
+            {
+                case 1:
+                    mesNombre = "Jan";
+                    break;
+                case 2:
+                    mesNombre = "Feb";
+                    break;
+                case 3:
+                    mesNombre = "Mar";
+                    break;
+                case 4:
+                    mesNombre = "Apr";
+                    break;
+                case 5:
+                    mesNombre = "May";
+                    break;
+                case 6:
+                    mesNombre = "Jun";
+                    break;
+                case 7:
+                    mesNombre = "Jul";
+                    break;
+                case 8:
+                    mesNombre = "Aug";
+                    break;
+                case 9:
+                    mesNombre = "Sep";
+                    break;
+                case 10:
+                    mesNombre = "Oct";
+                    break;
+                case 11:
+                    mesNombre = "Nov";
+                    break;
+                case 12:
+                    mesNombre = "Dec";
+                    break;
+            }
+        }
+        return mesNombre;
+    }
+}
+
+@section scripts {
+    <script type="text/javascript">
+        /*------------------------------------------*/
+        /*---------- ETIQUETAS DE IDIOMA -----------*/
+        /*------------------------------------------*/
+        var exito = decode('@SessionManager.GetText("ACC_Toast_Success")');
+        var errorTitle = decode('@SessionManager.GetText("ACC_Error_Label")');
+        var errorLabel = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+        var completarCampos = decode('@SessionManager.GetText("ACC_RequeriedFields_Label")');
+        var fechaGuardada = decode('@SessionManager.GetText("ACC_MisSolicitudes_DateSaved")');
+
+        var pagoRechazado = decode('@SessionManager.GetText("ACC_MisSolicitudes_Table_Rejected")');
+        var pendiente = decode('@SessionManager.GetText("ACC_MisSolicitudes_Table_Pending")');
+        var pagoVencido = decode('@SessionManager.GetText("ACC_MisSolicitudes_Table_Overdue")');
+        var pagoRevision = decode('@SessionManager.GetText("ACC_MisSolicitudes_Table_Review")');
+        var pagado = decode('@SessionManager.GetText("ACC_MisSolicitudes_Table_Pagado")');
+
+        var yaAgendado = decode('@SessionManager.GetText("ACC_MisSolicitudes_YaAgendado")');
+        var montosFechas = decode('@SessionManager.GetText("ACC_MisSolicitudes_MontosFechas")');
+
+        var montoMayor =decode('@SessionManager.GetText("ACC_MisSolicitudes_MontoMayor")');
+        var mayorCero = decode('@SessionManager.GetText("ACC_MisSolicitudes_MayorCero")');
+
+        var solicitudFactura = decode('@SessionManager.GetText("ACC_MisSolicitudes_InvoiceSended")');
+
+        var montoMenor = decode('@SessionManager.GetText("ACC_MisSolicitudes_LowerPrevPayment")');
+        var extensiónEnviada = decode('@SessionManager.GetText("ACC_MisSolicitudes_ExtensionSended")');
+        var itemsCarritoWarning = decode('@SessionManager.GetText("ACC_MisSolicitudes_ItemsCarrito")');
+        var continuar = decode('@SessionManager.GetText("ACC_MisSolicitudes_Continuar")');
+        var cancelar = decode('@SessionManager.GetText("ACC_MisSolicitudes_Cancel")');
+        var sesionExpirada = decode('@SessionManager.GetText("ACC_Message_LoginAgain")');
+
+        /*---------------------------------*/
+
+        var maximoPagosCalendar = 0;
+
+        var inicializarCalendario = function (calendario) {
+            var dd = '@fTermino';
+            dd = dd.substring(0, 10);
+
+            var d = new Date(dd);
+
+            calendario.datepicker({
+                minDate: new Date(),
+                maxDate:d,
+                multipleDates: maximoPagosCalendar,
+                multipleDatesSeparator: ", ",
+                autoClose: true,
+                allowInputToggle: true
+            });
+
+            calendario.data('datepicker');
+
+            var datepicker = calendario.datepicker().data('datepicker');
+            datepicker.clear();
+        };
+
+        /*-------------------------------------------------*/
+        /*----------- AGENDAR y REAGENDAR FECHAS ----------*/
+        /*-------------------------------------------------*/
+
+        var aux = 0;
+
+        var guardarNuevasFechasPago = function (fechasPagos) {
+            var url = '@Url.Action("SavePaymentDates", "Exhibitor")';
+            var data = { fechasPagos };
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: fechasPagos,
+                success: function (data) {
+                    if (data == "ok") {
+                        MandarToastExito(exito, fechaGuardada);
+                    }
+                    setTimeout(function () {
+                        window.location.reload(1);
+                    }, 4000);
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+        var reagendarFechasPago = function (pagosReagendados) {
+            var url = '@Url.Action("ReschedulePayments", "Exhibitor")';
+            var data = { pagosReagendados };
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { pagosReagendados },
+                success: function (data) {
+                    MandarToastExito(exito, fechaGuardada);
+                    setTimeout(function () {
+                        window.location.reload(1);
+                    }, 4000);
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+        /*-------------------------------------*/
+        /*----------- AGENDAR FECHAS ----------*/
+        /*-------------------------------------*/
+
+        $("#tablaMisSolicitudes").on("click", ".agendar", function () {
+            $("#selectAgendarPago").val($(this).parents("tr").find(".purchaseId").text());
+            $("#selectAgendarPago").change();
+            $("#purchaseIdPago").val($(this).parents("tr").find(".purchaseId").text());
+            //console.log($(this).parents("tr").find(".purchaseId").text());
+        });
+
+        var auxCalendario = 0;
+        var auxAgendarPend = 0;
+
+        $("#agendarPagoModal").on("show.bs.modal", function () {
+            inicializarCalendario($("#calendarioPago0"));
+            //inicializarCalendario($("#calendarioPagoGeneralBoton"));
+
+            $("#paymentMethodIdPago").val($(this).parents("tr").find(".paymentMethodId").text());
+
+            //$("#purchaseIdPago").val($(this).parents("tr").find(".purchaseId").text());
+
+        });
+
+
+        /*$('#calendarioPagoGeneralBoton').click(function (event) {
+            event.preventDefault();
+            $('#calendarioPago0').click();
+        });*/
+      /*
+        let $btn = $('#calendarioPagoGeneralBoton'),
+            $input = $('#calendarioPago0'),
+            dp = $input.datepicker().data('datepicker');
+
+        $btn.on('click', function () {
+            dp.show();
+            $input.focus();
+        });
+
+        $('#calendarioPagoGeneralBoton').click(function () {
+            $('#calendarioPago0').datepicker().data('datepicker');
+            myDatepicker.show();
+        });
+    */
+
+
+        $("#agendarPagoModal").on("hide.bs.modal", function () {
+            auxCalendario = 0;
+            $("#selectAgendarPago").val("0");
+            $("#panelModalInfo").hide();
+            $("#montoPago0").val("");
+            $("#calendarioPago0").val("");
+            $("#pagosAdicionalesPago").html("");
+            ocultarAlerta($("#panelAlertPagosDispo"));
+
+        });
+
+        $("#selectAgendarPago").on('change', function () {
+            var codigoCompra = $("#selectAgendarPago option:selected").val();
+            var misSolicitudesJson = JSON.parse('@Html.Raw(misSolicitudesJson)');
+            var datosSolicitudes = new Array();
+
+            $.each(misSolicitudesJson, function (i, misSolicitudesJson) {
+                if (misSolicitudesJson.PurchaseId == codigoCompra) {
+                    datosSolicitudes.push(misSolicitudesJson);
+                }
+            });
+
+            //console.log(datosSolicitudes);
+
+            $("#panelPagosAgendos").html("");
+
+            var auxIdPurchase = 0;
+            auxAgendarPend = 0;
+
+            $.each(datosSolicitudes, function (i, ds) {
+
+                if (auxIdPurchase != ds.PaymentId) {
+                    var estatus = "";
+                    var hoy = new Date();
+                    var fPago = new Date(ds.PaymentPromise.substring(0, 10));
+                    if (ds.isApproved == 2) {
+                        estatus = pagoRechazado;
+                    } else {
+                        if (ds.IsPayed == 0) {
+                            if (fPago.getTime() >= hoy.getTime()) {
+                                estatus = pendiente;
+                            } else {
+                                estatus = pagoVencido;
+                            }
+                        } else if (ds.IsPayed == 1) {
+                            estatus = pagoRevision;
+                            if (ds.isApproved == 0) {
+                            } else {
+                                estatus = pagado;
+                            }
+                        }
+                    }
+
+                    $("#paymentMethodIdPago").val(ds.PaymentMethodId);
+                    $("#purchaseIdPago").val(ds.PurchaseId);
+
+                    $("#panelPagosAgendos").append(
+                        '<div class="request__pay-head">'
+                        + '<h5 class="request__pays-title">Pago ' + (i + 1) + '</h5>'
+                        + '<div class="label label-table label-success">' + estatus + '</div>'
+                        + '</div> '
+                        + '<div class="request__pays-col-1-2">'
+                        + '<label class="request__pays-label control-label">Monto a pagar:</label>'
+                        + '<input class="form-control request__pays-data" value="' + parseFloat(ds.Total).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + '" readonly>'
+                        + '</div>'
+                        + '<div class="request__pays-col-1-2">'
+                        + '<label class="request__pays-label control-label">Fecha a pagar:</label>'
+                        + '<input class="form-control request__pays-data" value="' + ds.PaymentPromise.substring(0, 10) + '" readonly>'
+                        + '</div>'
+                    );
+                    auxAgendarPend++;
+                }
+
+                auxIdPurchase = ds.PaymentId;
+            });
+
+            var pendiente = parseFloat(datosSolicitudes[0].PaymentWithDiscount) - parseFloat(datosSolicitudes[0].HasPayed);
+            var pagosPendientes = parseInt(@maximoPagos) - parseInt(auxAgendarPend);
+            $("#montoPendientePago").text("$ " + parseFloat(pendiente).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            $("#montoTotalPago").text("$ " + parseFloat(datosSolicitudes[0].PaymentWithDiscount).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            $("#pagosRestantesModal").text(pagosPendientes);
+            //console.log(parseInt(@maximoPagos) - parseInt(auxAgendarPend));
+
+            $("#panelModalInfo").show();
+
+            if (pagosPendientes <= 0) {
+                mandarAlerta($("#panelAlertPagosDispo"), "alert-warning", yaAgendado);
+                $("#panelAgregaPagos").hide();
+            } else {
+                $("#panelAgregaPagos").show();
+                ocultarAlerta($("#panelAlertPagosDispo"));
+            }
+        });
+
+        $("#agregarFechasPago").click(function () {
+            auxCalendario++;
+
+            if (auxAgendarPend < (@maximoPagos -1) && auxAgendarPend >= 0) {
+
+                $("#pagosAdicionalesPago").append(
+                    '<div class="row" ><div class="request__form-container">'
+                    + '<div class="form-group request__form-col-1-2 ">'
+                    + '<label class="control-label request--size-label">Monto a pagar:</label> '
+                    + '<input name="pay" type="number" class="form-control " id="montoPago' + auxCalendario + '">'
+                    + '</div>'
+                    + '<div class="form-group request__form-col-1-2 ">'
+                    + '<label class="control-label request--size-label">Fecha a pagar:</label>'
+                    + '<div class="input-group date">'
+                    + '<input type="text" class="datepicker-here form-control calendarioPago" data-language="es" id="calendarioPago' + auxCalendario + '">'
+                    + '<span class="input-group-addon show-datepicker_JS" id="show-datepicker_JS">'
+                    + '<span class="glyphicon glyphicon-calendar show-datepicker_JS"></span>'
+                    + '</span>'
+                    + '</div>'
+                    + '</div> '
+                    + '<a href="#" class="request__schedule-icon eliminarFechaAgendada" >'
+                    + '<i class="fa fa-minus text-white"></i> '
+                    + '<span class="request__schedule-text" >Agendar pago</span>'
+                    + '</a>'
+                    + '</div></div>'
+                );
+                inicializarCalendario($("#calendarioPago" + auxCalendario));
+            }
+            auxAgendarPend++;
+
+        });
+
+        $("#pagosAdicionalesPago").on("click", '.eliminarFechaAgendada', function () {
+            $(this).parent("div").remove();
+            auxAgendarPend++;
+        });
+
+        $("#botonGuardarPago").click(function () {
+            var fechasIngresadas = aux;
+
+            var montos = new Array();
+            var dates = new Array();
+            var fechasNuevas = new Array();
+            var flag = true;
+            var paymentMethodId = $("#paymentMethodIdPago").val();
+            var purchaseId = $("#purchaseIdPago").val();
+
+            var pendiente1 = $("#montoPendientePago").text().replace("$", "").replace(",", "").replace(" ", "");
+
+
+            for (var m = 0; m <= auxCalendario; m++) {
+                var montos = $("#montoPago" + m).val();
+                var dates = $("#calendarioPago" + m).val();
+                if (montos == "" || dates == "") {
+                    mandarAlerta($("#panelAlertPagosDispo"), "alert-danger", montosFechas);
+                    flag = false;
+                }
+                else {
+                    var p = { PurchaseId: purchaseId, PaymentPromise: dates, PaymentMethodId: paymentMethodId, Total: montos, IsPayed: 0 };
+                    fechasNuevas.push(p);
+
+                }
+
+                if(parseInt(pendiente1) < parseInt(montos)) {
+                    flag = false;
+                    mandarAlerta($("#panelAlertPagosDispo"), "alert-danger", montoMayor);
+                }
+
+                if (parseInt(montos) <= 0) {
+                    flag = false;
+                    mandarAlerta($("#panelAlertPagosDispo"), "alert-danger", mayorCero);
+                }
+
+            }
+
+            if (flag) {
+                $("#agendarPagoModal").modal("hide");
+
+                $.each(fechasNuevas, function (i, fechasNuevas) {
+                    if (fechasNuevas.PaymentPromise !== "undefined") {
+                        guardarNuevasFechasPago(fechasNuevas);
+                    }
+                });
+            }
+        });
+
+        /*-----------------------------------------*/
+        /*------ DATOS DE FACTURACIÓN -------------*/
+        /*-----------------------------------------*/
+        var totalFactura = 0;
+        var conceptoFactura = "";
+
+        $("#tablaMisSolicitudes").on("click", ".facturacion", function () {
+            $("#facturaModal").modal("show");
+            purchaseId = $(this).parents("tr").find(".purchaseId").text();
+            var paymentIds = $(this).parents("tr").find(".paymentId").text();
+            totalFactura = $(this).parents("tr").find(".totalFactura").text();
+            conceptoFactura = $(this).parents("tr").find(".conceptoFactura").text();
+
+        });
+
+        $("#selectFacturacion").change(function () {
+            $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+            $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+            $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+
+            ocultarAlerta($("#panelAlertFacturacionModal"));
+
+            var op = $("#selectFacturacion option:selected").val();
+
+            var datosFacturacion = JSON.parse('@Html.Raw(datosFacturacionJson)');
+
+            if (op != 0) {
+                $("#razonSocial").val(datosFacturacion[op - 1].RazonSocial);
+                $("#rfc").val(datosFacturacion[op - 1].Rfc);
+                $("#calle").val(datosFacturacion[op - 1].Calle);
+                $("#numero").val(datosFacturacion[op - 1].NoExterior + " " + datosFacturacion[op - 1].NoInterior);
+                $("#colonia").val(datosFacturacion[op - 1].Colonia);
+                $("#cp").val(datosFacturacion[op - 1].CodigoPostal);
+                $("#delegacion").val(datosFacturacion[op - 1].Municipio);
+                $("#ciudad").val(datosFacturacion[op - 1].Ciudad);
+                $("#estado").val(datosFacturacion[op - 1].Estado);
+                $("#pais").val(datosFacturacion[op - 1].Pais);
+                $("#identifierDiv").hide();
+            } else {
+                var paisId = '@PaisId';
+                $("#identifierDiv").show();
+                $("#razonSocial").val("");
+                $("#rfc").val("");
+                $("#calle").val("");
+                $("#numero").val("");
+                $("#colonia").val("");
+                $("#cp").val("");
+                $("#delegacion").val("");
+                $("#ciudad").val("");
+                $("#estado").val("");
+                $("#pais").val(paisId);
+            }
+        });
+
+        $("#solicitarFactura").click(function () {
+            var direccion = $("#selectFacturacion option:selected").val();
+
+            var bandera = true;
+
+            var razonSocial = $("#razonSocial").val();
+            var rfc = $("#rfc").val();
+            var calle = $("#calle").val();
+            var num = $("#numero").val();
+            var colonia = $("#colonia").val();
+            var codPost = $("#cp").val();
+            var delegacion = $("#delegacion").val();
+            var ciudad = $("#ciudad").val();
+            var estado = $("#estado").val();
+            var pais = $("#pais option:selected").text();
+            var identifier = $("#identifier").val();
+
+            var factura;
+
+            if (razonSocial == "" || rfc == "") { //|| calle == "" || num == "" || colonia == "" || codPost == "" || delegacion == "" || ciudad == "" || estado == "" || pais == ""
+                mandarAlerta("#panelAlertPago", "alert-danger", completarCampos);
+
+                if (razonSocial == "") {
+                    $("#razonSocialForm").addClass('has-error').addClass("has-feedback");
+                } else {
+                    $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                if (rfc == "") {
+                    $("#rfcForm").addClass('has-error').addClass("has-feedback");
+                } else {
+                    $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                if (direccion == 0) {
+                    if (identifier == "") {
+                        $("#identifierDiv").addClass('has-error').addClass("has-feedback");
+                    } else {
+                        $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+                    }
+                } else {
+                    $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                $('#pagoCirculo a').tab('show');
+                bandera = false;
+            } else {
+                if (codPost.length > 4) {
+                    codPost = codPost.slice(0, 5);
+                }
+                factura = {
+                    RazonSocial: razonSocial, Rfc: rfc, Calle: calle, NoExterior: num, Colonia: colonia, CodigoPostal: codPost, Municipio: delegacion, Ciudad: ciudad, Estado: estado, Pais: pais, Identifier: identifier
+                };
+            }
+
+            if (bandera) {
+                $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+                $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+                ocultarAlerta($("#panelAlertFacturacionModal"));
+                if (direccion == 0) {
+                    if (identifier == "") {
+                        $("#identifierDiv").addClass('has-error').addClass("has-feedback");
+                    } else {
+                        $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+                        guardarFacturacion(factura, 0);
+                    }
+                } else {
+                    var idFiscalData = $("#selectFacturacion option:selected").attr("idFiscalData");
+                    guardarFacturacion(factura, idFiscalData);
+                }
+            } else {
+                mandarAlerta($("#panelAlertFacturacionModal"), "alert-danger", completarCampos);
+            }
+        });
+
+        var guardarFacturacion = function (factura, idFiscalData) {
+            var url = '@Url.Action("SaveInvoice", "Exhibitor")';
+            totalFactura = parseFloat(totalFactura);
+            var info = { fiscalData: factura, idFiscalData, purchaseId, totalFactura, conceptoFactura };
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: info,
+                success: function (data) {
+                    if (data == "ok") {
+                        swal(exito, solicitudFactura, "success");
+                    } else {
+                        swal(errorTitle, errorLabel, "error");
+                    }
+                    $("#facturaModal").modal("hide");
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+        $("#facturaModal").on("hide.hide.bs.modal", function () {
+            $("#montoPagarProrroga").val("");
+            $("#fechaPagoProrroga").val("");
+            $("#motivoProrroga").val("");
+
+            $("#identifierDiv").show();
+            $("#razonSocial").val("");
+            $("#rfc").val("");
+            $("#calle").val("");
+            $("#numero").val("");
+            $("#colonia").val("");
+            $("#cp").val("");
+            $("#delegacion").val("");
+            $("#ciudad").val("");
+            $("#estado").val("");
+            $("#identifier").val("");
+
+            $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+            $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+            $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+
+            ocultarAlerta($("#panelAlertFacturacionModal"));
+        });
+        /*-------------------------------------*/
+        /*------- SOLICITAR PRÓRROGA ----------*/
+        /*-------------------------------------*/
+
+        var montoPromesa = 0;
+        var idPayment = 0;
+
+        $("#extendDate").on("show.bs.modal", function () {
+            inicializarCalendario($("#fechaPagoProrroga"));
+        });
+
+        $("#tablaMisSolicitudes").on("click", ".prorroga", function () {
+            purchaseId = $(this).parents("tr").find(".purchaseId").text();
+
+            var paymentIds = $(this).parents("tr").find(".paymentId").text();
+
+            montoPromesa = $(this).parents("tr").find(".montoPromesa").text().replace("$", "").replace(",", "");
+
+            var numbers = paymentIds.split(",");
+            var paymentsIdsArray = new Array();
+
+            for (var k = 0; k < numbers.length; k++) {
+                paymentsIdsArray.push(numbers[k]);
+            }
+
+            idPayment = Math.max.apply(null, paymentsIdsArray);
+
+            $("#montoPagarProrroga").attr("placeholder", "Min: " + parseFloat(montoPromesa).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            $("#prorrogaMontoAdvertencia").html(parseFloat(montoPromesa).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+        });
+
+        $("#enviarProrroga").click(function () {
+            var montoPagar = $("#montoPagarProrroga").val();
+            var fechaPromesa = $("#fechaPagoProrroga").val();
+            var excusa = $("#motivoProrroga").val();
+
+            if (montoPagar != 0 && fechaPromesa != "" && excusa != "") {
+                if (montoPagar <= montoPromesa) {
+                    mandarAlerta($("#panelAlertProrrogaModal"), "alert-danger", montoMenor);
+                } else {
+                    ocultarAlerta($("#panelAlertProrrogaModal"));
+                    solictarProrroga(montoPagar, fechaPromesa, excusa);
+
+                }
+            } else {
+                mandarAlerta($("#panelAlertProrrogaModal"), "alert-danger", completarCampos);
+            }
+        });
+
+        var solictarProrroga = function (montoPagar, fechaPromesa, excusa) {
+            var url = '@Url.Action("SaveExtensionPaymentRequest", "Exhibitor")';
+            var info = { paymentPromise: montoPagar, datePromise: fechaPromesa, reason: excusa, purchaseId: purchaseId, idPayment: idPayment};
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: info,
+                success: function (data) {
+                    if (data>0) {
+                        swal(exito, extensiónEnviada, "success");
+                    } else {
+                        swal(errorTitle, errorLabel, "error");
+                    }
+                    $("#extendDate").modal("hide");
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+        /*---------------------------------------*/
+        /*------ AGENDAR PAGO GENERAL -----------*/
+        /*---------------------------------------*/
+
+        $("#firstPay").on("show.bs.modal", function () {
+            inicializarCalendario($("#calendarioPagoGeneral0"));
+        });
+
+        $("#firstPay").on("hide.bs.modal", function () {
+            auxCalendario = 0;
+            $("#selectAgendarPagoGeneral").val("0");
+            $("#panelModalInfoGeneral").hide();
+            $("#montoPagoGeneral0").val("");
+            $("#calendarioPagoGeneral0").val("");
+            $("#pagosAdicionalesGeneralPago").html("");
+        });
+
+        $("#selectAgendarPagoGeneral").change(function () {
+            var codigoCompra = $("#selectAgendarPagoGeneral option:selected").val();
+            var misSolicitudesJson = JSON.parse('@Html.Raw(misSolicitudesJson)');
+            var datosSolicitudes = new Array();
+
+            $.each(misSolicitudesJson, function (i, misSolicitudesJson) {
+                if (misSolicitudesJson.PurchaseId == codigoCompra) {
+                    datosSolicitudes.push(misSolicitudesJson);
+                }
+            });
+
+            //console.log(datosSolicitudes);
+
+            $("#panelPagosGeneralesAgendos").html("");
+
+            var auxIdPurchase = 0;
+            auxAgendarPend = 0;
+
+            $.each(datosSolicitudes, function (i, ds) {
+
+                if (auxIdPurchase != ds.PaymentId) {
+                    var estatus = "";
+                    var hoy = new Date();
+                    var fPago = new Date(ds.PaymentPromise.substring(0, 10));
+                    if (ds.isApproved == 2) {
+                        estatus = pagoRechazado;
+                    } else {
+                        if (ds.IsPayed == 0) {
+                            if (fPago.getTime() >= hoy.getTime()) {
+                                estatus = pendiente;
+                            } else {
+                                estatus = pagoVencido;
+                            }
+                        } else if (ds.IsPayed == 1) {
+                            estatus = pagoRevision;
+                            if (ds.isApproved == 0) {
+                            } else {
+                                estatus = pagado;
+                            }
+                        }
+                    }
+
+                    $("#paymentMethodIdGeneralPago").val(ds.PaymentMethodId);
+                    $("#purchaseIdGeneralPago").val(ds.PurchaseId);
+
+                    $("#panelPagosGeneralesAgendos").append(
+                        '<div class="request__pay-head">'
+                        + '<h5 class="request__pays-title">Pago ' + (i + 1) + '</h5>'
+                        + '<div class="label label-table label-success">' + estatus + '</div>'
+                        + '</div> '
+                        + '<div class="request__pays-col-1-2">'
+                        + '<label class="request__pays-label control-label">Monto a pagar:</label>'
+                        + '<input class="form-control request__pays-data" value="' + parseFloat(ds.Total).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + '" readonly>'
+                        + '</div>'
+                        + '<div class="request__pays-col-1-2">'
+                        + '<label class="request__pays-label control-label">Fecha a pagar:</label>'
+                        + '<input class="form-control request__pays-data" value="' + ds.PaymentPromise.substring(0, 10) + '" readonly>'
+                        + '</div>'
+                    );
+                    auxAgendarPend++;
+                }
+
+                auxIdPurchase = ds.PaymentId;
+            });
+
+            var pendiente = parseFloat(datosSolicitudes[0].PaymentWithDiscount) - parseFloat(datosSolicitudes[0].HasPayed);
+            var pagosPendientes = parseInt(@maximoPagos) - parseInt(auxAgendarPend);
+            $("#montoPendientePagoGeneral").text("$ " + parseFloat(pendiente).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            $("#montoTotalPagoGeneral").text("$ " + parseFloat(datosSolicitudes[0].PaymentWithDiscount).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            $("#pagosRestantesGeneralModal").text(pagosPendientes);
+            console.log(parseInt(@maximoPagos) - parseInt(auxAgendarPend));
+
+            $("#panelModalInfoGeneral").show();
+
+            if (pagosPendientes <= 0) {
+                $("#panelAgregaGeneralPagos").hide();
+            } else {
+                $("#panelAgregaGeneralPagos").show();
+            }
+        });
+
+        $("#agregarFechasGeneralesPago").click(function () {
+            auxCalendario++;
+            if (auxAgendarPend < (@maximoPagos -1) && auxAgendarPend >= 0) {
+                $("#pagosAdicionalesGeneralPago").append(
+                    '<div class="row" ><div class="request__form-container">'
+                    + '<div class="form-group request__form-col-1-2 ">'
+                    + '<label class="control-label request--size-label">Monto a pagar:</label> '
+                    + '<input name="pay" type="number" class="form-control " id="montoPagoGeneral' + auxCalendario + '">'
+                    + '</div>'
+                    + '<div class="form-group request__form-col-1-2 ">'
+                    + '<label class="control-label request--size-label">Fecha a pagar:</label>'
+                    + '<div class="input-group date">'
+                    + '<input type="text" class="datepicker-here form-control calendarioPagoGeneral" data-language="es" id="calendarioPagoGeneral' + auxCalendario + '">'
+                    + '<span class="input-group-addon show-datepicker_JS" id="show-datepicker_JS">'
+                    + '<span class="glyphicon glyphicon-calendar show-datepicker_JS"></span>'
+                    + '</span>'
+                    + '</div>'
+                    + '</div> '
+                    + '<a href="#" class="request__schedule-icon eliminarFechaAgendada" >'
+                    + '<i class="fa fa-minus text-white"></i> '
+                    + '<span class="request__schedule-text" >Agendar pago</span>'
+                    + '</a>'
+                    + '</div></div>'
+                );
+                inicializarCalendario($("#calendarioPagoGeneral" + auxCalendario));
+            }
+            auxAgendarPend++;
+
+        });
+
+        $("#pagosAdicionalesGeneralPago").on("click", '.eliminarFechaAgendada', function () {
+            $(this).parent("div").remove();
+            auxAgendarPend++;
+        });
+
+        $("#botonGuardarPagoGeneral").click(function () {
+            var fechasIngresadas = aux;
+
+            var montos = new Array();
+            var dates = new Array();
+            var fechasNuevas = new Array();
+            var flag = true;
+            var paymentMethodId = $("#paymentMethodIdGeneralPago").val();
+            var purchaseId = $("#purchaseIdGeneralPago").val();
+
+            for (var m = 0; m <= auxCalendario; m++) {
+                var montos = $("#montoPagoGeneral" + m).val();
+                var dates = $("#calendarioPagoGeneral" + m).val();
+
+                var pendiente1 = $("#montoPendientePagoGeneral").text().replace("$", "").replace(",", "").replace(" ", "");
+
+                if (montos == "" || dates == "") {
+                    mandarAlerta($("#panelAlertGeneralPagosModal"), "alert-danger", montosFechas);
+                    flag = false;
+                } else {
+                    var p = { PurchaseId: purchaseId, PaymentPromise: dates, PaymentMethodId: paymentMethodId, Total: montos, IsPayed: 0 };
+                    fechasNuevas.push(p);
+                }
+
+
+                if (parseInt(pendiente1) < parseInt(montos)) {
+                    flag = false;
+                    mandarAlerta($("#panelAlertGeneralPagosModal"), "alert-danger", montoMayor);
+                }
+
+                if (parseInt(montos) <= 0) {
+                    flag = false;
+                    mandarAlerta($("#panelAlertGeneralPagosModal"), "alert-danger", mayorCero);
+                }
+            }
+            if (flag) {
+                $("#firstPay").modal("hide");
+                //console.log(p);
+                $.each(fechasNuevas, function (i, fechasNuevas) {
+                    guardarNuevasFechasPago(fechasNuevas);
+                });
+            }
+        });
+
+        /*-------------------------------------*/
+        /*-------------- PAGAR ---------------*/
+        /*------------------------------------*/
+
+
+        $("#tablaMisSolicitudes").on("click", ".pagar", function () {
+            var itemShopping = new Array();
+            var fila = $(this).parents("tr");
+            var hasNotPayed = fila.find(".montoHasNotPayed").text();
+            var paymentPromise = fila.find(".paymentPromise").text();
+            var paymentId = fila.find(".paymentId").text();
+            var paymentMethodId = fila.find(".paymentMethodId").text();
+
+            var paymentIds = new Array();
+            paymentIds = paymentId.split(', ');
+
+            /*var match = paymentId.split(', ');
+            paymentId = Math.max.apply(null, match);
+            */
+            //console.log(paymentIds);
+            itemShopping.push({
+                item: fila.find(".nameElement").text(),
+                IdElement: fila.find(".idElement").text(),
+                IsStand: fila.find(".isStand").text(),
+                Cost: fila.find(".montoHasNotPayed").text().replace(",", "").replace("$", "").replace("USD", "").replace("MXN", ""),
+                NameElement: fila.find(".nameElement").text(),
+                PreviousPaymentMethod: fila.find(".paymentMethodId").text()
+            });
+
+
+            //console.log(itemShopping);
+
+            var elementosCarrito = @elementosCarrito;
+            //console.log("carrito: " +elementosCarrito);
+            if (elementosCarrito > 0) {
+                swal({
+                    title: itemsCarritoWarning,
+                    text: "",
+                    icon: "warning",
+                    buttons: {
+                        confirm: continuar,
+                        cancel: cancelar,
+                    },
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        registrarPago(itemShopping, paymentPromise, hasNotPayed, paymentIds, paymentMethodId, 1); //Tipo de pago 1, cuando paga todo
+                    } else {
+                        swal.close();
+                    }
+                });
+            } else {
+                registrarPago(itemShopping, paymentPromise, hasNotPayed, paymentIds, paymentMethodId, 1); //Tipo de pago 1, cuando paga todo
+
+            }
+
+        });
+
+        $("#tablaMisSolicitudes").on("click", ".pagarIndividual", function () {
+            var itemShopping = new Array();
+            var fila = $(this).parents("tr");
+            var hasNotPayed = fila.find(".montoPromesaIndividual").text().replace(",", "").replace("$", "").replace("USD", "").replace("MXN", "");
+            var paymentPromise = fila.find(".paymentPromiseIndividual").text();
+            var paymentId = fila.find(".paymentId").text();
+            var paymentMethodId = fila.find(".paymentMethodId").text();
+
+            itemShopping.push({
+                item: fila.find(".nameElement").text(),
+                IdElement: fila.find(".idElement").text(),
+                IsStand: fila.find(".isStand").text(),
+                Cost: fila.find(".montoPromesaIndividual").text().replace(",", "").replace("$", "").replace("USD", "").replace("MXN", ""),
+                NameElement: fila.find(".nameElement").text(),
+                PreviousPaymentMethod: fila.find(".paymentMethodId").text()
+            });
+
+            var paymentIds = new Array();
+            paymentIds = paymentId.split(', ');
+
+            //console.log(itemShopping);
+
+            //console.log(paymentMethodId);
+            //console.log(paymentIds);
+
+
+            var elementosCarrito = @elementosCarrito;
+            //console.log("carrito: " +elementosCarrito);
+            if (elementosCarrito > 0) {
+                swal({
+                    title: itemsCarritoWarning,
+                    text: "",
+                    icon: "warning",
+                    buttons: {
+                        confirm: continuar,
+                        cancel: cancelar,
+                    },
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        registrarPago(itemShopping, paymentPromise, hasNotPayed, paymentId, paymentMethodId, 2); //Tipo de pago 2, cuando paga el pago agendado
+                    } else {
+                        swal.close();
+                    }
+                });
+            } else {
+                registrarPago(itemShopping, paymentPromise, hasNotPayed, paymentId, paymentMethodId, 2); //Tipo de pago 2, cuando paga el pago agendado
+            }
+
+        });
+
+        var registrarPago = function (itemShopping, paymentPromise, hasNotPayed, paymentId, paymentMethodId, tipoPago) {
+            var url = '@Url.Action("RegistrarPago", "Home")';
+            var data = {
+                products: itemShopping, lastPaymentPromise: paymentPromise, paymentHasNotPayed: hasNotPayed, paymentId: paymentId, paymentMethodId: paymentMethodId, tipoPago: tipoPago
+            };
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+
+                    var ruta = (window.location.href).toLocaleLowerCase();
+                    ruta = ruta.replace("/missolicitudes", "");
+                    ruta = ruta.replace("/exhibitor", "/Home");
+                    if (ruta.includes("esp") || ruta.includes("eng")) {
+                        ruta = ruta.replace("/esp/", "/ESP/");
+                        ruta = ruta.replace("/eng/", "/ENG/");
+                    } else {
+                        ruta = ruta.concat("/" + '@idiomaId');
+                    }
+
+                    ruta = ruta.replace("#", "");
+
+                    ruta = ruta.concat("/Pago?pago=2");
+                    //console.log(ruta);
+                    window.location.assign(ruta);
+                    //console.log("sucess");
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, sesionExpirada);
+                }
+            });
+        };
+
+    </script>
+}

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" />
+  <xs:complexType name="UserResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResetPasswordToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SystemId" type="xs:int" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="User" nillable="true" type="q1:UserAdmin" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="UserPermissions" nillable="true" type="q2:ArrayOfUserSystemAdmin" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" minOccurs="0" name="Users" nillable="true" type="q3:ArrayOfUserAdmin" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserResponse" nillable="true" type="tns:UserResponse" />
+</xs:schema>

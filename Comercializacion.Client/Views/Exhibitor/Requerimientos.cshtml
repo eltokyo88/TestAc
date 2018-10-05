@@ -1,0 +1,2188 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.Model
+@{
+    ViewBag.Title = "Requerimientos";
+    Layout = "~/Views/Shared/_LayoutExhibitor.cshtml";
+}
+
+@Styles.Render("~/Content/Toast")
+@Styles.Render("~/Content/Requerimientos")
+
+
+@{
+    List<Stand> stands = (List<Stand>)ViewData["stands"];
+    int delta = (int)ViewData["deltaSpace"];
+    List<StandSize> standSize = (List<StandSize>)ViewData["standSize"];
+    string standSizeJson = (string)ViewData["standSizeJson"];
+}
+
+<!-- ModalCaracterísticas específicas -->
+<div class="modal fade" id="features" tabindex="-1" role="dialog" aria-labelledby="Características específicas de Stands Institucionales">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-demand__header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title modal-demand__ttl">Características específicas de Stands Institucionales</h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="modal-demand__th">3x3 (9m<sup>2</sup>)</th>
+                                <th class="modal-demand__th">6x3 (18m<sup>2</sup>)</th>
+                                <th class="modal-demand__th">6x6 (36m<sup>2</sup>)</th>
+                                <th class="modal-demand__th">6x9 (54m<sup>2</sup>)</th>
+                                <th class="modal-demand__th">6x12 (72m<sup>2</sup>)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>Mamparas</td>
+                                <td class='modal-demand__td'>Mamparas</td>
+                                <td class='modal-demand__td'>8 gafetes</td>
+                                <td class='modal-demand__td'>12 gafetes</td>
+                                <td class='modal-demand__td'>15 gafetes</td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>Antepecho</td>
+                                <td class='modal-demand__td'>Antepecho</td>
+                                <td class='modal-demand__td'>Contacto eléctrico</td>
+                                <td class='modal-demand__td'>Máximo 8 expositores</td>
+                                <td class='modal-demand__td'>Máximo 10 expositores</td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>Contacto eléctrico</td>
+                                <td class='modal-demand__td'>Contacto eléctrico</td>
+                                <td class='modal-demand__td'>Alfombra</td>
+                                <td class='modal-demand__td'>Contacto eléctrico</td>
+                                <td class='modal-demand__td'>Contacto eléctrico</td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>1 Tablón</td>
+                                <td class='modal-demand__td'>1 Tablón</td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'>Alfombra</td>
+                                <td class='modal-demand__td'>Alfombra</td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>2 Sillas</td>
+                                <td class='modal-demand__td'>2 Sillas</td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>Iluminación del stand</td>
+                                <td class='modal-demand__td'>Iluminación del stand</td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>Alfombra</td>
+                                <td class='modal-demand__td'>Alfombra</td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                            </tr>
+                            <tr class='modal-demand__tr'>
+                                <td class='modal-demand__td'>Gafetes</td>
+                                <td class='modal-demand__td'>Gafetes</td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                                <td class='modal-demand__td'></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal fusion / bloques -->
+<div id="fusionStandsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content text-center">
+            <div class="modal-header modal-demand__header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="ti-close"></i></button>
+                <h4 class="modal-title" id="myModalLabel">Fusiona tus stands</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        @*<p class="text-center">Tus stands <span id="standsTitulo"></span> pueden formar bloques más grandes. </p>*@
+
+                        <ul class="listaasi text-center">
+                            <li>6x3 (18m<sup>2</sup>) <img src="~/Content/img/6x3.svg" width="20"></li>
+                            <li>6x6 (36m<sup>2</sup>) <img src="~/Content/img/6x6.svg" width="20"></li>
+                            <li>6x9 (54m<sup>2</sup>) <img src="~/Content/img/6x9.svg" width="20"></li>
+                            <li>6x12 (72m<sup>2</sup>) <img src="~/Content/img/6x12.svg" width="20"></li>
+                        </ul>
+                        <hr />
+                    </div>
+                    <div class="col-md-12" id="panelFusionStands">
+
+                        @*<div class="cont-merge-stands">
+                                <span class="titStandsBuyed">Da clic en los stands que deseas unir.</span>
+                                <div id="vistaDistribucion">
+                                    <div class="row-stands">
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                    </div>
+                                    <div class="row-stands" id="">
+                                        <div class="stand-empty"></div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-buyed"> <i class="ti-plus"></i> </div>
+                                        <div class="stand-empty"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div style="padding-top: 10px;">
+                                <a type="button" class="btn btn-info waves-effect" data-dismiss="modal" id="crearBloque">Crear bloque 6x3</a>
+                                <a type="button" class="btn btn-info waves-effect" data-dismiss="modal" id="standsIndividuales">Stands individuales</a>
+                                <a type="button" class="btn btn-cancel waves-effect" data-dismiss="modal" id="despues">En otro momento</a>
+                            </div>
+                            <hr />*@
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a type="button" class="btn btn-info waves-effect" data-dismiss="modal" id="guardarBloque">Guardar</a>
+                <a type="button" class="btn btn-info waves-effect" data-dismiss="modal" id="crearBloque">Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" id="requerimientos">
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+            <div class="white-box demand__col-left">
+                <a class="btn pull-right demand__btn--success" id="solicitarRequemimientosBloque" style="display: none;">Solicitar requerimientos</a>
+                <div class="table-responsive" style="width: 100%;">
+                    <table class="table table_JS">
+                        <tbody>
+                            @if (stands.Count == 0)
+                            {
+                                <tr>
+                                    <td>No tienes solicitudes para requerimientos</td>
+                                </tr>
+                            }
+
+                            @foreach (var st in stands)
+                            {
+                                int equ = Int32.Parse(st.PositionX.ToString()) + Int32.Parse(st.Width.ToString());
+                                int eye = Int32.Parse(st.PositionY.ToString()) + Int32.Parse(st.Height.ToString());
+                                <tr requerimientoId="@st.StandId" posx="@st.PositionX" posy="@st.PositionY" ancho="@st.WidthReal" largo="@st.HeightReal" m2="@st.SquareMeters"
+                                    posxt="@equ" posyt="@eye">
+
+                                    <td>
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input id="stand-@st.StandId" type="checkbox">
+                                            <label for="stand-@st.StandId" class="demand__checkbox"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        Stand @st.StandId Dimensión @st.WidthReal x @st.HeightReal (@st.SquareMeters m<sup>2</sup>)
+                                    </td>
+                                    <td class="text-right">
+                                        <a class="btn btn-default demand__btn--default solicitarRequemimientos">Solicitar requerimientos</a>
+                                    </td>
+                                </tr>
+                            }
+
+                            @*<tr>
+                                    <td>
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input id="stand24" type="checkbox">
+                                            <label for="stand24" class="demand__checkbox"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        Stand 24 Dimensión 3X3 (9m<sup>2</sup>)
+                                    </td>
+                                    <td class="text-right">
+                                        <a class="btn btn-default demand__btn--default solicitarRequemimientos">Solicitar requerimientos</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input id="stand25" type="checkbox">
+                                            <label for="stand25" class="demand__checkbox"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        Stand 24 Dimensión 3X3 (9m<sup>2</sup>)
+                                    </td>
+                                    <td class="text-right">
+                                        <a class="btn btn-default demand__btn--default solicitarRequemimientos">Solicitar requerimientos</a>
+                                    </td>
+                                </tr>
+                                <tr class="">
+                                    <td>
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input id="stand26" type="checkbox">
+                                            <label for="stand26" class="demand__checkbox"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        Stand 24 Dimensión 3X3 (9m<sup>2</sup>)
+                                    </td>
+                                    <td class="text-right">
+                                        <a class="btn btn-default demand__btn--default solicitarRequemimientos">Solicitar requerimientos</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input class="" id="stand27" type="checkbox" disabled>
+                                            <label for="stand27" class="demand__checkbox"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        Stand 24 Dimensión 3X3 (9m<sup>2</sup>)
+                                    </td>
+                                    <td>
+                                        <div class="demand__download-container">
+                                            <div class="demand__send-date">
+                                                Solicitud enviada el 12/08/2018
+                                            </div>
+                                            <a class="btn demand__download-btn" href="#" download="">
+                                                <i class="glyphicon glyphicon-download-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input class="demand__input" id="stand28" type="checkbox" disabled>
+                                            <label for="stand28" class="demand__checkbox"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        Stand 24 Dimensión 3X3 (9m<sup>2</sup>)
+                                    </td>
+                                    <td>
+                                        <div class="demand__download-container">
+                                            <div class="demand__send-date">
+                                                Solicitud enviada el 12/08/2018
+                                            </div>
+                                            <a class="btn demand__download-btn demand__download-btn--disabled" href="#" download="" disabled>
+                                                <i class="glyphicon glyphicon-download-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>*@
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="demand__box">
+                <h4 class="">Todos los <b>stands institucionales</b> cuentan con:</h4>
+                <ul class="demand__list">
+                    <li class="demand__item">Contacto eléctrico (1,000 watts)</li>
+                    <li class="demand__item">Gafetes para asistentes</li>
+                    <li class="demand__item">Alfombra</li>
+                </ul>
+                <button class="btn btn-default demand__stands-btn" data-toggle="modal" data-target="#features">Características específicas</button>
+                <h4>Podrás contratar servicios adicionales:</h4>
+                <button class="btn btn-default demand__stands-btn">Conocer más</button>
+            </div>
+            <div class="demand__box demand__box--blue">
+                <i class="ti-info-alt demand__icon--info"></i>
+                <div class="demand__info-paragraph">
+                    <h4 class="text-white demand--no-mt">Información importante</h4>
+                    <p class="">
+                        Es indispensable que envies la solicitud de requerimientos antes del 12 de octubre del 2018.
+                        <br>
+                        El stand institucional debe coincidir con la medida de tu espacio.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+<!------------------------------------->
+<!--------- SEGUNDA PARTE ------------->
+<!------------------------------------->
+
+<div class="container-fluid" style="display: none;" id="requerimientosTabs">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="demand__navbar ">
+                <a class='demand__btn--back' id="cancelarRequerimientos">
+                    <i class="glyphicon glyphicon-menu-left demand__btn--back-icon"></i>
+                    Cancelar
+                </a>
+                @*<div class="demand__navbar-btns ">
+                        <button class="btn demand__btn--success demand--no-mb">Solicitar requerimientos</button>
+                        <button class="btn btn-default demand__btn--default" disabled>Guardar</button>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div class="demand__stands-container" id="informacionStands">
+
+                @*<div class="demand__header-container">
+                        <h3 class="demand__header-ttl">
+                            Stand 24 Dimensión 3x3 (9m<sup>2</sup>)
+                        </h3>
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs demand__nav-tabs" role="tablist">
+                            <li role="presentation" class="demand__tab active">
+                                <a class="demand__tab-anchor" href="#stand" aria-controls="stand" role="tab" data-toggle="tab">
+                                    <i class="demand__tab-active glyphicon glyphicon-ok"></i>
+                                    Stand institucional
+                                </a>
+                            </li>
+                            <li role="presentation" class="demand__tab">
+                                <a class="demand__tab-anchor" href="#proveedor" aria-controls="proveedor" role="tab" data-toggle="tab">
+                                    <i class="demand__tab-active glyphicon glyphicon-ok"></i>
+                                    Ya cuento con proveedor
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Tab panes -->
+
+                    <div class="tab-content demand__tab-content demand--width">
+                        <div role="tabpanel" class="tab-pane active" id="stand">
+                            <div class="demand__tab-pane">
+                                <div class="demand__col-1-2">
+                                    <p>Tu stand institucional 3x3 incluye:</p>
+                                    <ul class="demand__list">
+                                        <li class="demand__item demand__item--black">Mamparas</li>
+                                        <li class="demand__item demand__item--black">Antepecho con el nombre de la empresa</li>
+                                        <li class="demand__item demand__item--black">Contacto eléctrico</li>
+                                        <li class="demand__item demand__item--black">1 Tablón</li>
+                                        <li class="demand__item demand__item--black">2 Sillas</li>
+                                        <li class="demand__item demand__item--black">Iluminación del stand</li>
+                                        <li class="demand__item demand__item--black">Alfombra</li>
+                                        <li class="demand__item demand__item--black">Gafetes</li>
+                                    </ul>
+                                </div>
+                                <div class="demand__col-1-2">
+                                    <div>
+                                        <label for="">* Elige tipo de mamparas</label>
+                                        <i class="fa fa-question-circle demand__info-icon demand__tooltip">
+                                            <span class="demand__tooltip-text demand__tooltip--right">
+                                                <div style="margin-bottom: 15px">
+                                                    <label style="margin-bottom: 15px">Mampara de cajón</label>
+                                                    <img src="~/Content/img/antepecho.jpg" alt="">
+                                                </div>
+                                                <div>
+                                                    <label style="margin-bottom: 15px">Mampara de esquina</label>
+                                                    <img src="~/Content/img/antepecho.jpg" alt="">
+                                                </div>
+                                            </span>
+                                        </i>
+                                    </div>
+                                    <div class="demand__radio-container">
+                                        <p>
+                                            <input type="radio" id="test1" name="radio-group" checked>
+                                            <label for="test1">
+                                                Cajón
+                                                <br>
+                                                <small class="demand__suggestion-label">Sugerido</small>
+                                            </label>
+                                        </p>
+                                        <p>
+                                            <input type="radio" id="test2" name="radio-group">
+                                            <label for="test2">Esquina</label>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label for="">* Escribe el texto del antepecho </label>
+                                        <i class="fa fa-question-circle demand__info-icon demand__tooltip">
+                                            <span class="demand__tooltip-text demand__tooltip--right">
+                                                <label style="margin-bottom: 15px">Vista preeliminar del antepecho</label>
+                                                <img src="~/Content/img/antepecho.jpg" alt="">
+                                            </span>
+                                        </i>
+                                        <input class="demand__input--green" type="text">
+                                    </div>
+
+                                    <!--se añadió servicios adicionales-->
+                                    <div class="demand__services">
+                                        <label for="">Servicios adicionales</label>
+                                        <div class="demand__add-services">
+                                            <div class="demand__services-container">
+                                                <.class="demand__services-select" name="" id="">
+                                                    <option value="">$1,000.00 MXN | Lampara</option>
+                                                    <option value="">$30,000.00 MXN | Mesa</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn demand__services-add">
+                                                <i class="fa fa-plus "></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Lampara</span>
+                                        <div class="input-group demand__col-counter">
+                                            <input type="text" name="quant[1]" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1"
+                                                   max="10">
+                                            <div class="demand__quantity-container">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" disabled="disabled" data-type="minus" data-field="quant[1]">
+                                                        <span class="fa fa-minus"></span>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[1]">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="demand__col-price">$1,000.00 MXN</span>
+                                        <a class="demand__trash demand__col-icon" href="#">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Mesa</span>
+                                        <div class="input-group demand__col-counter">
+                                            <input type="text" name="quant[2]" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1"
+                                                   max="10">
+                                            <div class="demand__quantity-container">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" disabled="disabled" data-type="minus" data-field="quant[2s]">
+                                                        <span class="fa fa-minus"></span>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[2]">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="demand__col-price">$30,000.00 MXN</span>
+                                        <a class="demand__trash demand__col-icon" href="#">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Total</span>
+                                        <span class="demand__col-price">$31,000.00 MXN</span>
+                                    </div>
+                                    <!--fin se añadió servicios adicionales-->
+                                </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="proveedor">
+                            <div class="demand__tab-pane demand--background-gray">
+                                <div class="demand__col-1-2 demand__col-1-2--padding demand__col-1-2--responsive">
+                                    <label for="" class="demand__label--bold">Datos tu proveedor</label>
+                                    <div class="demand--pr-40 demand--mt-20 ">
+                                        <label for="">Nombre de la empresa</label>
+                                        <input class="demand__input--green" type="text">
+                                    </div>
+                                    <div class="demand--pr-40 demand--mt-20 ">
+                                        <label for="">Nombre de contacto</label>
+                                        <input class="demand__input--green" type="text">
+                                    </div>
+                                    <div class="demand--pr-40 demand--mt-20 ">
+                                        <label for="">Teléfono móvil</label>
+                                        <input class="demand__input--green" type="text">
+                                    </div>
+                                    <div class="demand--pr-40 demand--mt-20 ">
+                                        <label for="">Correo electrónico</label>
+                                        <input class="demand__input--green" type="email">
+                                    </div>
+                                    <div class="demand--pr-40 demand--mt-20 demand--mb-30">
+                                        <div class="checkbox checkbox-success demand__checkbox-container">
+                                            <input id="provider" type="checkbox">
+                                            <label for="provider" class="demand__checkbox demand--fw-100">Aplicar proveedor a todos</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="demand__col-1-2 demand__col-1-2--responsive">
+
+                                    <div>
+                                        <div>
+                                            <label for="">Adjunta el documento DRO</label>
+                                            <i class="fa fa-question-circle demand__info-icon demand__tooltip">
+                                                <span class="demand__tooltip-text demand__tooltip--right">
+                                                    <label>
+                                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates modi veritatis ratione ullam asperiores rerum aliquid aperiam in, est mollitia nemo, reprehenderit inventore repellat doloribus tempora, expedita quidem vero nostrum.
+                                                    </label>
+                                                </span>
+                                            </i>
+                                        </div>
+                                        <input id="DRO_JS" type="file" class="file DRO_JS" data-preview-file-type="text">
+                                    </div>
+                                    <div style="margin-top: 30px">
+                                        <div>
+                                            <label for="">Adjunta un render de tu stand</label>
+                                            <i class="fa fa-question-circle demand__info-icon demand__tooltip">
+                                                <span class="demand__tooltip-text demand__tooltip--right">
+                                                    <label>
+                                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates modi veritatis ratione ullam asperiores rerum aliquid aperiam in, est mollitia nemo, reprehenderit inventore repellat doloribus tempora, expedita quidem vero nostrum.
+                                                    </label>
+                                                </span>
+                                            </i>
+                                        </div>
+                                        <input id="render_JS" type="file" class="file render_JS" data-preview-file-type="text">
+                                    </div>
+
+                                    <!--se añadió servicios adicionales-->
+                                    <div class="demand__services">
+                                        <label for="">Servicios adicionales</label>
+                                        <div class="demand__add-services">
+                                            <div class="demand__services-container">
+                                                <select class="demand__services-select" name="" id="">
+                                                    <option value="">$1,000.00 MXN | Lampara</option>
+                                                    <option value="">$30,000.00 MXN | Mesa</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn demand__services-add">
+                                                <i class="fa fa-plus "></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Lampara</span>
+                                        <div class="input-group demand__col-counter">
+                                            <input type="text" name="quant[1]" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1"
+                                                   max="10">
+                                            <div class="demand__quantity-container">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" disabled="disabled" data-type="minus" data-field="quant[1]">
+                                                        <span class="fa fa-minus"></span>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[1]">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="demand__col-price">$1,000.00 MXN</span>
+                                        <a class="demand__trash demand__col-icon" href="#">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Mesa</span>
+                                        <div class="input-group demand__col-counter">
+                                            <input type="text" name="quant[2]" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1"
+                                                   max="10">
+                                            <div class="demand__quantity-container">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" disabled="disabled" data-type="minus" data-field="quant[2s]">
+                                                        <span class="fa fa-minus"></span>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[2]">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="demand__col-price">$30,000.00 MXN</span>
+                                        <a class="demand__trash demand__col-icon" href="#">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Total</span>
+                                        <span class="demand__col-price">$31,000.00 MXN</span>
+                                    </div>
+                                    <!--fin se añadió servicios adicionales-->
+
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="adicionales">
+                            <div class="demand__tab-pane">
+                                <div class="demand__tab-pane demand--background-gray " style="padding:20px;">
+                                    <div style="width: 100%;">
+                                        <label for="">Servicios adicionales</label>
+                                        <div class="demand__add-services">
+                                            <div class="demand__services-container">
+                                                <select class="demand__services-select" name="" id="">
+                                                    <option value="">$1,000.00 MXN | Lampara</option>
+                                                    <option value="">$30,000.00 MXN | Mesa</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn demand__services-add">
+                                                <i class="fa fa-plus "></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Lampara</span>
+                                        <div class="input-group demand__col-counter">
+                                            <input type="text" name="quant[1]" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1"
+                                                   max="10">
+                                            <div class="demand__quantity-container">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" disabled="disabled" data-type="minus" data-field="quant[1]">
+                                                        <span class="fa fa-minus"></span>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[1]">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="demand__col-price">$1,000.00 MXN</span>
+                                        <a class="demand__trash demand__col-icon" href="#">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Mesa</span>
+                                        <div class="input-group demand__col-counter">
+                                            <input type="text" name="quant[2]" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1"
+                                                   max="10">
+                                            <div class="demand__quantity-container">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" disabled="disabled" data-type="minus" data-field="quant[2s]">
+                                                        <span class="fa fa-minus"></span>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[2]">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="demand__col-price">$30,000.00 MXN</span>
+                                        <a class="demand__trash demand__col-icon" href="#">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    <div class="demand__product-row ">
+                                        <span class="demand__col-product">Total</span>
+                                        <span class="demand__col-price">$31,000.00 MXN</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+@Scripts.Render("~/bundles/Requerimientos")
+@Scripts.Render("~/bundles/Toast")
+
+<!-- Custom Theme JavaScript -->
+<script src="~/Scripts/custom.js"></script>
+
+
+@section scripts{
+<script type="text/javascript">
+
+        /*------------------------------------------*/
+        /*---------- ETIQUETAS DE IDIOMA ----------*/
+        /*-----------------------------------------*/
+        var completarCampos = decode('@SessionManager.GetText("ACC_DatosFacturacion_CompletarCampos")');
+        var errorTitle = decode('@SessionManager.GetText("ACC_Error_Label")');
+        var errorLabel = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+        var exito = decode('@SessionManager.GetText("ACC_Toast_Success")');
+        var sesionExpirada = decode('@SessionManager.GetText("ACC_Session_ExpiredMessage")');
+        var ErrorLogin = decode('@SessionManager.GetText("ACC_Error_LoginAgain")');
+
+        var requerimientos = new Array();
+
+        /*-----------------------------------------------*/
+        /* --- FUNCIONALIDAD DE TABLA DE SOLICITUDES --- */
+        /*-----------------------------------------------*/
+        // with plugin options
+
+        var standsBloque = new Array(); //ID de bloque que ya fueron asignados a un bloque
+        var standsBloque2 = new Array(); //Info de estands con vecinos
+        var standsGeneral = new Array(); //Stands que no tienen bloque
+        var auxBloque = 0; //Cuantos bloques se formaron
+
+        $("input:checkbox").on('change', function () {
+
+            if ($(this).is(':checked')) {
+                $(this).parents('tr').addClass('standSelected');
+                requerimientos.push(
+                    {
+                        "id": $(this).parents('tr').attr("requerimientoId"),
+                        "posx": $(this).parents('tr').attr("posx"),
+                        "posy": $(this).parents('tr').attr("posy"),
+                        "largo": $(this).parents('tr').attr("largo"),
+                        "ancho": $(this).parents('tr').attr("ancho"),
+                        "posxt": $(this).parents('tr').attr("posxt"),
+                        "posyt": $(this).parents('tr').attr("posyt"),
+                        "m2": $(this).parents('tr').attr("m2")
+                    }
+                );
+            } else {
+                var idReq = $(this).parents('tr').attr("requerimientoId");
+                $(this).parents('tr').removeClass('standSelected');
+                var popId = 0;
+
+
+                $.each(requerimientos, function (i, data) {
+                    data.bloque = 0;
+                    console.log(data.id + " == " + idReq);
+                    if (data.id == idReq) {
+                        popId = i;
+                    }
+                });
+
+                requerimientos.splice(popId, 1);
+
+                console.log("popId " + popId);
+
+                console.log(requerimientos);
+                /*requerimientos.pop(
+                    {
+                        "id": $(this).parents('tr').attr("requerimientoId"),
+                        "posx": $(this).parents('tr').attr("posx"),
+                        "posy": $(this).parents('tr').attr("posy"),
+                        "largo": $(this).parents('tr').attr("largo"),
+                        "ancho": $(this).parents('tr').attr("ancho"),
+                        "posxt": $(this).parents('tr').attr("posxt"),
+                        "posyt": $(this).parents('tr').attr("posyt"),
+                        "m2": $(this).parents('tr').attr("m2")
+                    }
+                );*/
+            }
+
+            if (requerimientos.length > 0) {
+                $('#solicitarRequemimientosBloque').show();
+                $('.solicitarRequemimientos').hide();
+            } else {
+                $('#solicitarRequemimientosBloque').hide();
+                $('.solicitarRequemimientos').show();
+            }
+        });
+
+        $(".solicitarRequemimientos").click(function () {
+            $("#requerimientosTabs").show();
+            $("#requerimientos").hide();
+        });
+
+        $("#solicitarRequemimientosBloque").click(function () {
+            standsBloque = [];  //Id de bloque que ya fueron asignados a un bloque
+            standsBloque2 = []; //Info de estands con vecinos
+            standsGeneral = []; //Stands que no tienen bloque
+            auxBloque = 0;
+
+            var enEquis = 0;
+            var enYe = 0;
+            var bloque = 0;
+
+            //console.log(requerimientos);
+            var arrayLength = requerimientos.length;
+
+            for (var i = 0; i < requerimientos.length; i++) {
+
+                //Ingresa todos los elementos al arreglo para saber cuales
+                standsGeneral.push(requerimientos[i].id);
+
+                for (var p = 0; p < arrayLength; p++){
+
+                    //Evaluando eje X
+                    enEquis = requerimientos[p].posx - requerimientos[i].posxt;
+
+                    //Si el espacio entre los stands es menos a delta, entonces los stands están juntos
+                    if ((0 <= enEquis) && (enEquis <= @delta) ) {
+
+                        //console.log(requerimientos[i].id + " " + i + " " + p + " " + requerimientos[p].posx + " - " + requerimientos[i].posxt + " =  " + enEquis);
+
+                        //Si la posición del elemento A + longitud es igual a: x o y del siguiente elemento, entonces están juntos.
+                        if ((requerimientos[i].posx == requerimientos[p].posx) && (requerimientos[i].posxt == requerimientos[p].posxt) || (requerimientos[i].posy == requerimientos[p].posy) && (requerimientos[i].posyt == requerimientos[p].posyt)) {
+                            auxBloque++;
+
+                            //Asignación de número de bloque
+                            if (standsBloque.indexOf(requerimientos[i].id) >= 0) {
+                                var ind = standsBloque.indexOf(requerimientos[i].id);
+                                auxBloque = standsBloque2[ind].bloque;
+                            }
+
+                            if (standsBloque.indexOf(requerimientos[p].id) >= 0) {
+                                var ind = standsBloque.indexOf(requerimientos[p].id);
+                                auxBloque = standsBloque2[ind].bloque;
+                            }
+
+                            //Se guardan los stands que tienen vecino potencial para bloque
+                            if (standsBloque.indexOf(requerimientos[i].id) < 0) {
+
+                                standsBloque.push(requerimientos[i].id);
+                                standsBloque2.push({
+                                    "bloque": auxBloque,
+                                    "id": requerimientos[i].id,
+                                    "x": requerimientos[i].posx,
+                                    "xt": requerimientos[i].posxt,
+                                    "y": requerimientos[i].posy,
+                                    "yt": requerimientos[i].posyt,
+                                    "m": requerimientos[i].m2,
+                                    "tipo": 1
+                                });
+                            }
+
+                            if (standsBloque.indexOf(requerimientos[p].id) < 0) {
+                                standsBloque.push(requerimientos[p].id);
+                                standsBloque2.push({
+                                    "bloque": auxBloque,
+                                    "id": requerimientos[p].id,
+                                    "x": requerimientos[p].posx,
+                                    "xt": requerimientos[p].posxt,
+                                    "y": requerimientos[p].posy,
+                                    "yt": requerimientos[p].posyt,
+                                    "m": requerimientos[p].m2,
+                                    "tipo": 1
+                                });
+
+                            }
+
+                        }
+                    }
+
+                    //Evaluando eje Y
+                    enYe = requerimientos[p].posy - requerimientos[i].posyt;
+
+                    //Si el espacio entre los stands es menos a delta, entonces los stands están juntos
+                    if ((0 <= enYe) && (enYe <= @delta) ){
+
+                         //Si la posición del elemento A + longitud es igual a: x o y del siguiente elemento, entonces están juntos.
+                        if ((requerimientos[i].posx == requerimientos[p].posx) && (requerimientos[i].posxt == requerimientos[p].posxt) ||
+                            (requerimientos[i].posy == requerimientos[p].posy) && (requerimientos[i].posyt == requerimientos[p].posyt)) {
+                            auxBloque++;
+
+                            //Asignación de número de bloque
+                            if (standsBloque.indexOf(requerimientos[i].id) >= 0) {
+                                var ind = standsBloque.indexOf(requerimientos[i].id);
+                                auxBloque = standsBloque2[ind].bloque;
+                            }
+
+                            if (standsBloque.indexOf(requerimientos[p].id) >= 0) {
+                                var ind = standsBloque.indexOf(requerimientos[p].id);
+                                auxBloque = standsBloque2[ind].bloque;
+                            }
+
+                            //Se guardan los stands que tienen vecino potencial para bloque
+                            if (standsBloque.indexOf(requerimientos[i].id) < 0) {
+
+                                standsBloque.push(requerimientos[i].id);
+
+                                standsBloque2.push({
+                                    "bloque": auxBloque,
+                                    "id": requerimientos[i].id,
+                                    "x": requerimientos[i].posx,
+                                    "xt": requerimientos[i].posxt,
+                                    "y": requerimientos[i].posy,
+                                    "yt": requerimientos[i].posyt,
+                                    "m": requerimientos[i].m2,
+                                    "tipo": 1
+                                });
+                            }
+
+                            if (standsBloque.indexOf(requerimientos[p].id) < 0) {
+
+                                standsBloque.push(requerimientos[p].id);
+
+                                standsBloque2.push({
+                                    "bloque": auxBloque,
+                                    "id": requerimientos[p].id,
+                                    "x": requerimientos[p].posx,
+                                    "xt": requerimientos[p].posxt,
+                                    "y": requerimientos[p].posy,
+                                    "yt": requerimientos[p].posyt,
+                                    "m": requerimientos[p].m2,
+                                    "tipo":1
+                                });
+
+                            }
+                        }
+                    }
+
+                }
+            };
+            /*
+            console.log(" --- Bloques array --- ");
+            console.log(standsBloque2);
+
+
+            console.log(" --- Bloques VECINOS --- ");
+            console.log(standsBloque);
+
+
+            console.log(" --- Bloques TODOS --- ");
+            console.log(standsGeneral);
+            */
+
+            //Obtener los stands que no tienen bloque
+            var elim = new Array();
+            $.each(standsGeneral, function (i, stand) {
+                $.each(standsBloque, function (i, standBloque) {
+                    if (stand == standBloque) {
+                        elim.push(stand);
+                    }
+                });
+            });
+
+            $.each(elim, function (i, stand) {
+                standsGeneral.pop(stand);
+            });
+
+            console.log(" --- Bloques SOLOS --- ");
+            console.log(standsGeneral);
+
+
+            if (standsBloque.length > 1) {
+                swal({
+                    title: "Algunos de tus estands pueden formar bloques",
+                    text: "¿Deseas fusionarlos?",
+                    icon: "info",
+                    buttons: {
+                        cancel: "No",
+                        accept: "Sí"
+                    },
+                    infoMode: true,
+                })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        $("#fusionStandsModal").modal("show");
+                    } else {
+                        swal({
+                            title: "Good job!",
+                            text: "You clicked the button!",
+                            icon: "success",
+                        });
+                    }
+                });
+            } else {
+                swal("No hay fusión");
+            }
+        });
+
+        /*-----------------------------------------*/
+        /*----- FUNCIONALIDAD MODAL DE FUSIÓN -----*/
+        /*-----------------------------------------*/
+
+        var tamañoBloque = 0;
+        var idElemento = 0;
+        var bloquesSeleccionados = new Array();  //bloques con subloques formados
+        var auxSeleccion = 1;  //Variable para subbloques
+        var bloquesVerdes = ""; //variable para controlar los click realizados
+
+
+        $("#fusionStandsModal").on("show.bs.modal", function () {
+            $("#panelFusionStands").html("");
+            bloquesSeleccionados = [];
+
+            //Se ordenan los bloques en y
+            standsBloque2.sort(function (a, b) {
+                if (a.y > b.y) {
+                    return 1;
+                }
+                if (a.y < b.y) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+
+            console.log("--------Ordenados en Y-------");
+            console.log(standsBloque2);
+
+            var standsHtml = "";
+            var titulo = "";
+
+            var listabloques = new Array();
+
+            //Se recorrerá el número de bloques generados
+            for (var i = 0; i < auxBloque; i++) {
+
+                titulo = "";
+
+                //Se guardan los bloques
+                listabloques.push({
+                    "idBloque": i,
+                    listLineas: new Array()
+                });
+
+                for (var k = 0; k < standsBloque2.length; k++) {
+
+                    //Si el bloque es el mismo, se guardarán los stands para saber al final si falta uno
+                    if (standsBloque2[k].bloque == (i + 1)) {
+
+                        var existe = false;
+
+                        //Valida su la 'y' ya existe en el arreglo, para agregar o no
+                        for (var l = 0; l < listabloques[i].listLineas.length; l++) {
+
+                            if (listabloques[i].listLineas.length == 0) {
+                                listabloques[i].listLineas[l].stands.push(standsBloque2[k]);
+                            }
+
+                            if (listabloques[i].listLineas[l].y == standsBloque2[k].y) {
+                                listabloques[i].listLineas[l].stands.push(standsBloque2[k]);
+                                existe = true;
+                                break;
+                            }
+                        }
+
+                        //Si no exise la y, la agrega, así como el stand que está en esa y
+                        if (!existe) {
+                            listabloques[i].listLineas.push(
+                                {
+                                    "y": standsBloque2[k].y,
+                                    "stands": [standsBloque2[k]]
+                                });
+                        }
+
+                        titulo += standsBloque2[k].id + ", ";
+                    }
+                }
+
+
+                for (var k = 0; k < listabloques.length; k++) {
+                    var maxLine = 0;    //Número máximo de estands por vada y
+                    var linea;          // Contiene el valor de stands
+
+                    //Obtiene el número máximo de y's por cada una para saber posteriormente si a algún bloque le hacen falta stands por cada 'y'
+                    for (var b = 0; b < listabloques[k].listLineas.length; b++) {
+                        if (maxLine < listabloques[k].listLineas[b].stands.length) {
+                            maxLine = listabloques[k].listLineas[b].stands.length;
+                            linea = listabloques[k].listLineas[b];
+                        }
+                    }
+
+                    //Recorre los stands por cada 'y'
+                    for (var j = 0; j < listabloques[k].listLineas.length; j++) {
+                        if (listabloques[k].listLineas[j].y != linea.y) {
+                            for (var g = 0; g < linea.stands.length; g++) {
+
+                                var existe = false;
+                                for (var m = 0; m < listabloques[k].listLineas[j].stands.length; m++) {
+                                    if (listabloques[k].listLineas[j].stands[m].x == linea.stands[g].x) {
+                                        existe = true;
+                                        break;
+                                    }
+                                }
+
+                                //Si no existe, agrega el stands faltante para igualar la cantidad de stands por cada 'y' en los bloques
+                                if (!existe) {
+                                    var nuevostand = {
+                                        "bloque": linea.stands[g].bloque,
+                                        "id": linea.stands[g].id,
+                                        "x": linea.stands[g].x,
+                                        "xt": linea.stands[g].xt,
+                                        "y": linea.stands[g].y,
+                                        "yt": linea.stands[g].yt,
+                                        "m": linea.stands[g].m,
+                                        "tipo": 2
+                                    };
+
+                                    listabloques[k].listLineas[j].stands.push(nuevostand);
+                                }
+                            }
+                        }
+
+                        //Ordena los stands por 'x'
+                        listabloques[k].listLineas[j].stands.sort(function (a, b) {
+                            if (a.x > b.x) {
+                                return 1;
+                            }
+                            if (a.x < b.x) {
+                                return -1;
+                            }
+                            // a must be equal to b
+                            return 0;
+                        });
+                    }
+
+                }
+            }
+
+            //Se comienza proceso para imprimir en pantalla
+            for (var z = 0; z < listabloques.length; z++) {
+                standsHtml = "";
+                var idElemento = z + 1;
+
+                for (var e = 0; e < listabloques[z].listLineas.length; e++) {
+
+                    standsHtml += '<div class="row-stands ">';
+
+                    for (var u = 0; u < listabloques[z].listLineas[e].stands.length; u++) {
+
+                        if (listabloques[z].listLineas[e].stands[u].tipo == 1) {
+                            standsHtml = standsHtml + '<div class="stand-buyed standRegion idElementos" id="' + listabloques[z].listLineas[e].stands[u].id + '" idStand="' + listabloques[z].listLineas[e].stands[u].id + '" idElementos = "' + idElemento + '" metros = "' + listabloques[z].listLineas[e].stands[u].m + '" x = "' + listabloques[z].listLineas[e].stands[u].x + '" xt = "' + listabloques[z].listLineas[e].stands[u].xt + '" y = "' + listabloques[z].listLineas[e].stands[u].y + '" yt = "' + listabloques[z].listLineas[e].stands[u].yt + '"><i class="ti-plus"></i></div>';
+                        } else {
+                            standsHtml = standsHtml + '<div class="stand-empty"></div>';
+                        }
+
+                    }
+                    standsHtml = standsHtml + '</div>';
+                }
+
+                //Pegar los necesarios
+
+                $("#panelFusionStands").append(
+
+                    '<p class="text-center bloqueDiv' + idElemento + '">Tus stands ' + titulo + ' pueden formar bloques más grandes. </p>'
+
+                    + '<div class="cont-merge-stands bloqueDiv' + idElemento + '">'
+                        + '<span class="titStandsBuyed">Da clic en los stands que deseas unir.</span>'
+                        + '<span ></span>'
+                        + '<div id="vistaDistribucion" >'
+                            + standsHtml
+                        + '</div>'
+                    + '</div>'
+
+                    + '<div class="bloqueDiv' + idElemento + '" idElementos = "' + idElemento + '" style= "padding-top: 150px;" >'
+                        + '<span id="textoBoton' + idElemento + '" style="display: none;"></span>'
+                        + '<span id="textoMetros' + idElemento + '" style="display: none;"></span>'
+                        + '<a type="button" class="btn btn-info waves-effect crearBloque"  id="crearBloque' + idElemento + '" style="display:none;"  idElementos = "' + idElemento + '">Crear bloque 6x3</a>&nbsp;'
+                        + '<a type="button" class="btn btn-info waves-effect standsIndividuales"  id="standsIndividuales' + idElemento + '" style="display:none;"  idElementos = "' + idElemento + '">Stands individuales</a>&nbsp;'
+                        + '<a type="button" class="btn btn-cancel waves-effect otroMomento"  id="otroMomento' + idElemento + '" idElementos = "' + idElemento + '">En otro momento</a>'
+                    + '</div>'
+
+                    + ' <ul class="list-merge" id = "panelBloques' + idElemento + '">'
+                    + ' </ul > '
+
+                );
+
+            }
+
+
+            //Se imprimen  los bloques que están solos
+            $.each(requerimientos, function (i, data) {
+                idElemento = idElemento + 1;
+
+                for (var z = 0; z < standsGeneral.length; z++) {
+                    if (data.id == standsGeneral[z]) {
+                        $("#panelFusionStands").append(
+
+                            '<hr/><p class="text-center bloqueDiv' + idElemento + '" style="padding-top:50px;">Este stand no tiene stands para fusionarse</p>'
+
+                            + '<div class="cont-merge-stands bloqueDiv' + idElemento + '">'
+                                + '<span ></span>'
+                                + '<div id="vistaDistribucion" ><div class="row-stands ">'
+                                     + '<div class="stand-buyed standRegion idElementos" id="' + standsGeneral[z]+'" idStand="' + standsGeneral + '" idElementos="' + idElemento + '" metros="' + data.m2 + '" x="' + data.posx + '" xt="' + data.posxt + '" y="' + data.posy + '" yt="' + data.posyt + '"><i class="ti-plus"></i></div>'
+                                + '</div></div>'
+                            + '</div>'
+
+                            + '<div class="bloqueDiv' + idElemento + '" idElementos = "' + idElemento + '" style= "padding-top: 150px;" >'
+                                + '<span id="textoBoton' + idElemento + '" style="display: none;"></span>'
+                                + '<span id="textoMetros' + idElemento + '" style="display: none;"></span>'
+                                + '<a type="button" class="btn btn-info waves-effect standsIndividuales"  id="standsIndividuales' + idElemento + '" style="display:none;"  idElementos = "' + idElemento + '">Stands individual</a>&nbsp;'
+                                + '<a type="button" class="btn btn-cancel waves-effect otroMomento"  id="otroMomento' + idElemento + '" idElementos = "' + idElemento + '">En otro momento</a>'
+                            + '</div>'
+
+                            + ' <ul class="list-merge" id = "panelBloques' + idElemento + '" style="padding-bottom: 50px;">'
+                            + ' </ul > '
+
+                        );
+                    }
+                }
+
+            });
+
+            tamanoBloque = 0;
+
+        });
+
+
+
+        //Cuando selecciona el stand y se pone el cuadro en verde
+        $('.modal-body').on('click', '.stand-buyed', function () {
+            $(this).toggleClass('stand-buyed');
+
+            $(this).children().toggleClass('ti-plus');
+            $(this).children().toggleClass('ti-minus');
+
+
+            $(this).toggleClass('stand-selected');
+
+            if (idElemento == $(this).attr("idElementos")) {
+                tamanoBloque += parseInt($(this).attr("metros"));
+            } else {
+                tamanoBloque = parseInt($(this).attr("metros"));
+            }
+
+            idElemento = $(this).attr("idElementos");
+            $("#textoMetros" + idElemento).text(tamanoBloque);
+
+            //console.log(idElemento);
+            analizarBloque(idElemento);
+
+
+            bloquesVerdes = $(this).attr("idstand") + " " + bloquesVerdes ;
+
+            // $(this).addClass('stand-wrong');
+
+        });
+
+        //Cuando elimina un stand de la seleccion y lo pone blanco
+        $(".modal-body").on('click', '.stand-selected', function () {
+
+            $(this).removeClass('stand-selected');
+            $(this).addClass('stand-buyed');
+
+            $(this).children().toggleClass('ti-minus');
+            $(this).children().toggleClass('ti-plus');
+
+            if (idElemento == $(this).attr("idElementos")) {
+                tamanoBloque -= parseInt($(this).attr("metros"));
+            } else {
+                tamanoBloque = parseInt($(this).attr("metros"));
+            }
+
+            idElemento = $(this).attr("idElementos");
+            $("#textoMetros" + idElemento).text(tamanoBloque);
+
+            analizarBloque(idElemento);
+
+            var standId = $(this).attr("idstand");
+            eliminarInfoStand(standId, 1);
+
+        });
+
+        var eliminarInfoStand = function (standId, tipo) {
+            console.log("eliminando .. ");
+            var auxSle = 0;
+
+            for (var r = 0; r < bloquesSeleccionados.length; r++) {
+
+                if (standId == bloquesSeleccionados[r].StandId) {
+                    auxSle = bloquesSeleccionados[r].SubBlock
+                    bloquesSeleccionados.splice(r, 1);
+                }
+
+            }
+
+            //Elimina todos los stands del bloque que se hayan generado
+            for (var r = 0; r < bloquesSeleccionados.length; r++) {
+
+                if (tipo == 1) {
+                    if (auxSle == bloquesSeleccionados[r].SubBlock) {
+                        $("#" + bloquesSeleccionados[r].StandId).removeClass('stand-selected');
+                        $("#" + bloquesSeleccionados[r].StandId).addClass('stand-buyed');
+
+                        $("#" + bloquesSeleccionados[r].StandId).children().toggleClass('ti-plus');
+                        $("#" + bloquesSeleccionados[r].StandId).children().toggleClass('ti-minus');
+
+                        $("." + bloquesSeleccionados[r].StandId).parent("li").remove();
+
+                        bloquesSeleccionados.splice(r, 1);
+                    }
+                } else {
+                    $("#" + standId).removeClass('stand-selected');
+                    $("#" + standId).addClass('stand-buyed');
+
+                    $("#" + standId).children().toggleClass('ti-plus');
+                    $("#" + standId).children().toggleClass('ti-minus');
+
+
+
+                }
+
+            }
+
+            console.log(bloquesSeleccionados);
+        }
+
+        $(".modal-body").on('click', '.stand-wrong', function () {
+            $(this).removeClass('stand-wrong');
+            $(this).addClass('stand-buyed');
+            $(this).children().toggleClass('ti-minus');
+            $(this).children().toggleClass('ti-plus');
+        });
+
+        //Analiza el tamaño de los stands seleccionados para verificar que se pueda armar un bloque de las dimensiones establecidas
+        var analizarBloque = function (idElemento) {
+            var b = false;
+            var tamanoLabel = "";
+
+            var standSize = JSON.parse('@Html.Raw(standSizeJson)');
+
+            //Evalúa si los metros cuadrados de los stands seleccionados
+            $.each(standSize, function (i, data) {
+
+                if (data.SquareMeters == tamanoBloque) {
+                    b = true;
+                    tamanoLabel = data.Width + " x " + data.Height;
+
+                }
+
+            });
+
+            //if ((requerimientos[i].posx == requerimientos[p].posx) && (requerimientos[i].posxt == requerimientos[p].posxt) || (requerimientos[i].posy == requerimientos[p].posy) && (requerimientos[i].posyt == requerimientos[p].posyt)) {
+
+            //Si el tamaño del bloque seleccionado existe
+            if (b) {
+                $("#crearBloque" + idElemento).text("Crear bloque " + tamanoLabel);
+                $("#crearBloque" + idElemento).addClass("textoBoton", tamanoLabel);
+                $("#textoBoton" + idElemento).text(tamanoLabel);
+
+                $("#crearBloque" + idElemento).show();
+            } else {
+                $("#crearBloque" + idElemento).hide();
+            }
+
+            $("#standsIndividuales" + idElemento).show();
+
+        }
+
+        $(".modal-body").on('click', '.otroMomento', function () {
+            var idElemento = $(this).attr("idElementos");
+            $(".bloqueDiv" + idElemento).hide();
+            $("#panelBloques" + idElemento).hide();
+
+        });
+
+
+        $(".modal-body").on('click', '.crearBloque', function () {
+
+            var idElemento = $(this).parent("div").attr("idElementos");
+
+            var textoBoton = $("#textoBoton" + idElemento).text();
+            var metros = $("#textoMetros" + idElemento).text();
+
+            $(this).hide();
+            $("#standsIndividuales" + idElemento).hide();
+
+            //Validar si el bloque es correcto
+
+                //Si el bloque es válido imprimir tabla en modal
+                $("#panelBloques" + idElemento).append('<li> ' + textoBoton + ' (' + metros + 'm<sup>2</sup>) <a class="pull-right deshacer ' + bloquesVerdes +'" bloquesVerdes = "' + bloquesVerdes+'">deshacer</a></li>');
+
+                //Agregar los bloques a un arreglo para guardarlo
+                console.log(bloquesVerdes);
+                var res = bloquesVerdes.split(" ", 1);
+                var match = bloquesVerdes.split(' ');
+                for (var a in match) {
+                    var res = match[a];
+                    if (res > 0) {
+                        bloquesSeleccionados.push({ StandId: res, SubBlock: auxSeleccion, BlockNumber: idElemento, StandBlockTotalSize: tamanoBloque });
+                    }
+                }
+
+                //funcion para imprimir la tabla con los stands generados
+
+                auxSeleccion = auxSeleccion + 1;
+                bloquesVerdes = "";
+                tamanoBloque = 0;
+                console.log(bloquesSeleccionados);
+        });
+
+        $(".modal-body").on('click', '.deshacer', function () {
+
+            var bloquesEliminar = $(this).attr("bloquesverdes");
+
+            //var res = bloquesEliminar.split(" ", 1);
+
+            var match = bloquesEliminar.split(' ');
+
+            var auxSt = 0;
+
+            for (var a in match) {
+                var res = match[a];
+                console.log(res);
+
+                eliminarInfoStand(res,2);
+            }
+
+
+            console.log(bloquesSeleccionados);
+            $(this).parent("li").remove();
+        });
+
+
+        $(".modal-body").on('click', '.standsIndividuales', function () {
+            var idElemento = $(this).parent("div").attr("idElementos");
+
+            var textoBoton = $("#textoBoton" + idElemento).text();
+            var metros = $("#textoMetros" + idElemento).text();
+
+            console.log(bloquesVerdes);
+             var res = bloquesVerdes.split(" ", 1);
+
+             var match = bloquesVerdes.split(' ');
+             for (var a in match) {
+                 var res = match[a];
+                 auxSeleccion = auxSeleccion + 1;
+                 var met = tamanoBloque / (match.length - 1); //Menos uno porque hay un elemento "" en el arreglo
+                 console.log(tamanoBloque + " / " + match.length);
+
+                 if (res > 0) {
+                     bloquesSeleccionados.push({ StandId: res.replace(" "), SubBlock: auxSeleccion, BlockNumber: idElemento, StandBlockTotalSize: met  });
+                     $("#panelBloques" + idElemento).append('<li> Stand individual <a class="pull-right deshacer ' + res + '" bloquesVerdes = "' + res + '">deshacer</a></li>');
+                 }
+             }
+
+             tamanoBloque = 0;
+             bloquesVerdes = "";
+             console.log(bloquesSeleccionados);
+        });
+
+        $("#guardarBloque").click(function () {
+
+            var url = '@Url.Action("SaveStandBlock", "Exhibitor")';
+            var info = { lista: bloquesSeleccionados };
+
+           /* $.ajax({
+                type: "POST",
+                url: url,
+                data: info,
+                success: function (data) {
+                    if (data > 0) {*/
+                        swal(exito, "Se ha guardado tus bloques", "success");
+                        $("#requerimientosTabs").show();
+                        $("#requerimientos").hide();
+                        $("#fusionStandsModal").modal("hide");
+
+                        cargarRequerimientos();
+                    /*} else {
+                        swal(errorTitle, errorLabel, "error");
+                    }
+
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });*/
+
+        });
+
+        var areTogether = function (Aposx, Bposx, Aposxt, Bposxt, Aposy, Bposy, Aposyt, Bposyt) {
+            var juntos = false;
+            var enEquis = Bposx - Aposxt;
+
+            //Si el espacio entre los stands es menos a delta, entonces los stands están juntos
+            if ((0 <= enEquis) && (enEquis <= @delta) ) {
+
+                //Si la posición del elemento A + longitud es igual a: x o y del siguiente elemento, entonces están juntos.
+                if ((Aposx == Bposx) && (Aposxt == Bposxt) || (Aposy == Bposy) && (Aposyt == Bposyt)) {
+                    juntos = true;
+                }
+            }
+
+            var enYe = Bposy - Aposyt;
+
+            //Si el espacio entre los stands es menos a delta, entonces los stands están juntos
+            if ((0 <= enYe) && (enYe <= @delta) ) {
+
+                //Si la posición del elemento A + longitud es igual a: x o y del siguiente elemento, entonces están juntos.
+                if ((Aposx == Bposx) && (Aposxt == Bposxt) || (Aposy == Bposy) && (Aposyt == Bposyt)) {
+                    juntos = true;
+                }
+            }
+
+            return juntos;
+        };
+
+
+
+        /*----------------------------------------------------------------*/
+        /*---------- SEGUNDA PARTE DE REQUERIMIENTOS ---------------------*/
+        /*----------------------------------------------------------------*/
+
+        $("#cancelarRequerimientos").click(function () {
+            $("#requerimientosTabs").hide();
+            $("#requerimientos").show();
+            $("#fusionStandsModal").modal("hide");
+        });
+
+
+        var cargarRequerimientos = function () {
+            var url = '@Url.Action("GetStandBlock", "Exhibitor")';
+
+            var auxBlockSize = 0;
+            $("#informacionStands").html("");
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function (data) {
+                    if (data[0].includes("Expirado") || data.includes("Expirado")) {
+                        MandarToastInfo(ErrorTitle, ErrorLogin);
+                    } else {
+                        var reque = JSON.parse(data);
+                        console.log(reque);
+                        $("#informacionStands").html();
+                        $.each(reque, function (i, reque) {
+                            /*------------------------------------------*/
+
+                            var catalogo = "";
+                            var catalogoIncluded = "";
+                            var url = '@Url.Action("GetAditionalServices", "Exhibitor")';
+                            $.ajax({
+                                type: "POST",
+                                url: url,
+                                success: function (data) {
+
+                                    if (data[0].includes("Expirado") || data.includes("Expirado")) {
+                                        MandarToastInfo(errorTitle, sesionExpirada);
+                                    } else {
+
+                                        var adicional = JSON.parse(data);
+
+                                        catalogo = '<div class="demand__services">'
+                                            + '<label for="">Servicios adicionales</label>'
+                                            + '<div class="demand__add-services">'
+                                            + '<div class="demand__services-container">'
+                                            + '<select class="demand__services-select" name="" id="selectServAdicional' + reque.StandBlockId + '">'
+                                            + '<option value="0">-Selecciona-</option>';
+
+
+                                        $.each(adicional, function (i, adicional) {
+                                            catalogo += '<option value="' + adicional.StandAditionalServiceId + '" class="selectServAdicionales" nombre="' + adicional.ServiceName + '" precio="' + parseFloat(adicional.Price).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + '" moneda="' + adicional.Currency + '" idMoneda="' + adicional.CurrencyId +'">$' + parseFloat(adicional.Price).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + ' ' + adicional.Currency + ' | ' + adicional.ServiceName + '</option > '
+                                        });
+
+                                        catalogo += '</select>'
+                                            + '</div>'
+                                            + '<button class="btn demand__services-add agregarServAdicionales" idReq = "' + reque.StandBlockId + '">'
+                                            + '<i class="fa fa-plus"></i>'
+                                            + '</button>'
+                                            + ' </div>'
+                                            + '</div>';
+
+                                        catalogoProveedor = '<div class="demand__services">'
+                                            + '<label for="">Servicios adicionales</label>'
+                                            + '<div class="demand__add-services">'
+                                            + '<div class="demand__services-container">'
+                                            + '<select class="demand__services-select" name="" id="selectServAdicionalProveedor' + reque.StandBlockId + '">'
+                                            + '<option value="0">-Selecciona-</option>';
+
+
+
+                                        $.each(adicional, function (i, adicional) {
+                                            catalogoProveedor += '<option value="' + adicional.StandAditionalServiceId + '" class="selectServAdicionalesProveedor" nombre="' + adicional.ServiceName + '" precio="' + parseFloat(adicional.Price).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + '" moneda="' + adicional.Currency + '" idMoneda="' + adicional.CurrencyId+'">$' + parseFloat(adicional.Price).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") + ' ' + adicional.Currency + ' | ' + adicional.ServiceName + '</option > '
+                                        });
+
+                                        catalogoProveedor += '</select>'
+                                            + '</div>'
+                                            + '<button class="btn demand__services-add agregarServAdicionalesProveedor" idReq = "' + reque.StandBlockId + '">'
+                                            + '<i class="fa fa-plus"></i>'
+                                            + '</button>'
+                                            + ' </div>'
+                                            + '</div>';
+                                    }
+
+
+                                    /*----------------------------------------*/
+
+                                    url = '@Url.Action("GetIncludedServices", "Exhibitor")';
+                                    $.ajax({
+                                        type: "POST",
+                                        url: url,
+                                        success: function (incl) {
+                                            catalogoIncluded = '<ul class="demand__list">';
+
+                                            if (incl[0].includes("Expirado") || incl.includes("Expirado")) {
+                                                MandarToastInfo(errorTitle, sesionExpirada);
+                                            } else {
+                                                var incluidos = JSON.parse(incl);
+
+                                                $.each(incluidos, function (i, incluidos) {
+
+                                                    if (parseInt(reque.StandBlockTotalSize) == parseInt(incluidos.SquareMeters)) {
+
+                                                        catalogoIncluded += '<li class="demand__item demand__item--black">' + incluidos.Description + '</li>';
+                                                    }
+                                                });
+                                            }
+                                            catalogoIncluded += '<ul>';
+
+                                            /*-------------------//********************/
+
+                                            if (parseInt(reque.BlockNumber) != parseInt(auxBlockSize)) {
+                                                $("#informacionStands").append(
+                                                    
+                                                    '<div class="demand__header-container" style="padding-top:15px;">'
+
+                                                        + '<div class="demand__navbar-btns" style="margin-left:auto; margin-right:0px;">'
+                                                    + '<button class="btn btn-default demand__btn--default pull-rigth guardarInfoStand" idReq=' + reque.StandBlockId + '>Guardar</button>'
+                                                  
+                                                            + '<button class="btn demand__btn--success demand--no-mb  enviarInfoStand" idReq=' + reque.StandBlockId + '>Solicitar requerimientos</button>'
+                                                        + '</div>'
+                                                    + '</div>'
+                                                    + '<div class="demand__header-container">'
+                                                        + '<h3 class="demand__header-ttl">'
+                                                        + 'Stand dimensión ' + reque.Width + ' x ' + reque.Height + ' (' + reque.StandBlockTotalSize+'m<sup>2</sup>)'
+                                                        + '</h3>'
+
+                                                        + '<ul class="nav nav-tabs demand__nav-tabs pestanasTabs" role="tablist" id="pestanasTabs' + reque.StandBlockId + '">'
+                                                            + '<li role="presentation" class="demand__tab active pestana" pestana="institucional">'
+                                                                + '<a class="demand__tab-anchor" href="#stand' + reque.StandBlockId + '" aria-controls="stand" role="tab" data-toggle="tab" >'
+                                                                    + ' <i class="demand__tab-active glyphicon glyphicon-ok"></i>'
+                                                                    + 'Stand institucional'
+                                                                + '</a>'
+                                                            + '</li>'
+                                                            + '<li role="presentation" class="demand__tab pestana" pestana="proveedor">'
+                                                                + '<a class="demand__tab-anchor" href="#proveedor' + reque.StandBlockId + '" aria-controls="proveedor" role="tab" data-toggle="tab">'
+                                                                    + '<i class="demand__tab-active glyphicon glyphicon-ok"></i>'
+                                                                    + ' Ya cuento con proveedor'
+                                                                + '</a>'
+                                                            + '</li>'
+                                                        + '</ul>'
+                                                    + ' </div>'
+                                                    //PRIMERA PESTAÑA
+                                                    + '<div class="tab-content demand__tab-content demand--width">'
+                                                        + '<div role="tabpanel" class="tab-pane active" id="stand' + reque.StandBlockId + '">'
+                                                            + '<div class="demand__tab-pane">'
+                                                                + '<div class="demand__col-1-2">'
+                                                                    + '<p>Tu stand institucional ' + reque.Width + ' x ' + reque.Height + ' incluye:</p>'
+                                                                    + catalogoIncluded
+                                                                + '</div>'
+                                                                + '<div class="demand__col-1-2">'
+                                                                    + '<div>'
+                                                                        + '<div class="alert" id= "alertDatosInstitucional' + reque.StandBlockId + '" role= "alert" style= "display: none;" >'
+                                                                            + '<p id="alertDatoInstitucionalText' + reque.StandBlockId + '"></p>'
+                                                                        + '</div >'
+                                                                        + '<label for="">* Elige tipo de mamparas</label>'
+                                                                        + '<i class="fa fa-question-circle demand__info-icon demand__tooltip">'
+                                                                            + '<span class="demand__tooltip-text demand__tooltip--right">'
+                                                                                + '<div style="margin-bottom: 15px">'
+                                                                                    + '<label style="margin-bottom: 15px">Mampara de cajón</label>'
+                                                                                    + '<img src="~/Content/img/antepecho.jpg" alt="">'
+                                                                                + '</div>'
+                                                                                + '<div>'
+                                                                                    + '<label style="margin-bottom: 15px">Mampara de esquina</label>'
+                                                                                    + '<img src="~/Content/img/antepecho.jpg" alt="">'
+                                                                                + '</div>'
+                                                                            + '</span>'
+                                                                        + '</i>'
+                                                                    + '</div>'
+                                                                    + '<div class="demand__radio-container">'
+                                                                        + '<p>'
+                                                                            + '<input type="radio" id="cajon' + reque.StandBlockId + '" name="radio-group" checked>'
+                                                                            + '<label for="cajon' + reque.StandBlockId + '">'
+                                                                                + 'Cajón'
+                                                                                + '<br>'
+                                                                                + '<small class="demand__suggestion-label">Sugerido</small>'
+                                                                            + '</label>'
+                                                                        + '</p>'
+                                                                        + '<p>'
+                                                                            + '<input type="radio" id="esquina' + reque.StandBlockId + '" name="radio-group">'
+                                                                            + '<label for="esquina' + reque.StandBlockId + '">Esquina</label>'
+                                                                        + '</p>'
+                                                                     + '</div>'
+                                                                    + '<div>'
+                                                                        + '<label for="">* Escribe el texto del antepecho </label>'
+                                                                            + '<i class="fa fa-question-circle demand__info-icon demand__tooltip">'
+                                                                            + '<span class="demand__tooltip-text demand__tooltip--right"> '
+                                                                                + '<label style="margin-bottom: 15px">Vista preeliminar del antepecho</label>'
+                                                                                + '<img src="~/Content/img/antepecho.jpg" alt="">'
+                                                                            + '</span>'
+                                                                        + '</i>'
+                                                                        + '<input class="demand__input--green" type="text" id="antepecho' + reque.StandBlockId + '">'
+                                                                    + '</div>'
+
+                                                                    + catalogo
+
+                                                                    + '<div class="demand__product-row " id="tablaServAdicionales' + reque.StandBlockId + '">'
+
+                                                                    + '</div>'
+                                                                + '</div>'
+                                                            + '</div>'
+                                                        + '</div>'
+
+                                                        //SEGUNDA PESTAÑA
+                                                        + '<div role="tabpanel" class="tab-pane" id="proveedor' + reque.StandBlockId + '">'
+                                                            + '<div class="demand__tab-pane demand--background-gray">'
+                                                                + '<div class="demand__col-1-2 demand__col-1-2--padding demand__col-1-2--responsive">'
+                                                                    + '<div class="alert" id= "alertDatosProveedor' + reque.StandBlockId + '" role= "alert" style= "display: none;" >'
+                                                                        + '<p id="alertDatosProveedorText' + reque.StandBlockId + '"></p>'
+                                                                    + '</div >'
+                                                                    + '<label for="" class="demand__label--bold">Datos tu proveedor</label>'
+                                                                    + '<div class="demand--pr-40 demand--mt-20 ">'
+                                                                        + '<label for="">Nombre de la empresa</label>'
+                                                                        + '<input class="demand__input--green empresa" type="text" id="empresa' + reque.StandBlockId + '">'
+                                                                    + '</div>'
+                                                                    + '<div class="demand--pr-40 demand--mt-20 ">'
+                                                                        + '<label for="">Nombre de contacto</label>'
+                                                                        + '<input class="demand__input--green nombre" type="text" id="nombre' + reque.StandBlockId + '">'
+                                                                    + '</div>'
+                                                                    + '<div class="demand--pr-40 demand--mt-20 ">'
+                                                                        + '<label for="">Teléfono móvil</label>'
+                                                                        + '<input class="demand__input--green telefono" type="text" id="telefono' + reque.StandBlockId + '">'
+                                                                    + '</div>'
+                                                                    + '<div class="demand--pr-40 demand--mt-20 ">'
+                                                                        + '<label for="">Correo electrónico</label>'
+                                                                        + '<input class="demand__input--green email" type="email" id="email' + reque.StandBlockId + '">'
+                                                                    + '</div>'
+                                                                    + '<div class="demand--pr-40 demand--mt-20 demand--mb-30">'
+                                                                        + '<div class="checkbox checkbox-success demand__checkbox-container">'
+                                                                            + '<input id="provider" type="checkbox" id="aplicarCheck' + reque.StandBlockId + '" idReq="' + reque.StandBlockId + '">'
+                                                                            + '<label for="provider" class="demand__checkbox demand--fw-100 aplicarCheck" >Aplicar proveedor a todos</label>'
+                                                                        + '</div>'
+                                                                    + '</div>'
+                                                                + '</div>'
+                                                                + '<div class="demand__col-1-2 demand__col-1-2--responsive">'
+
+                                                                + '<div>'
+                                                                    + '<div>'
+                                                                        + '<label for="">Adjunta el documento DRO</label>'
+                                                                        + '<i class="fa fa-question-circle demand__info-icon demand__tooltip">'
+                                                                            + '<span class="demand__tooltip-text demand__tooltip--right">'
+                                                                                + '<label>'
+                                                                                    + 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates modi veritatis ratione ullam asperiores rerum aliquid aperiam in, est mollitia nemo, reprehenderit inventore repellat doloribus tempora, expedita quidem vero nostrum.'
+                                                                                + '</label>'
+                                                                            + '</span>'
+                                                                        + '</i>'
+                                                                    + '</div>'
+                                                                    + '<form action="" method="post" enctype="multipart/form-data">' // '@Url.Action("Archivo", "Home")'
+                                                                    + '<input  type="file" class="file inputFile" data-preview-file-type="text" multiple id="fileDRO' + reque.StandBlockId + '">'
+                                                                        + '<input type="submit" value="subir" id="submitDRO' + reque.StandBlockId + '" style="display: none;" />'
+                                                                    + ' </form>'
+                                                                + '</div>'
+                                                                + '<div style="margin-top: 30px">'
+                                                                    + '<div>'
+                                                                        + '<label for="">Adjunta un render de tu stand</label>'
+                                                                        + '<i class="fa fa-question-circle demand__info-icon demand__tooltip">'
+                                                                            + '<span class="demand__tooltip-text demand__tooltip--right">'
+                                                                                + '<label>'
+                                                                                    + 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates modi veritatis ratione ullam asperiores rerum aliquid aperiam in, est mollitia nemo, reprehenderit inventore repellat doloribus tempora, expedita quidem vero nostrum.'
+                                                                                + '</label>'
+                                                                            + '</span>'
+                                                                        + '</i>'
+                                                                    + '</div>'
+                                                                    + '<form action="" method="post" enctype="multipart/form-data">' // '@Url.Action("Archivo", "Home")'
+                                                                        + '<input id="fileRender' + reque.StandBlockId + '" type="file" class="file renderInputFile" data-preview-file-type="text" multiple>'
+                                                                        + '<input type="submit" value="subir" style="display: none;" id="submitRender"' + reque.StandBlockId + '/>'
+                                                                     + ' </form>'
+                                                                + '</div>'
+
+                                                                + catalogoProveedor
+
+                                                                + '<div class="demand__product-row " id="tablaServAdicionalesProveedor' + reque.StandBlockId + '">'
+
+                                                                + '</div>'
+                                                            + '</div>'
+                                                        + '</div>'
+                                                    + '</div>'
+                                                + '</div>'
+                                                );
+                                            }
+
+                                            auxBlockSize = reque.BlockNumber;
+                                            cargarFileInput(reque.StandBlockId);
+                                        },
+                                        error: function (jqXHR, exception) {
+                                            MandarToastError(errorTitle, errorLabel);
+                                        }
+                                    });
+
+                                },
+                                error: function (jqXHR, exception) {
+                                    MandarToastError(errorTitle, errorLabel);
+                                }
+                            });
+
+                        });
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+
+        function cargarFileInput(id) {
+
+            $.getScript("/Scripts/fileinput.min.js", function () {
+                $("#fileRender" + id).fileinput({
+                    language: "es",
+                    showRemove: true,
+                    showUpload: false,
+                    showCancel: false,
+                    browseLabel: 'Buscar',
+                    placeholder: 'Selecciona tus archivos',
+                    dropZoneTitle: 'Arrastra tu documento en formato .jpg, .png o .pdf o da click en buscar.'
+                });
+
+                $("#fileDRO" + id).fileinput({
+                    language: "es",
+                    showRemove: true,
+                    showUpload: false,
+                    showCancel: false,
+                    browseLabel: 'Buscar',
+                    placeholder: 'Selecciona tus archivos',
+                    dropZoneTitle: 'Arrastra tu documento en formato .jpg, .png o .pdf o da click en buscar.'
+                });
+
+
+            });
+        } cargarFileInput();
+
+        /*-------- SERVICIOS ADICIONALES DE 'STAND INSTITUCIONAL' ------*/
+
+        var ArrayServiciosAdicionales = new Array();
+        $("#informacionStands").on('click', '.agregarServAdicionales', function () {
+
+            var servicio = $(this).attr("idReq");
+            var adicionalId = $("#selectServAdicional" + servicio +" option:selected").val();
+            var adicionalText = $("#selectServAdicional" + servicio + " option:selected").text();
+            var moneda = $("#selectServAdicional" + servicio + " option:selected").attr("moneda");
+            var precio = $("#selectServAdicional" + servicio + " option:selected").attr("precio");
+            var nombre = $("#selectServAdicional" + servicio + " option:selected").attr("nombre");
+            var  monedaId = $("#selectServAdicional" + servicio + " option:selected").attr("idMoneda");
+            if (adicionalId == 0) {
+
+            } else {
+                if (ArrayServiciosAdicionales.indexOf(adicionalId) < 0) {
+                    $("#tablaServAdicionales" + servicio).append(
+                        '<div class="demand__product-row ">'
+                            + '<span class="demand__col-product">' + nombre + '</span>'
+                            + '<div class="input-group demand__col-counter">'
+                        + '<input type="text" name="quant[' + servicio + '-' + adicionalId + ']" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1" max="10" id="input' + servicio + '-' + adicionalId + '">'
+                                + '<div class="demand__quantity-container">'
+                                + '<span class="input-group-btn">'
+                        + '<button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS"  data-type="minus" data-field="quant[' + servicio + '-' + adicionalId + ']">'
+                                        + '<span class="fa fa-minus"></span>'
+                                    + ' </button>'
+                                + '</span>'
+                                + ' <span class="input-group-btn">'
+                        + '<button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quant[' + servicio + '-' + adicionalId + ']">'
+                                    + '<span class="fa fa-plus"></span>'
+                                    + '</button>'
+                                + '</span>'
+                            + '</div>'
+                        + '</div>'
+                        
+                        + '<span class="demand__col-price" ><span id="precio' + servicio + '-' + adicionalId + '">$' + precio + '</span><span id="monedaP' + servicio + '-' + adicionalId + '" style="display:none;">'+monedaId+'</span> ' + moneda + '</span>'
+                            + ' <a class="demand__trash demand__col-icon eliminarServicioAdicional" href="#" adicionalId = "' + adicionalId + '">'
+                                + ' <i class="fa fa-trash"></i>'
+                            + '</a>'
+                        + '</div>'
+                    );
+                    ArrayServiciosAdicionales.push(adicionalId);
+                } else {
+                    var actual = $("#input" + servicio + "-" + adicionalId).val();
+                    $("#input" + servicio + "-" + adicionalId).val(parseInt(actual) + 1);
+                }
+            }
+
+        });
+
+        $("#informacionStands").on('click', '.eliminarServicioAdicional', function () {
+            var adicionalId = $(this).attr("adicionalId");
+            var pos = ArrayServiciosAdicionales.indexOf(adicionalId);
+            ArrayServiciosAdicionales.splice(pos, 1);
+
+            $(this).parent(".demand__product-row").remove();
+        });
+
+        /*----- SERVICIOS ADICIONALES DE 'YA CUENTO CON PROVEEDOR' -------*/
+
+        var ArrayServiciosAdicionalesProv = new Array();
+        $("#informacionStands").on('click', '.agregarServAdicionalesProveedor', function () {
+
+            var servicio = $(this).attr("idReq");
+            var adicionalId = $("#selectServAdicionalProveedor" + servicio + " option:selected").val();
+            var adicionalText = $("#selectServAdicionalProveedor" + servicio + " option:selected").text();
+            var moneda = $("#selectServAdicionalProveedor" + servicio + " option:selected").attr("moneda");
+            var precio = $("#selectServAdicionalProveedor" + servicio + " option:selected").attr("precio");
+            var nombre = $("#selectServAdicionalProveedor" + servicio + " option:selected").attr("nombre");
+            var monedaId = $("#selectServAdicionalProveedor" + servicio + " option:selected").attr("idMoneda");
+            
+            if (adicionalId == 0) {
+
+            } else {
+                if (ArrayServiciosAdicionalesProv.indexOf(adicionalId) < 0) {
+                    $("#tablaServAdicionalesProveedor" + servicio).append(
+                        '<div class="demand__product-row ">'
+                        + '<span id="serv' + servicio + '-' + adicionalId + '">' + adicionalId + '</span>'
+                        + '<span class="demand__col-product">' + nombre + '</span>'
+                        + '<div class="input-group demand__col-counter">'
+                        + '<input type="text" name="quantP[' + servicio + '-' + adicionalId + ']" class="form-control input-number demand__quantity demand__quantity_JS" value="1" min="1" max="10" id="inputProv' + servicio + '-' + adicionalId + '">'
+                        + '<div class="demand__quantity-container">'
+                        + '<span class="input-group-btn">'
+                        + '<button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="minus" data-field="quantP[' + servicio + '-' + adicionalId + ']">'
+                        + '<span class="fa fa-minus"></span>'
+                        + ' </button>'
+                        + '</span>'
+                        + ' <span class="input-group-btn">'
+                        + '<button type="button" class="btn demand__quantity-btn demand__quantity-btn_JS" data-type="plus" data-field="quantP[' + servicio + '-' + adicionalId + ']">'
+                        + '<span class="fa fa-plus"></span>'
+                        + '</button>'
+                        + '</span>'
+                        + '</div>'
+                        + '</div>'
+                        + '<span class="demand__col-price" ><span id="precioP' + servicio + '-' + adicionalId + '">$' + precio + '</span><span id="monedaP' + servicio + '-' + adicionalId + '" style="display:none;">'+monedaId+' </span> ' + moneda + '</span>'
+                        + ' <a class="demand__trash demand__col-icon eliminarServicioAdicionalProveedor" href="#" adicionalId = "' + adicionalId + '">'
+                        + ' <i class="fa fa-trash"></i>'
+                        + '</a>'
+                        + '</div>'
+                    );
+                    ArrayServiciosAdicionalesProv.push(adicionalId);
+                } else {
+                    var actual = $("#inputProv" + servicio + "-" + adicionalId).val();
+                    $("#inputProv" + servicio + "-" + adicionalId).val(parseInt(actual) + 1);
+                }
+            }
+
+        });
+
+        $("#informacionStands").on('click', '.eliminarServicioAdicionalProveedor', function () {
+            var adicionalId = $(this).attr("adicionalId");
+            var pos = ArrayServiciosAdicionalesProv.indexOf(adicionalId);
+            ArrayServiciosAdicionalesProv.splice(pos, 1);
+
+            $(this).parent(".demand__product-row").remove();
+        });
+
+
+    /*----------- BOTÓN SOLICITAR REQUERIMIENTOS -----------*/
+
+        $("#informacionStands").on('click', ".guardarInfoStand", function () {
+            var id = $(this).attr("idreq");
+            var pestana = $("#pestanasTabs" + id).find('.active').attr("pestana");
+
+            if (pestana.includes("institucional")) {
+                guardarStandInstitucional(id, 1);
+            } else {
+                guardarCuentoProveedor(id, 1);
+            }
+            console.log($("#fileDRO" + id).val());
+            console.log($("#fileRender" + id).val());
+        });
+
+        var guardarStandInstitucional = function (id, tipo) { // 1: guardado, 2: enviar
+            console.log("guardarStandInstitucional");
+
+
+            var serviciosAd = new Array();
+            var mampara = 0;
+            var antepecho = $("#antepecho" + id).val();
+
+            if ($("#cajon" + id).is(":checked")) {
+                mampara = 1;
+            } else if ($("#esquina" + id).is(":checked")) {
+                mampara = 2;
+            }
+
+            $.each(ArrayServiciosAdicionales, function (i, servicios) {
+
+                var cantidad = $("#input" + id + "-" + servicios).val();
+                var precio = $("#precio" + id + "-" + servicios).text().replace("$", "").replace(",", "").replace(" ", "");
+                var idMoneda = $("#moneda" + id + "-" + servicios).text();
+                console.log("mon: " +idMoneda);
+                serviciosAd.push({ AditionalStandId: servicios, Quantity: cantidad, StandBlockId: id, Cost: precio, CurrencyId: idMoneda });
+            });
+
+            if (antepecho == "") {
+                mandarAlerta($("#alertDatosInstitucional" + id), "alert-danger", "Debes completar todos los campos");
+            } else {
+                ocultarAlerta($("#alertDatosInstitucional" + id));
+
+                //guardar datos en bd
+                var url = '@Url.Action("SaveStandInstitucional", "Exhibitor")';
+                var info = {
+                    institucional: { Mampara: mampara, Antepecho: antepecho, StandBlockId: id, StatusRequest: tipo },
+                    servicios:  serviciosAd
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: info,
+                    success: function (data) {
+                        if (data > 0) {
+                            if (tipo == 2) {
+                                swal(exito, "Se ha enviado tu solicitud", "success");
+                                $("#requerimientosTabs").hide();
+                                $("#requerimientos").show();
+
+                                cargarRequerimientos();
+                            } else {
+                                swal(exito, "Se han guardado tus cambios", "success");
+                            }
+
+                        } else if (data == -1) {
+                            swal(errorTitle, sesionExpirada, "error");
+                        } else {
+                            swal(errorTitle, errorLabel, "error");
+                        }
+
+                    },
+                    error: function (jqXHR, exception) {
+                        MandarToastError(errorTitle, errorLabel);
+                    }
+                });
+            }
+
+            console.log(serviciosAd);
+        };
+
+        var guardarCuentoProveedor = function (id, tipo) { //1: guardar, 2: enviar
+            var serviciosAdProv = new Array();
+            console.log("guardarCuentoProveedor");
+
+            var empresa = $("#empresa"+id).val();
+            var nombre = $("#nombre"+id).val();
+            var telefono = $("#telefono"+id).val();
+            var correo = $("#email" + id).val();
+
+            $.each(ArrayServiciosAdicionalesProv, function (i, servicios) {
+                var cantidad = $("#inputProv" + id + "-" + servicios).val();
+                var precio = $("#precioP" + id + "-" + servicios).text().replace("$", "").replace(",", "").replace(" ", "");
+                var idMoneda = $("#monedaP" + id + "-" + servicios).text();
+                console.log("monP: " + idMoneda);
+                serviciosAdProv.push({ AditionalStandId: servicios, Quantity: cantidad, StandBlockId: id, Cost: precio, CurrencyId: idMoneda });
+            });
+
+            if (empresa == "" || nombre == "" || telefono == "" || correo == "") {
+                mandarAlerta($("#alertDatosProveedor" + id), "alert-danger",  "Desbes completar todos los campos");
+            } else {
+                ocultarAlerta($("#alertDatosProveedor" + id));
+
+                //guardar datos en bd
+                var url = '@Url.Action("SaveStandProveedor", "Exhibitor")';
+                var info = {
+                    supplier: { NameSupplier: empresa, ContactSupplierName: nombre, PhoneNumber: telefono, EmailSupplier: correo, StandBlockId: id, StatusRequest: tipo },
+                    servicios: serviciosAdProv
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: info,
+                    success: function (data) {
+                        if (data > 0) {
+
+                           
+                            @*var url = '@Url.Action("Archivo", "Home")';
+                            var file = $("#comprobantePagoApartar").get(0).files[0];
+
+                            var formData = new FormData();
+                            formData.append('file', file);
+
+                            $.ajax({
+                                type: "POST",
+                                url: url,
+                                contentType: false,
+                                cache: false,
+                                processData: false,
+                                data: formData,
+                                success: function (data) {
+                                   // MandarToastExito("exito", "chavods");
+                                },
+                                error: function (jqXHR, exception) {
+                                    MandarToastError(errorTitle, errorLabel);
+                                }
+                            });*@
+
+
+                            if (tipo == 1) {
+                                swal(exito, "Se han guardado tus cambios", "success");
+                            } else {
+                                swal(exito, "Se ha enviado tu solicitud", "success");
+                                $("#requerimientosTabs").hide();
+                                $("#requerimientos").show();
+
+                                cargarRequerimientos();
+                            }
+
+                        } else if (data == -1) {
+                            swal(errorTitle, sesionExpirada, "error");
+                        } else {
+                            swal(errorTitle, errorLabel, "error");
+                        }
+
+                    },
+                    error: function (jqXHR, exception) {
+                        MandarToastError(errorTitle, errorLabel);
+                    }
+                });
+            }
+            
+            console.log(ArrayServiciosAdicionalesProv);
+        };
+
+        $("#informacionStands").on('change', ".aplicarCheck", function () {
+
+            var id = $(this).attr("idReq");
+
+            var empresa = $("#empresa" + id).val();
+            var nombre = $("#nombre" + id).val();
+            var telefono = $("#telefono" + id).val();
+            var correo = $("#email" + id).val();
+
+            if ($(this).is(":checked")) {
+                $(".empresa").val(empresa);
+                $(".nombre").val(nombre);
+                $(".telefono").val(telefono);
+                $(".correo").val(correo);
+            } else {
+
+                $(".empresa").val("");
+                $(".nombre").val("");
+                $(".telefono").val("");
+                $(".correo").val("");
+
+                $("#empresa" + id).val(empresa);
+                $("#nombre" + id).val(nombre);
+                $("#telefono" + id).val(telefono);
+                $("#email" + id).val(correo);
+            }
+
+        });
+
+        $("#informacionStands").on('click', ".enviarInfoStand", function () {
+
+            var id = $(this).attr("idreq");
+            var pestana = $("#pestanasTabs" + id).find('.active').attr("pestana");
+                       
+
+            swal({
+                title: "¿Enviar solicitud de requerimientos?",
+                text: "No podrás editar los servicios adicionales posteriormente",
+                icon: "warning",
+                buttons: {
+                    confirm: "Continuar",
+                    cancel: "Cancelar",
+                },
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    //Guardar y enviar correo.
+                    if (pestana.includes("institucional")) {
+                        guardarStandInstitucional(id, 2);
+                    } else {
+                        guardarCuentoProveedor(id, 2);
+                    }
+                } else {
+                    swal.close();
+                }
+            });
+        });
+    
+    </script>
+}

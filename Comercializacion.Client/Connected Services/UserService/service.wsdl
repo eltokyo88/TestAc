@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="User" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import namespace="http://tempuri.org/" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/UserManagement.Reponse" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/UserManagement.Usuario" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IUser_GetUsers_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUsers" />
+  </wsdl:message>
+  <wsdl:message name="IUser_GetUsers_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUsersResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_CreateUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateUser" />
+  </wsdl:message>
+  <wsdl:message name="IUser_CreateUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_UpdateUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateUser" />
+  </wsdl:message>
+  <wsdl:message name="IUser_UpdateUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LoginUsingSystemId_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoginUsingSystemId" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LoginUsingSystemId_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoginUsingSystemIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ValidateUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:ValidateUser" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ValidateUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ValidateUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ExistUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:ExistUser" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ExistUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ExistUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LoginUsingSystemName_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoginUsingSystemName" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LoginUsingSystemName_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoginUsingSystemNameResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LogInByCookieUsingSystemId_InputMessage">
+    <wsdl:part name="parameters" element="tns:LogInByCookieUsingSystemId" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LogInByCookieUsingSystemId_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LogInByCookieUsingSystemIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LogInByCookieUsingSystemName_InputMessage">
+    <wsdl:part name="parameters" element="tns:LogInByCookieUsingSystemName" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LogInByCookieUsingSystemName_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LogInByCookieUsingSystemNameResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LogOff_InputMessage">
+    <wsdl:part name="parameters" element="tns:LogOff" />
+  </wsdl:message>
+  <wsdl:message name="IUser_LogOff_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LogOffResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_GenerateResetPasswordToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:GenerateResetPasswordToken" />
+  </wsdl:message>
+  <wsdl:message name="IUser_GenerateResetPasswordToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GenerateResetPasswordTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ValidateResetToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:ValidateResetToken" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ValidateResetToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ValidateResetTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ChangePasswordByToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangePasswordByToken" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ChangePasswordByToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangePasswordByTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ChangeUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IUser_ChangeUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_IsValidUserTokenUsingSystemName_InputMessage">
+    <wsdl:part name="parameters" element="tns:IsValidUserTokenUsingSystemName" />
+  </wsdl:message>
+  <wsdl:message name="IUser_IsValidUserTokenUsingSystemName_OutputMessage">
+    <wsdl:part name="parameters" element="tns:IsValidUserTokenUsingSystemNameResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUser_IsValidUserTokenUsingSystemId_InputMessage">
+    <wsdl:part name="parameters" element="tns:IsValidUserTokenUsingSystemId" />
+  </wsdl:message>
+  <wsdl:message name="IUser_IsValidUserTokenUsingSystemId_OutputMessage">
+    <wsdl:part name="parameters" element="tns:IsValidUserTokenUsingSystemIdResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IUser">
+    <wsdl:operation name="GetUsers">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/GetUsers" message="tns:IUser_GetUsers_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/GetUsersResponse" message="tns:IUser_GetUsers_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/CreateUser" message="tns:IUser_CreateUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/CreateUserResponse" message="tns:IUser_CreateUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/UpdateUser" message="tns:IUser_UpdateUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/UpdateUserResponse" message="tns:IUser_UpdateUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginUsingSystemId">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/LoginUsingSystemId" message="tns:IUser_LoginUsingSystemId_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/LoginUsingSystemIdResponse" message="tns:IUser_LoginUsingSystemId_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/ValidateUser" message="tns:IUser_ValidateUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/ValidateUserResponse" message="tns:IUser_ValidateUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ExistUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/ExistUser" message="tns:IUser_ExistUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/ExistUserResponse" message="tns:IUser_ExistUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginUsingSystemName">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/LoginUsingSystemName" message="tns:IUser_LoginUsingSystemName_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/LoginUsingSystemNameResponse" message="tns:IUser_LoginUsingSystemName_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LogInByCookieUsingSystemId">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/LogInByCookieUsingSystemId" message="tns:IUser_LogInByCookieUsingSystemId_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/LogInByCookieUsingSystemIdResponse" message="tns:IUser_LogInByCookieUsingSystemId_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LogInByCookieUsingSystemName">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/LogInByCookieUsingSystemName" message="tns:IUser_LogInByCookieUsingSystemName_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/LogInByCookieUsingSystemNameResponse" message="tns:IUser_LogInByCookieUsingSystemName_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LogOff">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/LogOff" message="tns:IUser_LogOff_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/LogOffResponse" message="tns:IUser_LogOff_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateResetPasswordToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/GenerateResetPasswordToken" message="tns:IUser_GenerateResetPasswordToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/GenerateResetPasswordTokenResponse" message="tns:IUser_GenerateResetPasswordToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateResetToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/ValidateResetToken" message="tns:IUser_ValidateResetToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/ValidateResetTokenResponse" message="tns:IUser_ValidateResetToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePasswordByToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/ChangePasswordByToken" message="tns:IUser_ChangePasswordByToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/ChangePasswordByTokenResponse" message="tns:IUser_ChangePasswordByToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/ChangeUserPassword" message="tns:IUser_ChangeUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/ChangeUserPasswordResponse" message="tns:IUser_ChangeUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="IsValidUserTokenUsingSystemName">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/IsValidUserTokenUsingSystemName" message="tns:IUser_IsValidUserTokenUsingSystemName_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/IsValidUserTokenUsingSystemNameResponse" message="tns:IUser_IsValidUserTokenUsingSystemName_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="IsValidUserTokenUsingSystemId">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUser/IsValidUserTokenUsingSystemId" message="tns:IUser_IsValidUserTokenUsingSystemId_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUser/IsValidUserTokenUsingSystemIdResponse" message="tns:IUser_IsValidUserTokenUsingSystemId_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IUser" type="tns:IUser">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetUsers">
+      <soap:operation soapAction="http://tempuri.org/IUser/GetUsers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateUser">
+      <soap:operation soapAction="http://tempuri.org/IUser/CreateUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUser">
+      <soap:operation soapAction="http://tempuri.org/IUser/UpdateUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginUsingSystemId">
+      <soap:operation soapAction="http://tempuri.org/IUser/LoginUsingSystemId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateUser">
+      <soap:operation soapAction="http://tempuri.org/IUser/ValidateUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExistUser">
+      <soap:operation soapAction="http://tempuri.org/IUser/ExistUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginUsingSystemName">
+      <soap:operation soapAction="http://tempuri.org/IUser/LoginUsingSystemName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LogInByCookieUsingSystemId">
+      <soap:operation soapAction="http://tempuri.org/IUser/LogInByCookieUsingSystemId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LogInByCookieUsingSystemName">
+      <soap:operation soapAction="http://tempuri.org/IUser/LogInByCookieUsingSystemName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LogOff">
+      <soap:operation soapAction="http://tempuri.org/IUser/LogOff" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateResetPasswordToken">
+      <soap:operation soapAction="http://tempuri.org/IUser/GenerateResetPasswordToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateResetToken">
+      <soap:operation soapAction="http://tempuri.org/IUser/ValidateResetToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePasswordByToken">
+      <soap:operation soapAction="http://tempuri.org/IUser/ChangePasswordByToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IUser/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsValidUserTokenUsingSystemName">
+      <soap:operation soapAction="http://tempuri.org/IUser/IsValidUserTokenUsingSystemName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsValidUserTokenUsingSystemId">
+      <soap:operation soapAction="http://tempuri.org/IUser/IsValidUserTokenUsingSystemId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="User">
+    <wsdl:port name="BasicHttpBinding_IUser" binding="tns:BasicHttpBinding_IUser">
+      <soap:address location="http://priceservices.priceres.com/Services/User.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

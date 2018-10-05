@@ -1,0 +1,74 @@
+﻿@using Comercializacion.Client.Common
+@{
+    ViewBag.Title = "RestaurarContrasena";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string idiomaId = (string)ViewData["languageId"];
+}
+
+<div class="container contSeccion" style="padding-top: 50px;">
+    <!--.renglon-->
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="mensaje"></div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="form-modal">
+                <div class="form-toggle">
+                    <button type="submit" id="login-toggle">@SessionManager.GetText("ACC_RecoverPassword_ChangePsw")</button>
+                </div>
+                <div>
+                    <form>
+                        <div class="alert" id="panelAlertRecover" role="alert" style="display:none;">
+                            <p id="alertRecoverText"></p>
+                        </div>
+
+                        <label>@SessionManager.GetText("ACC_RecoverPassword_WritePsw"):</label>
+                        <input type="password" placeholder="" id="pass" />
+                        <label>@SessionManager.GetText("ACC_RecoverPassword_ConfirmPsw"):</label>
+                        <input type="password" placeholder="" id="passc" />
+                        <button type="submit" class="btn login reset__btn" id="resetearContraseña">@SessionManager.GetText("ACC_RecoverPassword_ChangePsw")</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+<script>
+    var loginAgain = decode('@SessionManager.GetText("ACC_Error_LoginAgain")');
+    var contrasenaNoCoincide = decode('@SessionManager.GetText("ACC_RecoverPassword_WrongPassword")');
+
+        $("#resetearContraseña").click(function (e) {
+            $("#panelAlertRecover").hide();
+            var pass = $("#pass").val(),
+				passc = $("#passc").val();
+            if (pass != passc) {
+                $("#alertRecoverText").text(contrasenaNoCoincide);
+                $("#panelAlertRecover").addClass("alert-danger").show();
+            } else {
+                var url = '@Url.Action("ChangePassword", "Home")';
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: { contrasena: pass },
+                    success: function (data) {
+                        if (data == "OK") {
+                            window.location.assign('@Url.Action("Index", "Home")');
+                        } else {
+                            $("#alertRecoverText").text(data);
+                            $("#panelAlertRecover").addClass("alert-danger").show();
+                        }
+                    },
+                    error: function (jqXHR, exception) {
+                        MandarToastInfo(errorTitle, loginAgain);
+                    }
+                });
+			}
+
+			e.preventDefault();
+        });
+
+</script>
+}

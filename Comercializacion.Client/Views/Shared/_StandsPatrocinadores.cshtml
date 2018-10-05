@@ -1,0 +1,286 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.Model
+
+@Styles.Render("~/Content/Shared")
+@Styles.Render("~/Content/Plano")
+@Styles.Render("~/Content/Toast")
+@Styles.Render("~/Content/Mapplic")
+@{
+    var imgMapa = ViewBag.ImgPlace;
+    var imageHeight = (int)ViewBag.ImageHeight;
+    var imageWidth = (int)ViewBag.ImageWidth;
+    var listRecs = (List<Stand>)ViewBag.ListaStands;
+    var listconfig = (List<StandConfiguration>)ViewBag.listClass;
+    var listClassStyles = (List<ClassStyle>)ViewBag.ClassStyleData;
+    var eventData = (EventoComercial)ViewBag.EventoComercialData;
+    List<Sponsorship> sponsors = (List<Sponsorship>)ViewData["sponsor"];
+    List<ItemCarrito> itemCarrito = SessionManager.ListItemsCarrito;
+
+    var colorDisponible = "";
+    var colorReservado = "";
+    var colorVendidos = "";
+    var colorSeleccionados = "";
+    foreach (var estilo in listClassStyles)
+    {
+        if (estilo.ClassName == "standsVendidos")
+        {
+            colorVendidos = estilo.Color;
+        }
+        else if (estilo.ClassName == "standsReservados")
+        {
+            colorReservado = estilo.Color;
+        }
+        else if (estilo.ClassName == "standsDisponibles")
+        {
+            colorDisponible = estilo.Color;
+        }
+        else if (estilo.ClassName == "standSeleccionados")
+        {
+            colorSeleccionados = estilo.Color;
+        }
+    }
+}
+@*<div id="loaderStandsPatrocinios">
+        <div class="loaderCuadros center-block">
+            <svg id="loading" viewbox="0 0 100 80" class="load">
+                <defs>
+                    <linearGradient id="gradient" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#4383b8" />
+                        <stop offset="100%" stop-color="#4aa06c" />
+                    </linearGradient>
+
+                    <clipPath id="rects">
+                        <rect class="rect" id="rect1" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                        <rect class="rect" id="rect2" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                        <rect class="rect" id="rect3" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                        <rect class="rect" id="rect4" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                        <rect class="rect" id="rect5" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                        <rect class="rect" id="rect6" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                        <rect class="rect" id="rect7" x="0" y="0" width="30" height="30" rx="2" ry="2" />
+                    </clipPath>
+                </defs>
+                <rect id="container" transform="translate(50) scale(0.707, 0.707) rotate(45)" x="0" y="0" width="100" height="100" fill="url(#gradient)" clip-path="url(#rects)">
+                </rect>
+            </svg>
+        </div>
+    </div>*@
+<!--=========[ LOADER ]==========-->
+<div class="loader__background loader__container_JS">
+    <div class="loader__container loader__container_JS">
+        <div class="loader"></div>
+    </div>
+    <div class="loader__container_JS">
+        <h4 class='loader__message'>
+            @SessionManager.GetText("ACC_Loader_Message")
+            <span class="loader__message-dot">.</span>
+            <span class="loader__message-dot">.</span>
+            <span class="loader__message-dot">.</span>
+        </h4>
+    </div>
+</div>
+<!--=========[ END LOADER ]==========-->
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="sp-box">
+
+            <!-- Nav tabs -->
+            <ul class="nav customtab nav-tabs" role="tablist">
+
+                <li role="presentation" class="active"><a href="patrocinios-plataforma.html.html#misPatrocinios" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false"> <span>@SessionManager.GetText("ACC_Purchase_StandLabel")</span></a></li>
+                @if (sponsors.Count > 0)
+                {
+                    <li role="presentation"><a href="patrocinios-plataforma.html#patrociniosDisponibles" aria-controls="home" role="tab" data-toggle="tab" aria-expanded="true"><span>@SessionManager.GetText("ACC_Purchase_SponsorLabel")</span></a></li>
+                }
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                @if (sponsors.Count > 0)
+                {
+                    <div role="tabpanel" class="tab-pane fade" id="patrociniosDisponibles">
+
+                        <div class="row" style="margin-bottom: 140px;">
+
+                            <div class="cont-patrocinios">
+                                <h3 class="text-center">@SessionManager.GetText("ACC_Purchase_PromoteLabel")</h3>
+                                @foreach (var sp in sponsors)
+                                {
+                                    string estilo1 = String.Empty;
+                                    string estilo2 = "display:none;";
+
+
+                                    if (itemCarrito != null)
+                                    {
+                                        foreach (var c in itemCarrito)
+                                        {
+                                            if ((c.IdElement == sp.IdSponsorship) && (c.IsStand == false))
+                                            {
+                                                estilo1 = "display:none;";
+                                                estilo2 = String.Empty;
+                                                break;
+                                            }
+
+                                        }
+                                    }
+                                    <div class="col-md-4 col-sm-6 col-xs-12 sponsorships__cols">
+                                        <div class="lista-patrocinios bg-1">
+                                            <div id="patrocinioInfo-@sp.IdSponsorship">
+
+                                            </div>
+                                            <span class="concepto">
+                                                @sp.Name
+                                                @if (sp.Avaiable == 0 || sp.Avaiable == null)
+                                                {
+                                                    <span class="agotado">@SessionManager.GetText("ACC_Purchase_OutOfStock_Label")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="disponible">@sp.Avaiable @SessionManager.GetText("ACC_Compra_Disponibles")</span>
+                                                }
+                                            </span>
+                                            <span class="precio">
+                                                <p id="@("precioSpan" + sp.IdSponsorship)"> $@String.Format("{0:n}", sp.Investment) @sp.Currency    </p>
+                                                <span id="@("precioDescSpan" + sp.IdSponsorship)"></span>
+                                            </span>
+
+
+                                            <span class="beneficio">
+
+                                                @SessionManager.GetText("ACC_Purchase_Benefit"):
+
+                                                <p>@sp.Description</p>
+
+                                            </span>
+                                            <span class="foot-pat">
+
+                                                <span class="categoria">@sp.Programa</span>
+                                                @if (sp.Avaiable > 0 && sp.Avaiable != null)
+                                                {
+                                                    <a class="btn btn-formSucces pull-right comprarPatrocinios" onclick="ComprarPatrocinio(this)" data-id="@sp.IdSponsorship" id="@("patrocinio_s" + sp.IdSponsorship)"
+                                                       data-costo="@sp.Investment" .="@sp.Investment " data-descripcion="@sp.Description" data-currency="@sp.Currency" data-idCurrency="@sp.CurrencyId" data-nombre="@sp.Name" style="@estilo1">@SessionManager.GetText("ACC_Purchase_AddToCart")</a>
+                                                    <a class="btn boton-QuitarCarrito pull-right cd-item-remove cd-img-replace" onclick="RemoveFromCarrito(@sp.IdSponsorship,@sp.Investment,'@sp.Currency',@false )" id="@("patrocinio_sRemove" + sp.IdSponsorship)" style="@estilo2" data-id="@sp.IdSponsorship">X</a>
+                                                }
+
+                                            </span>
+                                        </div>
+                                    </div>
+
+
+
+
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-12"><a class="tst3 btn btn-formSucces btnPrevious pull-right">@SessionManager.GetText("ACC_Purchase_AddToCart")</a></div>
+                        <div class="clearfix"></div>
+                    </div>
+                }
+                <div role="tabpanel" class="tab-pane fade active in" id="misPatrocinios">
+                    <div class="col-md-12">
+                        <div class="col-md-12 col-xs-12 sp">
+                            <h4 class="text-left">Plano @SessionManager.EventoData.EventoNombre</h4>
+                            <h3 class="text-left">Da clic en el stand que deseas comprar</h3>
+                            <div class="row">
+                                <div class="row" style="background-color:#fff;">
+                                    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+
+                                        <div id="main">
+                                            <div class="titSide">
+                                                <div class="btnDisponibles">
+                                                    <div class="icoDisponibles" style="background-color: @colorDisponible"></div>
+                                                    <span>@SessionManager.GetText("ACC_Compra_Disponibles")</span>
+                                                </div>
+                                                <div class="btnSelected">
+                                                    <div class="icoDisponibles" style="background-color: @colorSeleccionados"></div>
+                                                    <span> @SessionManager.GetText("ACC_Compra_Seleccionados")</span>
+                                                </div>
+
+                                                <div class="btnVendidos">
+                                                    <div class="icoVendidos" style="background-color: @colorVendidos"></div>
+                                                    <span>@SessionManager.GetText("ACC_Compra_vendidos")</span>
+                                                </div>
+                                                <div class="btnReservados">
+                                                    <div class="icoReservados" style="background-color: @colorReservado"></div>
+                                                    <span>@SessionManager.GetText("ACC_Compra_Reservados")</span>
+                                                </div>
+
+
+                                            </div>
+                                            <div class="w3-container">
+                                                <div id="extDivMapa">
+                                                    <div id="wrapMapa" class="block clear">
+                                                        <img src="@imgMapa" id="imgSede" />
+                                                        <svg id="svgOne" xmlns="http://www.w3.org/2000/svg" viewBox="@("0 0 " + imageWidth + " " + imageHeight)" data-eventoId="@eventData.EventIdRegistro" data-call-wPop="#configureStands">
+                                                            @foreach (var item in listRecs)
+                                                            {
+                                                                var configData = listconfig.Where(ele => ele.StandId == item.StandId).SingleOrDefault();
+                                                                if (configData == null)
+                                                                {
+                                                                    configData = listconfig.Where(ele => ele.ClassId == item.ClassId && (!ele.StandId.HasValue || ele.StandId.Value == 0)).SingleOrDefault();
+                                                                }
+
+                                                                var color = string.Empty;
+                                                                switch (item.Status)
+                                                                {
+                                                                    case 0:
+                                                                        color = "standDisponible";
+                                                                        break;
+                                                                    case 1:
+                                                                        color = "standApartado";
+                                                                        break;
+                                                                    case 2:
+                                                                        color = "standVendido";
+                                                                        break;
+                                                                }
+
+                                                                //Si hay stand en el carrito, que aparezcan como seleccionados
+                                                                if (itemCarrito != null)
+                                                                {
+                                                                    foreach (var c in itemCarrito)
+                                                                    {
+                                                                        if ((c.IdElement == item.StandId) && (c.IsStand == true))
+                                                                        {
+                                                                            color = "standSeleccionado";
+                                                                        }
+                                                                    }
+                                                                }
+                                                                <rect id="@("stand_" + item.StandId)" class="@("stand " + color)" data-nombre="Stand @(item.StandIdFront)"
+                                                                      data-idStand="@item.StandId" data-costo="@(configData == null ? "SinDato" : configData.Price.ToString())"
+                                                                      data-descripcion="@(configData == null ? string.Empty : configData.Description)"
+                                                                      data-medidas="@(configData == null ? "0x0" : configData.Width + "x" + configData.Height)" data-iva="@(configData == null ? false : configData.Iva.Value)"
+                                                                      data-idCurrency="@item.CurrencyId" data-currency="@item.Currency" data-discountmoney="@item.DiscountMoney" data-discountpercentage="@item.DiscountPercentage"
+                                                                      data-redemption="@item.Redemption" data-expirationdate="@item.ExpirationDate"
+                                                                      onclick="CompraStand(this)" x="@item.PositionX" y="@item.PositionY"
+                                                                      width="@item.Width" height="@item.Height" data-isStand="true" />
+                                                            }
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(SessionManager.StandsDetails) && !SessionManager.StandsDetails.Equals("[Not Found]"))
+                                    {
+                                        <div class="text-center col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                            <img style="width:100%;" src="@SessionManager.StandsDetails">
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <!--fin contenido de plano-->
+
+                            <div class="col-md-12"><a class="tst3 btn btn-formSucces btnPrevious pull-right" style="margin-top: 15px;">@SessionManager.GetText("ACC_Purchase_AddToCart")</a></div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/Plano")
+    @Scripts.Render("~/bundles/Toast")
+    @Scripts.Render("~/bundles/Mapa")

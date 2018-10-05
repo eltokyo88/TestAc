@@ -1,0 +1,49 @@
+﻿@using Comercializacion.Client.Common
+
+<!--=== .MENU.  ===-->
+<div class="container-fluid">
+    <header>
+        <div id="logo"><a href="@Url.Action("Index","Exhibitor")"><img src="@SessionManager.logoEventoChiquitoURL" alt="Homepage"></a></div> @*"@SessionManager.UrlLogoEvento"*@
+        <div id="cd-hamburger-menu"><a class="cd-img-replace" href="#0">Menu</a></div>
+        <div id="cd-cart-trigger"> <span class="label cartP" id="numEnCoche" data-numEnCoche="0">0</span> <a class="cd-img-replace" href="#0">Cart</a></div>
+    </header>
+    <nav id="main-nav">
+        <ul>
+            @*<li><a class="hvr-sweep-to-top" href="@Url.Action("PorqueExpositor", "Home")">Beneficios comerciales</a></li>*@ @*href="@Url.Action("PorqueExpositor", "Home")"*@
+            @*<li><a class="hvr-sweep-to-top" href="@Url.Action("PorqueExpositor","Home")">@SessionManager.GetText("ACC_Home_Expo")</a></li>
+        <li><a class="hvr-sweep-to-top" href="@Url.Action("PorquePatrocinador","Home")">@SessionManager.GetText("ACC_Home_Partner")</a></li>*@
+            <li><a class="current" href="@Url.Action("Mapa","Home")">@SessionManager.GetText("ACC_Home_Plano")</a></li>
+            @*<li><a class="current" href="@Url.Action("Mapa","Home")">Folleto</a></li>*@
+            @*<li><a href="#0">Manual</a></li>*@
+            <li><a href="@Url.Action("Login","Home")">@SessionManager.GetText("ACC_Compra_Acceso")</a></li>
+        </ul>
+    </nav>
+</div>
+<!-- .fin menu. -->
+<!--$$$$ .CARRITO. $$$$-->
+<div class="container-fluid">
+    <div id="cd-cart">
+        <h2>@SessionManager.GetText("ACC_Compra_TuCarrito")</h2>
+        
+        <form action="@Url.Action("PagoCarrito","Home")" enctype="multipart/form-data" method="post">
+
+            <input type="submit" class="checkout-btn" id="btnPagar" style="max-width: 100%;" value="@SessionManager.GetText("ACC_Compra_Pagar")" />
+            @*<a href="@Url.Action("Pago","Home")" class="checkout-btn">@SessionManager.GetText("ACC_Compra_Pagar")</a>*@
+
+            <!-- cd-cart-items -->
+            <ul class="cd-cart-items"></ul>
+
+            <!-- cd-cart-total -->
+            <div class="cd-cart-total">
+                <p>@SessionManager.GetText("ACC_Compra_Total")<span id="carTotalNumber" class="carTotalNumber">$0.00</span></p>
+            </div>
+
+            <input type="submit" class="checkout-btn" style="max-width: 100%;" value="@SessionManager.GetText("ACC_Compra_Pagar")" />
+            @*<a href="@Url.Action("Pago","Home")" class="checkout-btn">@SessionManager.GetText("ACC_Compra_Pagar")</a>*@
+
+        </form>
+
+        @*<p class="cd-go-to-cart"><a href="#0">Ir al carrito</a></p>*@
+    </div>
+</div>
+<!--$$$$ .FIN CARRITO. $$$$-->

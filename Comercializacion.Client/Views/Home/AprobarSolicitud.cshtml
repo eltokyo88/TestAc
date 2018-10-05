@@ -1,0 +1,114 @@
+﻿@using Comercializacion.Client.Common;
+@using Comercializacion.Service.Model;
+@{
+    ViewBag.Title = "AprobarSolicitud";
+    Layout = null;
+    Solicitud solicitud = (Solicitud)ViewData["solicitud"];
+    string idiomaId = (string)ViewData["languageId"];
+}
+
+
+@Styles.Render("~/Content/Index")
+
+<header class="notification__header">
+    <img src="@SessionManager.logoEventoChiquitoURL" alt="" style="height: 80px;">
+</header>
+<div class="container-fluid notification__content">
+    <div class="notification__container">
+        <div class="notification__ttl text-center">
+            @*¿Estás seguro de aprobar esta solicitud?*@
+            Aprobado solicitud. Espere...
+        </div>
+        @*<div class="notification__data">
+                <div class="form-group notification__col-1-1">
+                    <label class="notification__label" for="empresa">
+                        @SessionManager.GetText("ACC_Login_Form_Business")
+                    </label>
+                    <div class="notification__input">
+                        @solicitud.Empresa
+                    </div>
+                </div>
+                <div class="form-group notification__col-1-1">
+                    <label class="notification__label" for="cliente">
+                        @SessionManager.GetText("ACC_Login_Form_Client")
+                    </label>
+                    <div class="notification__input">
+                        @solicitud.Representante
+                    </div>
+                </div>
+                <div class="form-group notification__col-1-1">
+                    <label class="notification__label" for="rfc">
+                        @SessionManager.GetText("ACC_Login_Form_RFC")
+                    </label>
+                    <div class="notification__input">
+                        @solicitud.Rfc
+                    </div>
+                </div>
+                <div class="form-group notification__col-1-1">
+                    <a class="notification__label" for="website">
+                        @SessionManager.GetText("ACC_Login_Form_WebSite")
+                    </a>
+                    <div class="notification__input">
+                        @solicitud.SitioWeb
+                    </div>
+                </div>
+                <div class="form-group notification__col-1-1">
+                    <label class="notification__label" for="phone">
+                        @SessionManager.GetText("ACC_Pago_datos_Phone")
+                    </label>
+                    <div class="notification__input">
+                        @solicitud.Telefono
+                    </div>
+                </div>
+
+                <div class="notification__btn-container">
+                    <button class="btn notification__btn notification__btn--success" id="aprobarBoton">@SessionManager.GetText("ACC_EmailRequest_IAmSure")</button>
+                    <a class="btn notification__btn notification__btn--reject" href="@Url.Action("Index", "Home")">@SessionManager.GetText("ACC_EmailRequest_Cancelar")</a>
+
+                </div>
+            </div>*@
+    </div>
+</div>
+@Scripts.Render("~/bundles/Shared")
+@Scripts.Render("~/bundles/Toast")
+
+<script>
+
+    var exito = decode('@SessionManager.GetText("ACC_Toast_Success")');
+    var respuestaEnviada = decode('@SessionManager.GetText("ACC_Toast_AnswerSended")');
+    var respuestaNoEnviada = decode('@SessionManager.GetText("ACC_Toast_AnswerNotSended")');
+    var error = decode('@SessionManager.GetText("ACC_Error_Label")');
+    var algoSalioMal = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+
+    jQuery(function () {
+        aprobarAhora();
+    });
+
+ 
+	var aprobarAhora = function () {
+        var url = '@Url.Action("MandarMailAprobacion", "Home")';
+        var data = { email: '@solicitud.Email' };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: data,
+            success: function (data) {
+                if (data == "Enviado") {
+                    swal(exito, respuestaEnviada, "success")
+                        .then((confirm) => {
+                        if (confirm) {
+                            window.location.assign('@Url.Action("Index", "Home")');
+                        }
+                    });
+
+                } else {
+                    MandarToastError(error, algoSalioMal);
+                }
+
+            },
+            error: function (jqXHR, exception) {
+                MandarToastError(error, algoSalioMal);
+            }
+        });
+    };
+    </script>

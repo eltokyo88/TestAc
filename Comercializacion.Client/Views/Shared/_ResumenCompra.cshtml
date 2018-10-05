@@ -1,0 +1,79 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.DTO
+@using Comercializacion.Service.Model
+@model CarritoPartialDto
+
+@Html.Hidden("urlDeleteItem", Url.Action("ShowCarrito", "Home"))
+@{
+    List<ItemCarrito> listItems = (List<ItemCarrito>)ViewData["products"];
+}
+<h3 class="text-center">@SessionManager.GetText("ACC_Pago_datos_Resumen_Text") @*<span id="tipoCompraLabel">@SessionManager.GetText("ACC_Pago_datos_Resumen_Purchase")</span>*@ </h3>
+<div class="col-lg-6 center-block">
+    <div class="row" style="padding-top: 50px;">
+        <div class="pago-heading">
+            <a class="btn btn-formSucces btnPrevious pull-left" style="margin-bottom:10px;">@SessionManager.GetText("ACC_Pago_datos_btn_regresar")</a>
+            <a class="btn btn-formSucces btnFinalizar pull-right" style="margin-bottom:10px;">@SessionManager.GetText("ACC_Pago_ConfirmPurchase_Button")</a>
+        </div>
+    </div>
+    <table class="table color-bordered-table success-bordered-table">
+        <thead>
+            <tr>
+                <th>@SessionManager.GetText("ACC_Pago_datos_Resumen_Concepto")</th>
+                <th class="text-center">@SessionManager.GetText("ACC_Pago_datos_Resumen_Precio")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                double totalItems = 0;
+                string monet = String.Empty;
+            }
+            @foreach (var item in listItems)
+            {
+                totalItems += item.Cost;
+                <tr>
+                    <td>
+                        <h4>@item.NameElement</h4>
+                        @if (item.IsStand == true)
+                        {
+                            @item.Descripcion
+                            <h5>Medidas: @item.Size </h5>
+                            @*<span>Pasillos: </span><span class="text-success"><strong>F,Y</strong></span>*@
+                        }
+                    </td>
+                    <td class="text-center" id="celdaConfirmar-@item.IdElement"><strong id="concepto-@item.IdElement"><span id="conceptoPrecio-@item.IdElement">$ @String.Format("{0:n}", item.Cost) <span id="conceptoMoneda-@item.IdElement"> @item.Currency</span></span></strong> </td>
+                </tr>
+                monet = item.Currency;
+            }
+            <tr>
+                <td><h4>@SessionManager.GetText("ACC_Pago_Resumen_ModalidadPago")</h4></td>
+                <td class="text-center"><strong id="modalidadPagoLabel"></strong></td>
+            </tr>
+            <tr>
+                <td><h4>@SessionManager.GetText("ACC_Pago_Resumen_MetodoPago")</h4></td>
+                <td class="text-center"><strong id="metodoPagoLabel"></strong></td>
+            </tr>
+            <tr>
+                <td><h4>@SessionManager.GetText("ACC_Pago_Resumen_ProximoPago")</h4></td>
+                <td class="text-center"><strong id="proximoPagoLabel"></strong></td>
+            </tr>
+            <tr>
+                <td><h5>@SessionManager.GetText("ACC_Pago_datos_Resumen_Subtotal")</h5></td>
+                <td class="text-right"><strong id="subtotalConfirmar">$@String.Format("{0:n}", totalItems * 0.84) @monet</strong></td>
+            </tr>
+            <tr>
+                <td><h5>@SessionManager.GetText("ACC_Pago_datos_Resumen_IVA")</h5></td>
+                <td class="text-right"><strong id="ivaConfirmar">$@String.Format("{0:n}", totalItems * 0.16) @monet</strong></td>
+            </tr>
+            <tr>
+                <td>@SessionManager.GetText("ACC_Pago_datos_Resumen_total")</td>
+                <td class="text-right"><strong id="totalConfirmar">$@String.Format("{0:n}", totalItems) @monet</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="row">
+        <a class="btn btn-formSucces btnPrevious pull-left" >@SessionManager.GetText("ACC_Pago_datos_btn_regresar")</a>
+        <a class="btn btn-formSucces btnFinalizar pull-right" >@SessionManager.GetText("ACC_Pago_ConfirmPurchase_Button")</a>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/Shared")

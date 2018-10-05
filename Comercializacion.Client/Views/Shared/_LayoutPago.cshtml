@@ -1,0 +1,75 @@
+﻿@using Comercializacion.Client.Common
+@{
+    var showMenu = (bool)(ViewBag.ShowMenu ?? true);
+    var showPartner = (bool)(ViewBag.ShowPartner ?? true);
+    var bodyClass = (string)(ViewBag.BodyClass ?? string.Empty);
+}
+<!DOCTYPE html>
+
+<html style="background-color: #333333;">
+<head>
+    <meta http-equiv="content-type" content="text/html;" charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+
+    <!-----===* estilos *===----->
+
+    @Styles.Render("~/Content/Index")
+    @Styles.Render("~/Content/Fuentes")
+
+    @RenderSection("estilos", required: false)
+
+
+</head>
+<body class="@bodyClass">
+
+    <!--=========[ LOADER ]==========-->
+    <div class="loader__background loader__container_JS">
+        <div class="loader__container loader__container_JS">
+            <div class="loader"></div>
+        </div>
+        <div class="loader__container_JS">
+            <h4 class='loader__message'>
+                @SessionManager.GetText("ACC_Loader_Message")
+                <span class="loader__message-dot">.</span>
+                <span class="loader__message-dot">.</span>
+                <span class="loader__message-dot">.</span>
+            </h4>
+        </div>
+    </div>
+    <!--=========[ END LOADER ]==========-->
+
+    <!--=== .MENU.  ===-->
+    <div class="container-fluid">
+        <header>
+            <div id="logo"><a href="@Url.Action("Plano", "Exhibitor")"><img src="@SessionManager.logoEventoChiquitoURL" alt="Homepage"></a></div> @*"@SessionManager.UrlLogoEvento"*@
+            <div id="cd-hamburger-menu"><a class="cd-img-replace" href="#0">Menu</a></div>
+        </header>
+
+        @if (showMenu)
+        {
+            @Html.Partial("_MenuPrincipal")
+
+
+        }
+
+    </div>
+
+    @RenderBody()
+    @*<hr />*@
+
+    @if (showPartner)
+    {
+        @Html.Partial("_Footer")
+    }
+    else
+    {
+        <div class="container-fluid sp footer">
+            @Html.Partial("_OnlyFooter")
+        </div>
+    }
+    @Scripts.Render("~/bundles/Shared")
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

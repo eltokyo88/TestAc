@@ -1,0 +1,94 @@
+﻿@using Comercializacion.Service.Model
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var imgMapa = ViewBag.ImgPlace;
+    var imageHeight = (int)ViewBag.ImageHeight;
+    var imageWidth = (int)ViewBag.ImageWidth;
+    var listRecs = (List<Stand>)ViewBag.ListaStands;
+    var listconfig = (List<StandConfiguration>)ViewBag.listClass;
+    var listClassStyles = (List<ClassStyle>)ViewBag.ClassStyleData;
+    var eventData = (EventoComercial)ViewBag.EventoComercialData;
+
+    var colorDisponible = "";
+    var colorReservado = "";
+    var colorVendidos = "";
+    foreach (var estilo in listClassStyles)
+    {
+        if (estilo.ClassName == "standsVendidos")
+        {
+            colorVendidos = estilo.Color;
+        }
+        else if (estilo.ClassName == "standsReservados")
+        {
+            colorReservado = estilo.Color;
+        }
+        else if (estilo.ClassName == "standsDisponibles")
+        {
+            colorDisponible = estilo.Color;
+        }
+    }
+}
+
+@Styles.Render("~/Content/Index")
+@Styles.Render("~/Content/Plano")
+@Styles.Render("~/Content/Toast")
+@Styles.Render("~/Content/Mapplic")
+@*<link href="~/mapplic/mapplic.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />*@
+<div class="contSeccionMap map__container">
+    <!--.renglon-->
+    <div id="extDivMapa">
+        <div id="wrapMapa" class="block clear">
+            <img src="@imgMapa" id="imgSede" />
+            <svg id="svgOne" xmlns="http://www.w3.org/2000/svg" viewBox="@("0 0 " + imageWidth + " " + imageHeight)" data-eventoId="@eventData.EventIdRegistro" data-call-wPop="#configureStands">
+                <!--eventData.EventoComercialId-->
+                <!--<!--eventData.EventoComercialId-->-->
+
+                @foreach (var item in listRecs)
+                {
+                    var configData = listconfig.Where(ele => ele.StandId == item.StandId).SingleOrDefault();
+                    if (configData == null)
+                    {
+                        configData = listconfig.Where(ele => ele.ClassId == item.ClassId && (!ele.StandId.HasValue || ele.StandId.Value == 0)).SingleOrDefault();
+                    }
+
+                    var color = string.Empty;
+                    if (item.Status == 0)
+                    {
+                        color = "standDisponible";
+                    }
+                    else
+                    {
+                        color = @item.Color;
+                        
+                    }
+
+                    <rect id="@("stand_"+item.StandId)" class="@("stand "+color)" data-nombre="Stand @(item.StandIdFront)"
+                          data-idStand="@item.StandId" data-costo="@(configData==null?"SinDato":configData.Price.ToString())"
+                          data-descripcion="@(configData==null?string.Empty:configData.Description)"
+                          data-medidas="@(configData==null?"0x0":configData.Width+"x"+configData.Height)" data-iva="@(configData==null?false:configData.Iva.Value)"
+                          data-idCurrency="@item.CurrencyId" data-currency="@item.Currency" data-discountmoney="@item.DiscountMoney" data-discountpercentage="@item.DiscountPercentage"
+                          data-redemption="@item.Redemption" data-expirationdate="@item.ExpirationDate"
+                          x="@item.PositionX" y="@item.PositionY"
+                          width="@item.Width" height="@item.Height" data-isStand="true" 
+                          fill="@listClassStyles.Where(ele => ele.ClassId == item.ClassId).Single().Color " ondblclick="ConfigSpecificStand(this)" data-call-wPop="#configureStands" />
+                }
+
+
+            </svg>
+        </div>
+    </div>
+</div>
+@section scripts{}
+
+<script src="~/Scripts/jsMapa/hammer.min.js"></script>
+}
+<!-----===* fin contenidos *===----->
+@Scripts.Render("~/bundles/Shared")
+@Scripts.Render("~/bundles/Login")
+@Scripts.Render("~/bundles/Plano")
+@Scripts.Render("~/bundles/Toast")
+@Scripts.Render("~/bundles/Mapa")
+@Scripts.Render("~/bundles/Mapplic")
+
+

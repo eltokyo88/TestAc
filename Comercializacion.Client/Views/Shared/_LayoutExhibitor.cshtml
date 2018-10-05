@@ -1,0 +1,377 @@
+﻿@using Comercializacion.Client.Common
+@using Comercializacion.Service.Model
+@{
+    string idiomaId = (string)ViewData["languageId"];
+    List<ItemCarrito> itemCarrito = SessionManager.ListItemsCarrito;
+    string eventDateRange = (string)ViewData["eventDateRange"];
+    string venueSite = (string)ViewData["eventVenueCity"];
+    string eventName = (string)ViewData["eventName"];
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title></title>
+
+    @Styles.Render("~/Content/Shared")
+    @RenderSection("css", required: false)
+
+</head>
+<body>
+
+    <div id="wrapper" style="z-index:1;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top m-b-0">
+            <div class="navbar-header">
+                <a class="navbar-toggle hidden-sm hidden-md hidden-lg " href="javascript:void(0)" data-toggle="collapse" data-target=".navbar-collapse"><i class="ti-menu"></i></a>
+                <div class="top-left-part"><a class="logo" href="@Url.Action("Plano", "Exhibitor")"><b><img src="@SessionManager.logoEventoChiquitoURL" alt="Plataforma Comercial" class="dark-logo"></b><span class="hidden-xs"><img src="/Content/img/logoMax.png" alt="logo Plataforma Comercial" class="dark-logo"></span></a></div>
+                <ul class="nav navbar-top-links navbar-left hidden-xs">
+                    <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
+                    <ul class="nav navbar-top-links navbar-left">
+                        <li><a href="#" style="cursor:none; background-color:transparent !important;">Centro Interactivo de Expositores @SessionManager.EventoData.EventoNombre</a></li>
+                    </ul>
+
+                    <li>
+                        <div class="btn-group m-r-10" style="margin-top: 10px;">
+                            <!--<button aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-outline dropdown-toggle waves-effect waves-light" type="button" style="color: #fff; background-color: transparent !important;">
+                                Expo Minería
+                                <span class="caret"></span>
+                            </button>
+                            <!--<ul role="menu" class="dropdown-menu">
+                                <li class="active"><a href="#">Expo SMU</a></li>
+                                <li><a href="#">Expo Medicina</a></li>
+                            </ul>-->
+                            <select aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-outline dropdown-toggle waves-effect waves-light" type="button"
+                                    style="color: #fff; background-color: transparent !important; display:none;" id="selectEventosCliente"></select>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="nav navbar-top-links navbar-right pull-right">
+                    @*<li class="dropdown">
+                            <a class="dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#">
+                                <i class="fa fa-bell-o" aria-hidden="true"></i>
+                                <div class="notify"><span class="heartbit"></span><span class="point"></span></div>
+                            </a>
+                            <ul class="dropdown-menu mailbox animated bounceInDown">
+                                <li>
+                                    <a href="#">
+                                        <div>
+                                            <p> <strong>Solicitud 1</strong> <span class="pull-right text-muted">En revisión</span> </p>
+                                            <div class="progress progress-striped active">
+                                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%"> <span class="sr-only">40% Complete (success)</span> </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="#">
+                                        <div>
+                                            <p> <strong>Solicitud 2</strong> <span class="pull-right text-muted">Comprado</span> </p>
+                                            <div class="progress progress-striped active">
+                                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%"> <span class="sr-only">80% Complete (danger)</span> </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="message-center">
+                                        <a href="#">
+                                            <div class="user-img"> <img src="/Content/img/soporte.jpg" alt="user" class="img-circle"> <span class="profile-status online pull-right"></span> </div>
+                                            <div class="mail-contnet">
+                                                <h5>Soporte</h5>
+                                                <span class="mail-desc">Planea la logística pora tu stand!</span> <span class="time">9:30 AM</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li> <a class="text-center" href="javascript:void(0);"> <strong>Ver todo</strong> <i class="fa fa-angle-right"></i> </a> </li>
+                            </ul>
+                            <!-- /.dropdown-messages -->
+                        </li>*@
+
+                    <!-- /.dropdown -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#">
+                            <i class="ti-user"></i> <span class="caret"></span>
+                        </a>
+                        @Html.Partial("_MenuUsuario")
+                        <!-- /.dropdown-tasks -->
+                    </li>
+                    <!-- botón carrito-->
+                    @{
+                        decimal itemsTotales = 0;
+                        if (itemCarrito != null)
+                        {
+                            itemsTotales = itemCarrito.Count;
+                        }
+                    }
+                    <li class="right-side-toggle">
+                        <a class="waves-effect waves-light" href="javascript:void(0)">
+                            <span class="label cartProduct" id="itemsTotalCarritoNumber">@itemsTotales</span><i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- Left navbar-header -->
+        @Html.Partial("_MenuLateral")
+        @{
+            decimal total = 0;
+            string moneda = String.Empty;
+
+            if (itemCarrito != null)
+            {
+                foreach (var c in itemCarrito)
+                {
+                    total += Convert.ToDecimal(c.Cost);
+                    moneda = c.Currency;
+                }
+            }
+        }
+        <div class="barra-bottom-comprar" style="display: none;" id="barraPagar">
+            <a class="checkout-btn pagarCarrito"><div class="btn-pagar">Pagar</div></a>  @*href="@Url.Action("Pago", "Home")"*@
+            <!--onclick="return PagarFooter(this);"-->
+            <div class="total-pagar">@SessionManager.GetText("ACC_Compra_Total")<span id="carTotalNumber" class="carTotalNumber ">$<span id="totalCarrito" class="carTotalNumber totalCarrito">@String.Format("{0:n}", total) @moneda</span></span></div>
+        </div>
+        <!-- Left navbar-header end -->
+        <div id="page-wrapper" style="min-height: 718px;">
+            <div class="container-fluid">
+                <!-----=== TITULO DE SECCIÓN Y BREADCRUM ===----->
+                <div class="row bg-title">
+                    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+                        <h4 class="page-title">@ViewBag.Title</h4>
+                    </div>
+                    <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+
+                        
+                        <ol class="breadcrumb">
+                            <li>@eventName</li>
+                            <li>@eventDateRange</li>
+                            <li>@venueSite</li>
+                        </ol>
+
+                    </div>
+                </div>
+                <!-----=== FIN TITULO DE SECCIÓN Y BREADCRUM ===----->
+                @RenderBody()
+                <!-- carrito -->
+                <div class="right-sidebar">
+                    <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 100%;">
+                        <div class="slimscrollright" style="overflow: hidden; width: auto; height: 100%;">
+                            <div class="rpanel-title"> Tu carrito <span><i class="ti-close right-side-toggle"></i></span> </div>
+                            <div class="r-panel-body">
+                                <div id="cd-cart">
+                                    <ul class="cd-cart-items">
+                                        @if (itemCarrito != null)
+                                        {
+                                            foreach (var c in itemCarrito)
+                                            {
+                                                string standIs = "false";
+                                                if (c.IsStand)
+                                                {
+                                                    standIs = "true";
+                                                }
+
+                                                <li id="listand_@c.IdElement" data-id="@c.IdElement" class="elementosCarrito">
+                                                    <span class="cd-qty">@c.Size</span> @c.NameElement
+                                                    <div class="cd-price">$@String.Format("{0:n}", c.Cost) @c.Currency</div>
+
+
+
+                                                    <input type="hidden" name="products.Index" value="1" />
+                                                    <input type="hidden" name="products[1].IdElement" value="@c.IdElement" idStand=@c.IdElement />
+                                                    <input type="hidden" name="products[1].IsStand" value="@c.IsStand" isStand=@c.IsStand />
+                                                    <input type="hidden" name="products[1].Cost" value="@c.Cost" cost="@c.Cost" />
+                                                    <input type="hidden" name="products[1].NameElement" value="@c.NameElement" nameElement="@c.NameElement" />
+                                                    <input type="hidden" name="products[1].Descripcion" value="@c.Size" descripcion="@c.Size" />
+                                                    <input type="hidden" name="products[1].Iva" value="@c.Iva" iva="@c.Iva" />
+                                                    <input type="hidden" name="products[1].Currency" value="@c.Currency" currency="@c.Currency" />
+                                                    <input type="hidden" name="products[1].Size" value="@c.Size" size="@c.Size" />
+
+                                                    <a href="#" class="cd-item-remove cd-img-replace" onclick="return RemoveFromCarrito(@c.IdElement,@c.Cost,'@c.Currency',@standIs)"></a>
+                                                </li>
+
+                                            }
+                                        }
+                                    </ul>
+                                    <!-- cd-cart-items -->
+                                    <div class="cd-cart-total">
+                                        <p>Total $<span id="totalCarrito" class="carTotalNumber totalCarrito">@String.Format("{0:n}", total) </span></p>
+                                    </div>
+                                    <!-- cd-cart-total -->
+                                    <a class="checkout-btn pagarCarrito">Pagar</a> @*href="@Url.Action("Pago","Home")"*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slimScrollBar" style="background: rgb(220, 220, 220) none repeat scroll 0% 0%; width: 5px; position: absolute; top: 0px; opacity: 0.4; display: block; border-radius: 7px; z-index: 99; right: 1px;"></div>
+                        <div class="slimScrollRail" style="width: 5px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51) none repeat scroll 0% 0%; opacity: 0.2; z-index: 90; right: 1px;"></div>
+                    </div>
+                </div>
+                <!-- /.carrito -->
+
+
+            </div>
+            <!-- /.container-fluid -->
+
+
+            <div class="container-fluid sp footer">
+                @Html.Partial("_OnlyFooter")
+            </div>
+        </div>
+        <!-- /#page-wrapper -->
+    </div>
+
+
+    @Scripts.Render("~/bundles/Shared")
+    @Scripts.Render("~/bundles/Mapplic")
+    @Scripts.Render("~/bundles/Toast")
+
+    @RenderSection("scripts", required: false)
+    <script>
+        var itemShopping1 = new Array();
+        $(".pagarCarrito").click(function () {
+            showLoader();
+            var ulData = $("#cd-cart").find(".elementosCarrito");
+            var all = $("input");
+
+            $.each(ulData, function (i, data) {
+                if (ulData.length > 0) {
+                    itemShopping1.push({
+                        item: document.getElementsByName("products.Index")[i].value,
+                        IdElement: document.getElementsByName("products[1].IdElement")[i].value,
+                        IsStand: document.getElementsByName("products[1].IsStand")[i].value,
+                        Cost: document.getElementsByName("products[1].Cost")[i].value,
+                        NameElement: document.getElementsByName("products[1].NameElement")[i].value,
+                        Iva: document.getElementsByName("products[1].Cost")[i].value - (document.getElementsByName("products[1].Cost")[i].value / 1.16),
+                        Currency: document.getElementsByName("products[1].Currency")[i].value,
+                        Size: document.getElementsByName("products[1].Size")[i].value
+                    });
+                }
+            });
+
+
+            var url = '@Url.Action("PagoCarrito", "Home")';
+            var data = { products: itemShopping1 };
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                    var ruta = (window.location.href).toLocaleLowerCase();
+                    ruta = ruta.replace("/plano", "");
+                    ruta = ruta.replace("/missolicitudes", "");
+                    ruta = ruta.replace("/datosfacturacion", "");
+                    ruta = ruta.replace("/misfacturas", "");
+                    ruta = ruta.replace("/requerimientos", "");
+                    ruta = ruta.replace("/exhibitor", "/Home");
+
+                    if (ruta.includes("esp") || ruta.includes("eng")) {
+                        ruta = ruta.replace("/esp/", "/ESP/");
+                        ruta = ruta.replace("/eng/", "/ENG/");
+                    } else {
+                        ruta = ruta.concat("/" + '@idiomaId');
+                    }
+
+                    ruta = ruta.replace("#", "");
+
+                    ruta = ruta.concat("/Pago?pago=1");
+                    hideLoader();
+                    window.location.assign(ruta);
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, "Tu sesión ha caducado");
+                }
+            });
+
+
+        });
+
+        var IdE = '@SessionManager.EventoData.IdEvento';
+        var eventoActual = "";
+
+        var GetClientEvents = function () {
+            var url = '@Url.Action("GetEventClient", "Exhibitor")';
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    success: function (data) {
+
+                        if (data == "Expirado") {
+                            MandarToastInfo(errorTitle, "Tu sesión ha caducado");
+                        } else {
+                            var eventos = JSON.parse(data);
+
+                            $("#selectEventosCliente").html("");
+                            $.each(eventos, function (i, e) {
+
+                                var selected = "";
+                                if (IdE == e.EventId) {
+                                    selected = "selected";
+                                    eventoActual = e.EventKey;
+                                }
+                                $("#selectEventosCliente").append('<option style="color: #000000; background-color: transparent !important;" value="' + e.EventId + '" eventKey="' + e.EventKey + '" ' + selected + '>' + e.EventName + '</option>');
+                                selected = "";
+
+                            });
+                        }
+                    },
+                    error: function (jqXHR, exception) {
+                        MandarToastInfo(errorTitle, "Tu sesión ha caducado");
+                    }
+                });
+        }; GetClientEvents();
+
+        $("#selectEventosCliente").on('change', function () {
+            var keyEvento = $(this).attr("eventKey");
+            var ruta = (window.location.href).toLocaleLowerCase();
+            ruta = ruta.replace(eventoActual, keyEvento);
+            window.location.assign(ruta);
+        });
+        
+        var eliminarCarritoSession = function (idElement, isStand) {
+            var url = '@Url.Action("ShowCarrito", "Home")';
+            var data = { idDelete: idElement, isStand: isStand };
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                   
+                },
+                error: function (jqXHR, exception) {
+                    //MandarToastError(errorTitle, errorLabel);
+                }
+            });
+        };
+
+
+        var agregarAlCarritoSession = function (products) {
+
+            var url = '@Url.Action("PagoCarrito", "Home")';
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { products },
+                success: function (data) {
+
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, "Tu sesión ha caducado");
+                }
+            });
+        };
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+﻿@using Comercializacion.Client.Common
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container contSeccion">
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="mensaje">
+                <h1>
+                   @Html.Raw(SessionManager.GetText("ACC_PorQueExp_content"))
+                </h1>
+            </div>
+        </div>
+    </div>
+    </div>

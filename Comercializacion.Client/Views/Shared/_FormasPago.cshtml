@@ -1,0 +1,235 @@
+﻿@using Comercializacion.Client.Common
+<!--formulario y resumen de compra -->
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12"
+
+        <!------formulario----->
+        <form>
+            <div class="col-lg-10 sp">
+
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="form-group">
+                        <span class="instruccion"><span class="step">1</span>@SessionManager.GetText("ACC_Pago_datos_Tit_Formas") <a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@(string.Format(SessionManager.GetText("ACC_Pago_datos_text_Warning"), "COLOCAR PORCENTAJE"))</span></span></span></a></span>
+                        <select class="form-control selectPago">
+                            <option disabled="" value="0" selected="">---</option>
+                            <option>@SessionManager.GetText("ACC_Pago_mod_pago_One_payment")</option>
+                            <option>@SessionManager.GetText("ACC_Pago_mod_pago_parts")</option>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="tab-container">
+
+                        <span class="instruccion"><span class="step">2</span>@SessionManager.GetText("ACC_Pago_mod_payments_type")</span>
+                        <select class="form-control selectPago" id="select-box">
+                            <option disabled="" value="0" selected="">---</option>
+                            <option value="1">@SessionManager.GetText("ACC_Pago_mod_payments_type1")</option>
+                            <option value="2">@SessionManager.GetText("ACC_Pago_mod_payments_type2")</option>
+                            <option value="3">@SessionManager.GetText("ACC_Pago_mod_payments_type3")</option>
+                        </select>
+
+                        <div id="tab-0" class="tab-content-select">@SessionManager.GetText("ACC_Pago_mod_payments_type_err")</div>
+                        <div id="tab-1" class="tab-content-select">
+
+
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+
+                                <div class="form-group">
+                                    <span class="instruccion"><span class="step">3</span>@SessionManager.GetText("ACC_Pago_mod_payments_paid")<a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@(string.Format(SessionManager.GetText("ACC_Pago_datos_text_Warning"), "COLOCAR PORCENTAJE"))</span></span></span></a></span>
+                                    <input name="name" type="text" class="form-control" required>
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+                                <span class="instruccion"><span class="step">4</span>@SessionManager.GetText("ACC_Pago_mod_payments_upload_inst")<a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@SessionManager.GetText("ACC_Pago_mod_payments_upload_det")</span></span></span></a></span>
+                                <input type="file" id="input-file-now-custom-2" class="dropify" data-height="200" />
+                            </div>
+
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sp">
+
+                                <div class="checkbox checkbox-success">
+                                    <input id="checkbox33" type="checkbox">
+                                    <label for="checkbox33">@SessionManager.GetText("ACC_Pago_mod_payments_accept_termns0")<a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_mod_payments_accept_termns")</a></label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="tab-2" class="tab-content-select">
+                            <h3>@SessionManager.GetText("ACC_Pago_mod_payments_verify_data")</h3>
+
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">@SessionManager.GetText("ACC_Pago_mod_payments_RazonSoc")</label>
+                                    <input name="name" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">@SessionManager.GetText("ACC_Pago_mod_payments_RFC")</label>
+                                    <input name="name" type="text" class="form-control">
+                                </div>
+                            </div>
+
+                            @*<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Calle:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Número:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Colonia:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">C.P.</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Delegación:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Ciudad:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Estado:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Pais:</label>
+                                        <input name="name" type="text" class="form-control">
+                                    </div>
+                                </div>*@
+
+
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="checkbox checkbox-success">
+                                    <input id="checkbox33" type="checkbox">
+                                    <label for="checkbox33">@SessionManager.GetText("ACC_Pago_mod_payments_accept_termns0")<a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_mod_payments_accept_termns")</a></label>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="tab-3" class="tab-content-select">
+
+                            <div class="col-lg-12 sp">
+                                <div class="row">
+                                    <div class="col-md-12 sp">
+                                        <span class="instruccion"><span class="step">3</span>@SessionManager.GetText("ACC_Pago_mod_payment_card_inst")</span>
+                                        <br />
+                                        <div class="form-group">
+                                            <label>@SessionManager.GetText("ACC_Pago_mod_payment_card_Name")</label>
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="col-md-12 sp">
+                                            <label class="horizontal"><span>@SessionManager.GetText("ACC_Pago_mod_payment_card_Number")</span></label>
+                                        </div>
+                                        <div class="col-xs-3 spLeft">
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-3 spRight">
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+
+                                    <div class="col-xs-4 col-md-4 spLeft checkout__col-1-3">
+                                        <div class="form-group">
+                                            <label>@SessionManager.GetText("ACC_Pago_mod_payment_card_year")</label>
+                                            @Html.DropDownList("Year", new SelectList(Enumerable.Range(DateTime.Now.Year, 15)), new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-md-4 checkout__col-1-3">
+                                        <div class="form-group">
+                                            <label>@SessionManager.GetText("ACC_Pago_mod_payment_card_Month")</label>
+                                            <select class="form-control">
+                                                <option disabled="" selected=""></option>
+                                                <option value="01">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_01")</option>
+                                                <option value="02">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_02")</option>
+                                                <option value="03">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_03")</option>
+                                                <option value="04">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_04")</option>
+                                                <option value="05">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_05")</option>
+                                                <option value="06">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_06")</option>
+                                                <option value="07">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_07")</option>
+                                                <option value="08">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_08")</option>
+                                                <option value="09">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_09")</option>
+                                                <option value="10">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_10")</option>
+                                                <option value="11">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_11")</option>
+                                                <option value="12">@SessionManager.GetText("ACC_Pago_mod_payment_card_Mo_12")</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-md-4 spRight checkout__col-1-3">
+                                        <div class="form-group">
+                                            <label>@SessionManager.GetText("ACC_Pago_mod_payment_card_Cvv")<a class="mytooltip" href="javascript:void(0)"> ? <span class="tooltip-content5"><span class="tooltip-text3"><span class="tooltip-inner2">@SessionManager.GetText("ACC_Pago_mod_payment_card_Cvv_inst")</span></span></span></a></label>
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="checkbox33" type="checkbox">
+                                        <label for="checkbox33">@SessionManager.GetText("ACC_Pago_mod_payments_accept_termns0")<a href="#" data-toggle="modal" data-target="#myModal">@SessionManager.GetText("ACC_Pago_mod_payments_accept_termns")</a></label>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!------ fin formulario ------>
+    </div>
+
+    <!--resumen de compra-->
+    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 sp">
+        @Html.Partial("_DatosCuenta")
+
+        <div id="divPagos" class="divPagos">
+            @{Html.RenderAction("ShowCarrito", "Home");}
+        </div>
+    </div>
+    <!--fin resumen de compra-->
+</div>
+<!--fin formulario y resumen de compra-->

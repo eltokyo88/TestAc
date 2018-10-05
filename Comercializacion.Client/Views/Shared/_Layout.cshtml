@@ -1,0 +1,53 @@
+﻿@{
+    var showMenu = (bool)(ViewBag.ShowMenu ?? true);
+    var showPartner = (bool)(ViewBag.ShowPartner ?? true);
+    var bodyClass = (string)(ViewBag.BodyClass ?? string.Empty);
+}
+<!DOCTYPE html>
+
+<html style="background-color: #333333;">
+<head>
+    <meta http-equiv="content-type" content="text/html;" charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+
+    <!-----===* estilos *===----->
+
+    @Styles.Render("~/Content/Index")
+    @Styles.Render("~/Content/Fuentes")
+
+    @RenderSection("estilos", required: false)
+
+
+</head>
+<body class="@bodyClass">
+    <!--=== .MENU.  ===-->
+    <div class="container-fluid">
+        @Html.Partial("_HeaderContent")
+        @if (showMenu)
+        {
+            @Html.Partial("_MenuPrincipal")
+
+
+        }
+
+    </div>
+
+    @RenderBody()
+    @*<hr />*@
+
+    @if (showPartner)
+    {
+        @Html.Partial("_Footer")
+    }
+    else
+    {
+        <div class="container-fluid sp footer">
+            @Html.Partial("_OnlyFooter")
+        </div>
+    }
+    @Scripts.Render("~/bundles/Shared")
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,360 @@
+﻿@using Comercializacion.Service.Model
+@using Comercializacion.Client.Common
+@{
+    ViewBag.Title = "DatosFacturacion";
+    Layout = "~/Views/Shared/_LayoutExhibitor.cshtml";
+}
+@{
+    List<FiscalData> datos = (List<FiscalData>)ViewData["datosFacturacion"];
+    string datosJson = (string)ViewData["datosFacturacionJson"];
+    List<CatalogoPais> paises = (List<CatalogoPais>)ViewData["catalogoPais"];
+}   
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="white-box">
+            <!-- <h3 class="box-title m-b-0">Mi cuenta</h3>-->
+
+            <form>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert" id="panelAlertDatos" role="alert" style="display:none;">
+                            <p id="alertPagosText"></p>
+                        </div>
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_Direccion"):</label>
+                        <select class="form-control" id="direccionFacturacionSelect">
+                            <option value="0">@SessionManager.GetText("ACC_DatosFacturacion_NewAddress")</option>
+                            @{int c = 1;}
+                            @foreach (var d in datos)
+                            {
+                                <option value="@c" fiscalDataId="@d.FiscalDataId">@d.Identifier</option>
+                                c++;
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="identificadorPanel">
+                    <div class="form-group" id="identifierDiv">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_AddressIdentifier"):</label>
+                        <input name="name" type="text" class="form-control" id="identificador">
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="form-group" id="razonSocialForm">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_RazonSocial"):</label>
+                        <input name="name" type="text" class="form-control" id="razonSocial">
+                    </div>
+                    <div class="form-group" id="rfcForm">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_RFC"):</label>
+                        <input name="name" type="text" class="form-control" id="rfc">
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_Street"):</label>
+                        <input name="name" type="text" class="form-control" id="calle">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_Number"):</label>
+                        <input name="name" type="text" class="form-control" id="numero">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_Colonia"):</label>
+                        <input name="name" type="text" class="form-control" id="colonia">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_CP")</label>
+                        <input name="name" type="text" class="form-control" id="cp" maxlength="5" min="0" max="10000">
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_Delegacion"):</label>
+                        <input name="name" type="text" class="form-control" id="delegacion">
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_City"):</label>
+                        <input name="name" type="text" class="form-control" id="ciudad">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_DatosFacturacion_Estado"):</label>
+                        <input name="name" type="text" class="form-control" id="estado">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label">@SessionManager.GetText("ACC_Pago_Pais"):</label>
+                        <select class="form-control" id="pais">
+                            @{string PaisId = ""; }
+                            @foreach (var pais in paises)
+                            {
+                                if (pais.PaisDefault == 1)
+                                {
+                                    PaisId = pais.PaisId;
+                                    <option value="@pais.PaisId" selected>@pais.PaisNombre</option>
+                                }
+                                else
+                                {
+                                    <option value="@pais.PaisId">@pais.PaisNombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group m-b-0">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <a class="btn btn-formSucces pull-right" id="actualizarFacturacion" style="display: none;">@SessionManager.GetText("ACC_DatosFacturacion_UpdateButton")</a>
+                    </div>
+                </div>
+
+                <div class="form-group m-b-0">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <a class="btn btn-formSucces pull-right" id="guardarFacturacion">@SessionManager.GetText("ACC_DatosFacturacion_SaveButton")</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+<script type="text/javascript">
+    /*------------------------------------------------*/
+    /*------------ LABELS DE IDIOMA ------------------*/
+    /*------------------------------------------------*/
+
+    var completarCampos = decode('@SessionManager.GetText("ACC_DatosFacturacion_CompletarCampos")');
+    var errorTitle = decode('@SessionManager.GetText("ACC_Error_Label")');
+    var errorLabel = decode('@SessionManager.GetText("ACC_Error_Wrong_Label")');
+    var exito = decode('@SessionManager.GetText("ACC_Toast_Success")');
+    var sesionExpirada = decode('@SessionManager.GetText("ACC_Session_ExpiredMessage")');
+    var direccionActualizada = decode('@SessionManager.GetText("ACC_DatosFacturacion_SuccessUpdate")');
+
+    var datosJson = JSON.parse('@Html.Raw(datosJson)');
+
+    $("#direccionFacturacionSelect").change(function () {
+
+            $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+            $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+            $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+
+            ocultarAlerta($("#panelAlertDatos"));
+
+            var dir = $("#direccionFacturacionSelect option:selected").val();
+
+            if (dir == 0) {
+                var paisId = '@PaisId';
+
+                $("#guardarFacturacion").show();
+                $("#actualizarFacturacion").hide();
+                $("#identificadorPanel").show();
+
+                $("#razonSocial").val("");
+                $("#rfc").val("");
+                $("#calle").val("");
+                $("#numero").val("");
+                $("#colonia").val("");
+                $("#cp").val("");
+                $("#delegacion").val("");
+                $("#ciudad").val("");
+                $("#estado").val("");
+                $("#pais").val(paisId);
+                $("#identificador").val("");
+
+
+            } else {
+                var i = dir-1;
+
+                $("#guardarFacturacion").hide();
+                $("#actualizarFacturacion").show();
+                $("#identificadorPanel").hide();
+
+                $("#razonSocial").val(datosJson[i].RazonSocial);
+                $("#rfc").val(datosJson[i].Rfc);
+                $("#calle").val(datosJson[i].Calle);
+                $("#numero").val(datosJson[i].NoExterior);
+                $("#colonia").val(datosJson[i].Colonia);
+                $("#cp").val(datosJson[i].CodigoPostal);
+                $("#delegacion").val(datosJson[i].Municipio);
+                $("#ciudad").val(datosJson[i].Ciudad);
+                $("#estado").val(datosJson[i].Estado);
+                $("#pais").val(datosJson[i].Pais);
+            }
+        });
+
+        $("#guardarFacturacion").click(function () {
+
+            var razon = $("#razonSocial").val();
+            var rfc = $("#rfc").val();
+            var calle = $("#calle").val();
+            var numero = $("#numero").val();
+            var colonia = $("#colonia").val();
+            var cp = $("#cp").val();
+            var delegacion = $("#delegacion").val();
+            var ciudad = $("#ciudad").val();
+            var estado = $("#estado").val();
+            var pais = $("#pais option:selected").val();
+            var identifier = $("#identificador").val();
+            var direccion = $("#direccionFacturacionSelect option:selected").val();
+
+            if (razon == "" || rfc == "") {//|| calle == "" || numero == "" || colonia == "" || cp == "" || delegacion == "" || ciudad == "" || estado == "" || pais == "" || identificador == ""
+                if (razon == "") {
+                    $("#razonSocialForm").addClass('has-error').addClass("has-feedback");
+                } else {
+                    $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                if (rfc == "") {
+                    $("#rfcForm").addClass('has-error').addClass("has-feedback");
+                } else {
+                    $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                if (direccion == 0) {
+                    if (identifier == "") {
+                        $("#identifierDiv").addClass('has-error').addClass("has-feedback");
+                    } else {
+                        $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+                    }
+                } else {
+                    $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                mandarAlerta($("#panelAlertDatos"), "alert-danger", completarCampos);
+            } else {
+
+                if (cp.length > 4) {
+                    cp = cp.slice(0, 5);
+                }
+
+                $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+                $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+                ocultarAlerta($("#panelAlertDatos"));
+
+                if (identifier == 0) {
+                    if (direccion == "") {
+                        $("#identifierDiv").addClass('has-error').addClass("has-feedback");
+                    } else {
+                        $("#identifierDiv").removeClass('has-error').removeClass("has-feedback");
+                        guardarFacturacion(factura, 0);
+                    }
+                } else {
+                    var fiscalData = { Rfc: rfc, RazonSocial: razon, Calle: calle, NoExterior: numero, CodigoPostal: cp, Ciudad: ciudad, Colonia: colonia, Municipio: delegacion, Estado: estado, Pais: pais, Identifier: identificador };
+                    guardarFacturacion(fiscalData);
+                }
+            }
+
+        });
+
+        var guardarFacturacion = function (fiscalData) {
+            var url = '@Url.Action("SaveNewFiscalData", "Exhibitor")';
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: fiscalData,
+                success: function (data) {
+                    if (data > 0) {
+                        swal({
+                            title: exito,
+                            text: direccionActualizada,
+                            icon: "success"
+                        })
+                        .then((willDelete) => {
+                            location.reload();
+                        });
+
+                    } else {
+                        MandarToastInfo(errorTitle, sesionExpirada);
+                    }
+
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, sesionExpirada);
+                }
+            });
+        };
+
+        $("#actualizarFacturacion").click(function () {
+            var razon = $("#razonSocial").val();
+            var rfc = $("#rfc").val();
+            var calle = $("#calle").val();
+            var numero = $("#numero").val();
+            var colonia = $("#colonia").val();
+            var cp = $("#cp").val();
+            var delegacion = $("#delegacion").val();
+            var ciudad = $("#ciudad").val();
+            var estado = $("#estado").val();
+            var pais = $("#pais option:selected").val();
+            var identificador = $("#identificador").val();
+            var fiscalDataId = $("#direccionFacturacionSelect option:selected").attr("fiscalDataId");
+
+            if (razon == "" || rfc == "") {//|| calle == "" || numero == "" || colonia == "" || cp == "" || delegacion == "" || ciudad == "" || estado == "" || pais == ""
+                if (razon == "") {
+                    $("#razonSocialForm").addClass('has-error').addClass("has-feedback");
+                } else {
+                    $("#razonSocialForm").removeClass('has-error').removeClass("has-feedback");
+                }
+                if (rfc == "") {
+                    $("#rfcForm").addClass('has-error').addClass("has-feedback");
+                } else {
+                    $("#rfcForm").removeClass('has-error').removeClass("has-feedback");
+                }
+
+                mandarAlerta($("#panelAlertDatos"), "alert-danger", completarCampos);
+            } else {
+                if (cp.length > 4) {
+                    cp = cp.slice(0, 5);
+                }
+                ocultarAlerta($("#panelAlertDatos"));
+                var fiscalData = { Rfc: rfc, RazonSocial: razon, Calle: calle, NoExterior: numero, CodigoPostal: cp, Ciudad: ciudad, Colonia: colonia, Municipio: delegacion, Estado: estado, Pais: pais, FiscalDataId: fiscalDataId };
+                actualizarFacturacion(fiscalData);
+            }
+
+        });
+
+        var actualizarFacturacion = function (fiscalData) {
+            var url = '@Url.Action("UpdateFiscalData", "Exhibitor")';
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: fiscalData,
+                success: function (data) {
+                    if (data > 0) {
+                        swal({
+                            title: exito,
+                            text: direccionActualizada,
+                            icon: "success"
+                        })
+                        .then((willDelete) => {
+                            location.reload();
+                        });
+
+                    } else {
+                        MandarToastInfo(errorTitle, sesionExpirada);
+                    }
+
+                },
+                error: function (jqXHR, exception) {
+                    MandarToastInfo(errorTitle, sesionExpirada);
+                }
+            });
+        };
+</script>
+}
