@@ -34,7 +34,8 @@ namespace Comercializacion.Client
             ));
 
             bundles.Add(new StyleBundle("~/Content/Pago").Include(
-                "~/Content/dropify/dropify.min.css"
+                "~/Content/dropify/dropify.min.css",
+                "~/Content/pago.css"      
             ));
 
             bundles.Add(new StyleBundle("~/Content/Plano").Include(

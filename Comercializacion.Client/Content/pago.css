@@ -1,0 +1,33 @@
+﻿.counter-payment {
+    float: left;
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    font-size: 14px;
+    -ms-display: flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #04adf7;
+    margin-right: -5px;
+}
+
+.icocounter-payment {
+    font-size: 20px;
+    margin-bottom: 4px;
+    margin-right: 5px;
+    color: #04adf7;
+    margin-left : 30px;
+}
+
+.m-s-cp {
+    padding: 0 5px;
+    float: left;
+    width: 100px;
+}
+
+.pagoTimer {
+    float: left;
+    width: auto;
+    height: auto;
+}

@@ -257,41 +257,8 @@
             });
 
 
-            var url = '@Url.Action("PagoCarrito", "Home")';
-            var data = { products: itemShopping1 };
-
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: data,
-                success: function (data) {
-                    var ruta = (window.location.href).toLocaleLowerCase();
-                    ruta = ruta.replace("/plano", "");
-                    ruta = ruta.replace("/missolicitudes", "");
-                    ruta = ruta.replace("/datosfacturacion", "");
-                    ruta = ruta.replace("/misfacturas", "");
-                    ruta = ruta.replace("/requerimientos", "");
-                    ruta = ruta.replace("/exhibitor", "/Home");
-
-                    if (ruta.includes("esp") || ruta.includes("eng")) {
-                        ruta = ruta.replace("/esp/", "/ESP/");
-                        ruta = ruta.replace("/eng/", "/ENG/");
-                    } else {
-                        ruta = ruta.concat("/" + '@idiomaId');
-                    }
-
-                    ruta = ruta.replace("#", "");
-
-                    ruta = ruta.concat("/Pago?pago=1");
-                    hideLoader();
-                    window.location.assign(ruta);
-                },
-                error: function (jqXHR, exception) {
-                    MandarToastInfo(errorTitle, "Tu sesión ha caducado");
-                }
-            });
-
-
+            document.location = "@Url.Action("Pago","Home")";
+            return false;
         });
 
         var IdE = '@SessionManager.EventoData.IdEvento';
@@ -356,7 +323,7 @@
 
         var agregarAlCarritoSession = function (products) {
 
-            var url = '@Url.Action("PagoCarrito", "Home")';
+            var url = '@Url.Action("AgregarCarritoEnSession", "Home")';
 
             $.ajax({
                 type: "POST",
